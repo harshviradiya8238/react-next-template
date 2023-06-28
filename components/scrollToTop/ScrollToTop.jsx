@@ -12,15 +12,15 @@ const ScrollToTop = () => {
     });
   });
 
-  useEffect(() => {
-    window.addEventListener("scroll", () => {
-      if (window.scrollY > 200) {
-        scrollTop.current.classList.add("active");
-      } else {
-        scrollTop.current.classList.remove("active");
-      }
-    });
-  }, []);
+  // useEffect(() => {
+  //   window.addEventListener("scroll", () => {
+  //     if (window.scrollY > 200) {
+  //       scrollTop.current.classList.add("active");
+  //     } else {
+  //       scrollTop?.current.classList.remove("active");
+  //     }
+  //   });
+  // }, []);
 
   return (
     <Link href="#gotoTop" className="scrollToTop" ref={scrollTop}>

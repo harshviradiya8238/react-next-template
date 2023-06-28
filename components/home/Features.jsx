@@ -8,7 +8,7 @@ import sheled from "/public/images/icon/sheled.png";
 const Features = () => {
   return (
     <>
-      <section className="features-section">
+      {/* <section className="features-section">
         <div className="overlay pt-120">
           <div className="container wow fadeInUp">
             <div className="row">
@@ -51,7 +51,7 @@ const Features = () => {
             </div>
           </div>
         </div>
-      </section>
+      </section> */}
 
       <section className="features-section second">
         <div className="overlay pt-120 pb-120">
@@ -67,7 +67,7 @@ const Features = () => {
                   <span className="head-icon d-flex justify-content-center align-items-center">
                     <Image src={sheled} alt="icon" />
                   </span>
-                  <h5 className="sub-title">Safe Investments</h5>
+                  <h3 className="sub-title">Why choose Us</h3>
                   <h2 className="title">The Better Way to Save & Invest</h2>
                   <p>
                     Bankio helps over 2 million customers achieve their

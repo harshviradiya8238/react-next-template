@@ -3,6 +3,9 @@ import Link from "next/link";
 import show_hide from "/public/images/icon/show-hide.png";
 
 const LoginForm = () => {
+  const handleLogin = () => {
+    <Link href="https://loan-dashboard.netlify.app/#"></Link>;
+  };
   return (
     <section className="sign-in-up login">
       <div className="overlay pt-120 pb-120">
@@ -58,7 +61,9 @@ const LoginForm = () => {
                     </div>
                   </div>
                   <div className="btn-area">
-                    <button className="cmn-btn">Login</button>
+                    <button className="cmn-btn">
+                      <Link href="/userDashBoard">Login</Link>
+                    </button>
                   </div>
                 </form>
               </div>

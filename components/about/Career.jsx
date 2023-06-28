@@ -10,8 +10,8 @@ const Career = () => {
           <div className="row justify-content-center">
             <div className="col-xl-9 col-lg-10">
               <div className="section-header text-center">
-                <h5 className="sub-title">Current Positions</h5>
-                <h2 className="title">Unlock Your Career at Bankio</h2>
+                <h3 className="sub-title">Our Services</h3>
+                {/* <h2 className="title">Unlock Your Career at Bankio</h2> */}
                 <p>
                   Grow with us and take your professional life to the next
                   level.
@@ -23,14 +23,14 @@ const Career = () => {
           {/* Current Positions */}
           <div className="row mb-60">
             {career_data.map((career, i) => (
-              <div key={career.id} className="col-lg-6 col-md-6">
+              <div key={career.id} className="col-lg-3 col-md-3">
                 {/* Career Card  */}
                 <CareerCard career={career} />
               </div>
             ))}
           </div>
 
-          <div className="row justify-content-center">
+          {/* <div className="row justify-content-center">
             <div className="col-lg-8">
               <div className="bottom-item">
                 <h3 className="title">Can´t find the perfect position?</h3>
@@ -44,7 +44,7 @@ const Career = () => {
                 </Link>
               </div>
             </div>
-          </div>
+          </div> */}
         </div>
       </div>
     </section>

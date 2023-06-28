@@ -1,3 +1,6 @@
+import Career from "../components/about/Career";
+import OurServices from "../components/account/BusinessSolutions";
+import OpenAccount from "../components/account/OpenAccount";
 import CallToAction from "../components/callToAction/CallToAction";
 import Planning from "../components/common/Planning";
 import Faq from "../components/faq/Faq";
@@ -9,21 +12,27 @@ import HomeBanner from "../components/home/HomeBanner";
 import LatestArticles from "../components/home/LatestArticles";
 import Personalized from "../components/home/Personalized";
 import Testimonials from "../components/home/Testimonials";
+import Ready from "../components/ready/Ready";
 
 export default function Home() {
   return (
     <>
       <HomeBanner />
+
       <Features />
+
       <BusinessSolutions />
-      <AppInfo />
-      <BankioCard />
-      <CallToAction />
-      <Planning />
-      <Personalized />
-      <Testimonials />
+      <OurServices />
+      {/* <Career /> */}
+      <Ready />
+      {/* <BankioCard /> */}
+      {/* <CallToAction /> */}
+      {/* <Planning /> */}
+      {/* <Personalized />   */}
+      {/* <Testimonials />  */}
       <LatestArticles />
-      <Faq />
+      <AppInfo />
+      {/* <Faq /> */}
     </>
   );
 }

@@ -68,6 +68,20 @@ export const business_solutions_data = [
     desc: "Take charge of your business banking with a business bank account. Services including virtual cards, team management and more.",
     link: "/register",
   },
+  // {
+  //   id: 4,
+  //   title: "Business Account",
+  //   icon: savings,
+  //   desc: "Take charge of your business banking with a business bank account. Services including virtual cards, team management and more.",
+  //   link: "/register",
+  // },
+  // {
+  //   id: 5,
+  //   title: "Business Account",
+  //   icon: savings,
+  //   desc: "Take charge of your business banking with a business bank account. Services including virtual cards, team management and more.",
+  //   link: "/register",
+  // },
 ];
 
 export const articles_data = [

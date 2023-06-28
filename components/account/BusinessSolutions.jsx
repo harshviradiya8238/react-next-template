@@ -1,7 +1,7 @@
 import BusinessSolutionsCard from "../cards/BusinessSolutionsCard";
 import { business_solutions_data } from "./accountData";
 
-const BusinessSolutions = () => {
+const OurServices = () => {
   return (
     <section className="solutions-business account">
       <div className="overlay pt-120 pb-120">
@@ -33,4 +33,4 @@ const BusinessSolutions = () => {
   );
 };
 
-export default BusinessSolutions;
+export default OurServices;

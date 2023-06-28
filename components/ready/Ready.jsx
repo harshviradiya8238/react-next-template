@@ -5,7 +5,7 @@ import get_start from "/public/images/get-start.png";
 const Ready = () => {
   return (
     <section className="get-start wow fadeInUp">
-      <div className="overlay">
+      <div className="overlay pt-60 pb-120">
         <div className="container">
           <div className="col-12">
             <div className="get-content">

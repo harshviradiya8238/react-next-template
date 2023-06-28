@@ -9,13 +9,13 @@ import Team from "../components/team/Team";
 export default function About() {
   return (
     <>
-      <Banner />
-      <Hero />
-      <CoreValues />
-      <GlobalBanking />
-      <OurJourney />
-      <Team />
-      <Career />
+      {/* <Banner /> */}
+      {/* <Hero /> */}
+      {/* <CoreValues /> */}
+      {/* <GlobalBanking /> */}
+      {/* <OurJourney /> */}
+      {/* <Team /> */}
+      {/* <Career /> */}
     </>
   );
 }

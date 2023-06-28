@@ -6,30 +6,30 @@ export const career_data = [
   {
     id: 1,
     position: "Management",
-    title: "Office Manager",
+    title: "Home Loan",
     desc: "Proin sed eros ac libero auctor egestas. Duis maximus imperdiet ultricies. Donec finibus diam risus",
-    link: "/career-single",
+    link: "/register",
   },
   {
     id: 2,
     position: "Developer",
-    title: "Senior Backend Developer",
+    title: "Personal Loan",
     desc: "Proin sed eros ac libero auctor egestas. Duis maximus imperdiet ultricies. Donec finibus diam risus",
-    link: "/career-single",
+    link: "/register",
   },
   {
     id: 3,
     position: "Developer",
-    title: "Jr Frontend Developer",
+    title: "Car Loan",
     desc: "Proin sed eros ac libero auctor egestas. Duis maximus imperdiet ultricies. Donec finibus diam risus",
-    link: "/career-single",
+    link: "/register",
   },
   {
     id: 4,
     position: "Design",
-    title: "UI/UX and Product Designer",
+    title: "Education Loan",
     desc: "Proin sed eros ac libero auctor egestas. Duis maximus imperdiet ultricies. Donec finibus diam risus",
-    link: "/career-single",
+    link: "/register",
   },
 ];
 

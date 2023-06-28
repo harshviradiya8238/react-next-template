@@ -1,14 +1,17 @@
-import "bootstrap/dist/css/bootstrap.min.css"
-import Head from "next/head"
-import { useEffect } from "react"
-import Layout from "../components/layout"
-import "../styles/globals.scss"
-import { wrapper } from "../store"
+import "bootstrap/dist/css/bootstrap.min.css";
+import Head from "next/head";
+import { useEffect } from "react";
+import Layout from "../components/layout";
+import "../styles/globals.scss";
+import "@fortawesome/fontawesome-free/css/all.min.css";
+
+import { wrapper } from "../store";
 
 function App({ Component, pageProps }) {
+  console.log(Component, pageProps);
   useEffect(() => {
-    require("bootstrap/dist/js/bootstrap.bundle.min.js")
-  }, [])
+    require("bootstrap/dist/js/bootstrap.bundle.min.js");
+  }, []);
 
   if (Component.getLayout) {
     return Component.getLayout(
@@ -20,7 +23,7 @@ function App({ Component, pageProps }) {
         </Head>
         <Component {...pageProps} />
       </>
-    )
+    );
   }
 
   return (
@@ -34,7 +37,7 @@ function App({ Component, pageProps }) {
         <Component {...pageProps} />
       </Layout>
     </>
-  )
+  );
 }
 
-export default wrapper.withRedux(App)
+export default wrapper.withRedux(App);

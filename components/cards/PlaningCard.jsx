@@ -10,7 +10,7 @@ const PlaningCard = ({ singlePlanning }) => {
         <Image src={icon1} alt="icon" className="active" />
         <Image src={icon2} alt="icon" className="alt" />
       </div>
-      <Link href="/home-loan">
+      <Link href="/register">
         <h5>{title}</h5>
       </Link>
       <ul className="list">

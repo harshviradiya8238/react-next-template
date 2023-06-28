@@ -1,12 +1,18 @@
 import Link from "next/link";
 import Partners from "./Partners";
+import JourneyCarousel from "../carousel/JourneyCarousel";
+import HomePageCarousel from "../carousel/HomePageCarousal.jsx";
 
 const HomeBanner = () => {
   return (
     <section className="banner-section">
-      <div className="overlay">
+      <div style={{ marginTop: "110px" }}>
+        <HomePageCarousel />
+      </div>
+      {/* <div className="overlay">
         <div className="banner-content d-flex align-items-center">
           <div className="container">
+
             <div className="row justify-content-start">
               <div className="col-lg-7 col-md-10">
                 <div className="main-content">
@@ -31,10 +37,10 @@ const HomeBanner = () => {
             </div>
           </div>
         </div>
-      </div>
+      </div> */}
 
       {/* Partners slider here */}
-      <Partners />
+      {/* <Partners /> */}
     </section>
   );
 };

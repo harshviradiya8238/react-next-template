@@ -9,21 +9,21 @@ import account_feature_3 from "/public/images/icon/account-feature-3.png";
 export const business_solutions_data = [
   {
     id: 1,
-    title: "Checking Account",
+    title: "Home Loan",
     icon: checking,
     desc: "Choose from our checking options that allow you to earn interest, avoid fees, and easily manage your account.",
     link: "/register",
   },
   {
     id: 2,
-    title: "Savings Accounts",
+    title: "Personal Loan",
     icon: savings,
     desc: "Save for your goals and watch your money grow with a CD, a money market account, a savings account.Your future starts now.",
     link: "/register",
   },
   {
     id: 3,
-    title: "Business Account",
+    title: "Car Loan",
     icon: business,
     desc: "Take charge of your business banking with a business bank account. Services including virtual cards, team management and more.",
     link: "/register",
