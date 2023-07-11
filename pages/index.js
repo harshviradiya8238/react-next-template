@@ -21,10 +21,10 @@ export default function Home() {
 
       <Features />
 
-      <BusinessSolutions />
       <OurServices />
       {/* <Career /> */}
       <Ready />
+      <BusinessSolutions />
       {/* <BankioCard /> */}
       {/* <CallToAction /> */}
       {/* <Planning /> */}

@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 export default function DashBoardDefault() {
   return (
     <>
@@ -17,7 +19,7 @@ export default function DashBoardDefault() {
                 <div class="img-box ">
                   <img src="/images/loan-approval.png" alt="" />
                 </div>
-                <h3>Total Approve Loan</h3>
+                <h3>Total Approved Loan</h3>
                 <p class="text-end">03</p>
               </div>
 
@@ -80,7 +82,17 @@ export default function DashBoardDefault() {
                         <span class="all-btn Pending-btn">Pending</span>
                       </td>
                       <td>
-                        <i class="fa-regular fa-eye"></i>
+                        <Link
+                          href="/userDashBoard/viewLoan"
+                          className="cmn-btn"
+                          style={{
+                            background: "none",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <i class="fa-regular fa-eye" />
+                        </Link>
                       </td>
                     </tr>
 
@@ -93,7 +105,17 @@ export default function DashBoardDefault() {
                         <span class="all-btn Accepted-btn">Accepted</span>{" "}
                       </td>
                       <td>
-                        <i class="fa-regular fa-eye"></i>
+                        <Link
+                          href="/userDashBoard/viewLoan"
+                          className="cmn-btn"
+                          style={{
+                            background: "none",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <i class="fa-regular fa-eye" />
+                        </Link>
                       </td>
                     </tr>
                     <tr>
@@ -105,7 +127,17 @@ export default function DashBoardDefault() {
                         <span class="all-btn Process-btn"> Process</span>{" "}
                       </td>
                       <td>
-                        <i class="fa-regular fa-eye"></i>
+                        <Link
+                          href="/userDashBoard/viewLoan"
+                          className="cmn-btn"
+                          style={{
+                            background: "none",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <i class="fa-regular fa-eye" />
+                        </Link>
                       </td>
                     </tr>
 
@@ -118,7 +150,17 @@ export default function DashBoardDefault() {
                         <span class="all-btn Approved-btn">Approved</span>{" "}
                       </td>
                       <td>
-                        <i class="fa-regular fa-eye"></i>
+                        <Link
+                          href="/userDashBoard/viewLoan"
+                          className="cmn-btn"
+                          style={{
+                            background: "none",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <i class="fa-regular fa-eye" />
+                        </Link>
                       </td>
                     </tr>
                     <tr>
@@ -130,7 +172,17 @@ export default function DashBoardDefault() {
                         <span class="all-btn Rejected-btn">Rejected </span>{" "}
                       </td>
                       <td>
-                        <i class="fa-regular fa-eye"></i>
+                        <Link
+                          href="/userDashBoard/viewLoan"
+                          className="cmn-btn"
+                          style={{
+                            background: "none",
+                            padding: "0",
+                            border: "none",
+                          }}
+                        >
+                          <i class="fa-regular fa-eye" />
+                        </Link>
                       </td>
                     </tr>
                   </tbody>

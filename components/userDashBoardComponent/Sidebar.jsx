@@ -41,6 +41,19 @@ function Sidebar() {
               <span class="text">Dashboard</span>
             </Link>
           </li>
+
+          <li
+            className={` ${
+              pathname.includes("loanApplication") ? "active" : ""
+            }`}
+          >
+            <Link href="/userDashBoard/loanApplication">
+              <i class="fa-solid fa-plus"></i>
+              <span class="text">New Loan Request</span>
+            </Link>
+            <a href="#" class="link-box"></a>
+          </li>
+
           <li
           // className={` ${activeItem === "myloan" ? "active" : ""}`}
           // onClick={() => handleItemClick("myloan")}
@@ -94,7 +107,7 @@ function Sidebar() {
           <li className={` ${pathname.includes("earn") ? "active" : ""}`}>
             <Link href="/userDashBoard/earn">
               <i class="fa-solid fa-gift"></i>
-              <span class="text">Earn</span>
+              <span class="text">Referrals</span>
             </Link>
           </li>
           <li className={` ${pathname.includes("profile") ? "active" : ""}`}>
@@ -103,7 +116,7 @@ function Sidebar() {
               <span class="text">Profile</span>
             </Link>
           </li>
-          <li
+          {/* <li
             className={` ${
               pathname.includes("loanApplication") ? "active" : ""
             }`}
@@ -113,7 +126,7 @@ function Sidebar() {
               <span class="text">New Loan Request</span>
             </Link>
             <a href="#" class="link-box"></a>
-          </li>
+          </li> */}
         </ul>
       </div>
     </>

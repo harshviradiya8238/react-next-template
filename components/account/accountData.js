@@ -11,22 +11,22 @@ export const business_solutions_data = [
     id: 1,
     title: "Home Loan",
     icon: checking,
-    desc: "Choose from our checking options that allow you to earn interest, avoid fees, and easily manage your account.",
-    link: "/register",
+    desc: "Choose from our checking options that allow you to earn interest, avoid fees, and easily manage your account and make dream come true.",
+    link: "/loanapplication",
   },
   {
     id: 2,
     title: "Personal Loan",
     icon: savings,
     desc: "Save for your goals and watch your money grow with a CD, a money market account, a savings account.Your future starts now.",
-    link: "/register",
+    link: "/loanapplication",
   },
   {
     id: 3,
     title: "Car Loan",
     icon: business,
     desc: "Take charge of your business banking with a business bank account. Services including virtual cards, team management and more.",
-    link: "/register",
+    link: "/loanapplication",
   },
 ];
 

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import React from "react";
 
 function PendingLoan() {
@@ -32,7 +33,9 @@ function PendingLoan() {
                 <tr>
                   <th>Sr No.</th>
                   <th>Application Number</th>
-                  <th>Bank/NBFC</th>
+                  <th>Application Date</th>
+                  <th>Status</th>
+                  <th>Loan Type</th>
                   <th>Amount (₹)</th>
                   <th>View</th>
                 </tr>
@@ -41,32 +44,78 @@ function PendingLoan() {
                 <tr>
                   <td>1</td>
                   <td> vfok65c9 </td>
-                  <td>HDFC</td>
+                  <td>20 Apr,2023</td>
+
+                  <td>
+                    {" "}
+                    <span class="all-btn Pending-btn">IN PROCESS</span>
+                  </td>
+
+                  <td>Business Loan</td>
                   <td>₹ 500000.00</td>
 
                   <td>
-                    <i class="fa-regular fa-eye"></i>
+                    <Link
+                      href="/userDashBoard/viewLoan"
+                      className="cmn-btn"
+                      style={{
+                        background: "none",
+                        padding: "0",
+                        border: "none",
+                      }}
+                    >
+                      <i class="fa-regular fa-eye" />
+                    </Link>
                   </td>
                 </tr>
 
                 <tr>
                   <td>2</td>
                   <td>vfok65c10</td>
-                  <td>Bajaj</td>
+                  <td>20 Apr,2023</td>
+                  <td>
+                    <span class="all-btn Process-btn">QUERY</span>{" "}
+                  </td>
+
+                  <td>Car Loan</td>
                   <td>₹ 400000.00</td>
 
                   <td>
-                    <i class="fa-regular fa-eye"></i>
+                    <Link
+                      href="/userDashBoard/viewLoan"
+                      className="cmn-btn"
+                      style={{
+                        background: "none",
+                        padding: "0",
+                        border: "none",
+                      }}
+                    >
+                      <i class="fa-regular fa-eye" />
+                    </Link>
                   </td>
                 </tr>
                 <tr>
                   <td>3</td>
                   <td>vfok65c10</td>
-                  <td>HDFC</td>
+                  <td>20 Apr,2023</td>
+                  <td>
+                    <span class="all-btn Accepted-btn">RESUBMITTED</span>
+                  </td>
+                  <td>Personal Loan</td>
                   <td>₹ 300000.00</td>
 
                   <td>
-                    <i class="fa-regular fa-eye"></i>
+                    <Link
+                      href="/userDashBoard/viewLoan"
+                      className="cmn-btn"
+                      style={{
+                        background: "none",
+                        padding: "0",
+                        border: "none",
+                      }}
+                    >
+                      <i class="fa-regular fa-eye" />
+                    </Link>
                   </td>
                 </tr>
               </tbody>

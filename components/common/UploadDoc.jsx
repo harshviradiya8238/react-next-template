@@ -58,7 +58,7 @@
 //           </div>
 
 //           <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-//             <h4> GST certi or MSME</h4>
+//             <h4> GST Certificate  </h4>
 
 //             <div class="input-box">
 //               <input type="file" class="upload-box" name="files[]" multiple />
@@ -149,7 +149,6 @@ function UploadDoc() {
         <div class="row">
           <div class="my-5 col-lg-6 col-md-6 col-sm-12">
             <h4>Business proof</h4>
-
             <div class="input-box ">
               <input
                 type="file"
@@ -178,7 +177,7 @@ function UploadDoc() {
           </div>
 
           <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-            <h4> GST certi or MSME</h4>
+            <h4> GST Certificate </h4>
 
             <div class="input-box">
               <input type="file" class="upload-box" name="files[]" multiple />
@@ -209,14 +208,6 @@ function UploadDoc() {
               <i class="fa-solid fa-xmark"></i>
             </div>
           </div>
-
-          {/* <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-            <h4>Car quotation</h4>
-            <div class="input-box">
-              <input type="file" class="upload-box" name="files[]" multiple />
-              <i class="fa-solid fa-xmark"></i>
-            </div>
-          </div> */}
 
           <div class="my-5 col-lg-6 col-md-6 col-sm-12">
             <h4>2 year ITR</h4>

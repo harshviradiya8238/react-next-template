@@ -30,7 +30,7 @@ const LoanForm = () => {
         {/* <div className="col-6">
           <div className="single-input">
             <label htmlFor="state">State</label>
-            <input type="text" id="state" placeholder="California" required />
+            <input type="text" id="state" placeholder="Gujarat" required />
           </div>
         </div> */}
       </div>

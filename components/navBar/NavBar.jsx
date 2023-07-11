@@ -37,9 +37,9 @@ const NavBar = () => {
         <div className="container">
           <div className="row d-flex header-area">
             <nav className="navbar navbar-expand-lg navbar-light">
-              <Link className="navbar-brand" href="/" onClick={hidenMenu}>
+              {/* <Link className="navbar-brand" href="/" onClick={hidenMenu}>
                 <Image src={Logo} className="logo" alt="logo" />
-              </Link>
+              </Link> */}
               <button
                 className="navbar-toggler collapsed"
                 type="button"
@@ -124,7 +124,7 @@ const NavBar = () => {
                 </ul>
                 <div className="right-area header-action d-flex align-items-center">
                   <Link href="/login" className="cmn-btn" onClick={hidenMenu}>
-                    Open Account
+                    Login
                   </Link>
                 </div>
               </div>

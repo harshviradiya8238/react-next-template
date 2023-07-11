@@ -30,9 +30,9 @@ const ShortNavbar = () => {
         <div className="container">
           <div className="row d-flex header-area">
             <nav className="navbar d-flex justify-content-between navbar-expand-lg navbar-dark">
-              <Link className="navbar-brand" href="/">
+              {/* <Link className="navbar-brand" href="/">
                 <Image src={logo} className="logo" alt="logo" />
-              </Link>
+              </Link> */}
               <div className="d-flex align-items-center justify-content-end">
                 <ul className="navbar-nav">
                   <li className="nav-item">Don&#39;t have an account</li>

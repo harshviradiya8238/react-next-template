@@ -25,7 +25,7 @@ const EducationLoanForm = () => {
         <div className="col-6">
           <div className="single-input">
             <label htmlFor="state">State</label>
-            <input type="text" id="state" placeholder="California" />
+            <input type="text" id="state" placeholder="Gujarat" />
           </div>
         </div>
       </div>

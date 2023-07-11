@@ -13,7 +13,7 @@ function Earn() {
                 id="myInput"
                 value="https://developer.android.com/training/app-links"
               />
-              <i class="bx bx-copy" onclick="myCopyText()"></i>
+              <i class="fa-solid fa-copy" style={{ cursor: "pointer" }}></i>
             </div>
           </div>
           <div class="icon-section">

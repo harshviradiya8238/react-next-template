@@ -26,7 +26,7 @@ const LoginForm = () => {
                   <div className="row">
                     <div className="col-12">
                       <div className="single-input">
-                        <label htmlFor="email">Enter Your Email ID</label>
+                        <label htmlFor="email">Email Id or Mobile</label>
                         <input
                           type={"email"}
                           id="email"
@@ -37,7 +37,7 @@ const LoginForm = () => {
                     </div>
                     <div className="col-12">
                       <div className="single-input ">
-                        <label htmlFor="confirmPass">Confirm Password</label>
+                        <label htmlFor="confirmPass"> Password</label>
                         <div className="password-show d-flex align-items-center">
                           <input
                             type={"password"}

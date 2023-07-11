@@ -10,12 +10,12 @@ const OurServices = () => {
             <div className="col-lg-12">
               <div className="section-header text-center">
                 <h5 className="sub-title">
-                  Open your account from anywhere in the world
+                  Apply Loan from anywhere in the world
                 </h5>
-                <h2 className="title">Solutions for Every Business Need.</h2>
+                <h2 className="title">Solutions for Every Business Need</h2>
                 <p>
                   Power up your business with a full-stack online bank account
-                  that fits your needs.
+                  that fits your needs
                 </p>
               </div>
             </div>

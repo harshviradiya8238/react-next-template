@@ -19,6 +19,7 @@
     "eslint": "8.30.0",
     "eslint-config-next": "13.1.1",
     "font-awesome": "^4.7.0",
+    "formik": "^2.4.2",
     "next": "13.1.1",
     "next-redux-wrapper": "^8.1.0",
     "react": "18.2.0",
@@ -33,6 +34,7 @@
     "redux-devtools-extension": "^2.13.9",
     "redux-thunk": "^2.4.2",
     "sass": "^1.57.1",
-    "slick-carousel": "^1.8.1"
+    "slick-carousel": "^1.8.1",
+    "yup": "^1.2.0"
   }
 }

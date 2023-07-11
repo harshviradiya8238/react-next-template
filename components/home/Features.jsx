@@ -73,7 +73,7 @@ const Features = () => {
                     Bankio helps over 2 million customers achieve their
                     financial goals by helping them save and invest with ease.
                     Put that extra cash to use without putting it at risk with
-                    Bankio.
+                    Bankio
                   </p>
                   <ul className="list">
                     <li className="list-item d-flex align-items-center">

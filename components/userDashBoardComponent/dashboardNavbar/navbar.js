@@ -27,14 +27,14 @@ function Navbar() {
                     <div class="user-icon">
                       <img src="/images/user.png" alt="" />{" "}
                     </div>{" "}
-                    Mr.Persons Name
+                    User
                   </div>
                   <ul class="dropdown-menu ">
-                    <li>
+                    {/* <li>
                       <a class="dropdown-item" href="Profile.html">
                         View profile
                       </a>
-                    </li>
+                    </li> */}
                     <li onClick={() => setShowLogout(true)}>
                       <a class="dropdown-item" href="#">
                         Logout

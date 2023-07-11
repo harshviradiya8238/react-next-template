@@ -5,12 +5,7 @@ const ContactForm = () => {
         <div className="col-6">
           <div className="single-input">
             <label htmlFor="name">Name</label>
-            <input
-              type="text"
-              id="name"
-              placeholder="What's your name?"
-              required
-            />
+            <input type="text" id="name" placeholder="John Test" required />
           </div>
         </div>
         <div className="col-6">
@@ -19,7 +14,7 @@ const ContactForm = () => {
             <input
               type="text"
               id="email"
-              placeholder="What's your email?"
+              placeholder="abc@gmail.com"
               required
             />
           </div>
@@ -43,7 +38,7 @@ const ContactForm = () => {
             <input
               type="text"
               id="loan"
-              placeholder="Ex. Auto Loan, Home Loan"
+              placeholder="Personal Loan, Home Loan"
               required
             />
           </div>

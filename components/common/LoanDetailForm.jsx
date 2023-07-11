@@ -36,15 +36,15 @@ function LoanDetailForm() {
         <div className="col-6">
           <div className="single-input">
             <label htmlFor="state">State</label>
-            <input type="text" id="state" placeholder="California" required />
+            <input type="text" id="state" placeholder="Gujarat" required />
           </div>
         </div>
       </div>
       <div className="row">
         <div className="col-6">
           <div className="single-input">
-            <label htmlFor="term">Loan term</label>
-            <input type="text" id="term" placeholder="Ex. 12 months" />
+            <label htmlFor="term">Loan Tenure</label>
+            <input type="text" id="term" placeholder="12 months" />
           </div>
         </div>
       </div>
