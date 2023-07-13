@@ -19,7 +19,7 @@ function ApprovedLoan() {
                     </div>
                     <input
                       class="input"
-                      placeholder="Search for product"
+                      placeholder="Search"
                       required=""
                       type="text"
                     />

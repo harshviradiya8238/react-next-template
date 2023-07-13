@@ -58,7 +58,7 @@ export default function DashBoardDefault() {
 
             <div class="loan-section-table">
               <h3 class="text-head">
-                <span> Latest Application </span>
+                <span> Loan Application status </span>
               </h3>
               <div class="table-responsive">
                 <table class="table align-td-middle table-card">
@@ -124,7 +124,7 @@ export default function DashBoardDefault() {
                       <td>HDFC</td>
                       <td>₹ 300000.00</td>
                       <td>
-                        <span class="all-btn Process-btn"> Process</span>{" "}
+                        <span class="all-btn Process-btn"> In progress</span>{" "}
                       </td>
                       <td>
                         <Link
@@ -188,9 +188,9 @@ export default function DashBoardDefault() {
                   </tbody>
                 </table>
               </div>
-              <div class="btn-section-dashbard">
+              {/* <div class="btn-section-dashbard">
                 <button class="view-btn-dashbard">View More</button>
-              </div>
+              </div> */}
             </div>
           </div>
         </div>

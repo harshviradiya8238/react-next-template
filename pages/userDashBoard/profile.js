@@ -1,6 +1,23 @@
-import React from "react";
+import React, { useMemo } from "react";
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
+import { useState } from "react";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+// import { CountryDropdown, CountrySelect } from "react-select-country-flag";
+import Select from "react-select";
+import countryList from "react-select-country-list";
 
 function Profile() {
+  const [phoneValue, setPhoneValue] = useState();
+  const [startDate, setStartDate] = useState(new Date());
+  const [value, setValue] = useState("");
+  const options = useMemo(() => countryList().getData(), []);
+
+  const changeHandler = (value) => {
+    setValue(value);
+  };
+
   const handleChange = () => {};
   const handleKycOnchange = () => {};
 
@@ -18,7 +35,7 @@ function Profile() {
             aria-controls="nav-profile"
             aria-selected="true"
           >
-            Profile Details
+            Basic Details
           </div>
           <div
             class="nav-link"
@@ -76,55 +93,50 @@ function Profile() {
               </div>
 
               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-                <label for="phone">Phone Number</label>
-                <input
-                  type="number"
-                  id="phone"
-                  placeholder="+91 9898989898"
-                  name="phone"
-                  onChange={handleChange}
-                  // value="9237781246"
-                  required
+                <label for="phone">Contact No</label>
+                <PhoneInput
+                  style={{
+                    borderLeft: "1px solid #eef1ff",
+                    borderTop: "1px solid #eef1ff",
+                    borderBottom: "1px solid #eef1ff",
+                  }}
+                  international
+                  defaultCountry="IN"
+                  placeholder="+91 9999999999"
+                  value={phoneValue}
+                  onChange={setPhoneValue}
                 />
               </div>
               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
                 <label for="bdate">Birthday Date</label>
-                <input
-                  type="date"
-                  id="bdate"
-                  name="begin"
-                  placeholder="06-08-2002"
-                  // value="06-08-2002"
-
-                  min="1997-01-01"
-                  onChange={handleChange}
-                  max="2030-12-31"
+                <DatePicker
+                  selected={startDate}
+                  onChange={(date) => setStartDate(date)}
                 />
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-2 col-md-4 col-sm-12 m-basics d-flex justify-content-center align-items-center">
-                <h4>Address:</h4>
-              </div>
-              <div class="col-lg-5 col-md-4 col-sm-12 m-basics">
+              <div class="col-lg-12 col-md-6 col-sm-12 m-basics">
                 <label for="address"> Address Line 1 :</label>
-                <textarea
+                <input
                   id="address"
                   placeholder="A-301 Santosa Heights"
                   name="address"
                   rows="1"
                   onChange={handleChange}
-                ></textarea>
+                ></input>
               </div>
-              <div class="col-lg-5 col-md-4 col-sm-12 m-basics">
+            </div>
+            <div className="row">
+              <div class="col-lg-12 col-md-6 col-sm-12 m-basics">
                 <label for="address-2"> Address Line 2 :</label>
-                <textarea
+                <input
                   id="address-2"
                   name="address-2"
                   placeholder="near Royal Farm,satellite"
                   rows="1"
                   onChange={handleChange}
-                ></textarea>
+                ></input>
               </div>
             </div>
 
@@ -168,15 +180,13 @@ function Profile() {
               </div>
               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
                 <label for="phone">Country:</label>
-                <input
-                  type="text"
-                  id="country"
-                  placeholder="India"
-                  name="country"
-                  onChange={handleChange}
-                  // value="9237781246"
-                  required
-                />
+                <div className="countrySelect">
+                  <Select
+                    options={options}
+                    value={value}
+                    onChange={changeHandler}
+                  />
+                </div>
               </div>
             </div>
 
@@ -205,7 +215,7 @@ function Profile() {
                     onChange={handleKycOnchange}
                     multiple
                   />
-                  <i class="fa-solid fa-xmark"></i>
+                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
               </div>
 
@@ -219,7 +229,7 @@ function Profile() {
                     onChange={handleKycOnchange}
                     multiple
                   />
-                  <i class="fa-solid fa-xmark"></i>
+                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
               </div>
 
@@ -233,7 +243,7 @@ function Profile() {
                     name="files[]"
                     multiple
                   />
-                  <i class="fa-solid fa-xmark"></i>
+                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
               </div>
             </div>

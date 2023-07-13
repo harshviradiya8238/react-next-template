@@ -10,14 +10,14 @@ const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
-    phone: Yup.string().required("Phone Number is required"),
+    phone: Yup.string().required("Contact No is required"),
     state: Yup.string().required("State is required"),
   }),
   step2: Yup.object().shape({
     pan: Yup.string().required("pan is required"),
     loanType: Yup.string().required("LoanType is required"),
     loanAmount: Yup.string().required("LoanAmount is required"),
-    loanTerm: Yup.string().required("LoanTerm is required"),
+    loanTerm: Yup.string().required("LoanTenure is required"),
   }),
   step3: Yup.object().shape({
     businessProof: Yup.string().required("Address is required"),
@@ -92,10 +92,16 @@ function LoanApplication() {
   };
 
   const [selectedOption, setSelectedOption] = useState("business");
+  const [selectedPurpose, setSelectedPurpose] = useState("education");
+
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
   };
 
+  const handleOptionChangePurpose = (e) => {
+    setSelectedPurpose(e.target.value);
+    // setSelectedPurpose(e.target.value);
+  };
   const [documentFields, setDocumentFields] = useState([]);
 
   const addDynamicField = () => {
@@ -326,10 +332,10 @@ function LoanApplication() {
                                 <div className="row">
                                   <div className="col-6">
                                     <div className="single-input">
-                                      <label>Loan Amount</label>
+                                      <label>Loan Amount (INR)</label>
                                       <Field
                                         type="text"
-                                        placeholder="Loan Amount"
+                                        placeholder="Loan Amount (INR)"
                                         name="step2.loanAmount"
                                       />
                                       <ErrorMessage
@@ -370,13 +376,31 @@ function LoanApplication() {
                                       <Field
                                         type="text"
                                         name="step2.loanTerm"
-                                        placeholder="12 months"
+                                        placeholder="1 Year"
                                       />
                                       <ErrorMessage
                                         name="step2.loanTerm"
                                         component="div"
                                         style={{ color: "red" }}
                                       />
+                                    </div>
+                                  </div>
+
+                                  <div className="col-6">
+                                    <div className="single-input">
+                                      <label>Purpose Of Loan</label>
+                                      <select
+                                        className="selectDrop form-select"
+                                        aria-label="Default select example"
+                                        name="step2.loanType"
+                                        value={selectedPurpose}
+                                        onChange={handleOptionChangePurpose}
+                                      >
+                                        <option value="education" selected>
+                                          Education
+                                        </option>
+                                        <option value="home">Home</option>
+                                      </select>
                                     </div>
                                   </div>
                                 </div>

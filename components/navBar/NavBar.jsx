@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { FaBars } from "react-icons/fa";
 import { navData } from "./navData";
 import Logo from "/public/images/logo.png";
+// import { Button } from "bootstrap";
 
 const NavBar = () => {
   const [windowHeight, setWindowHeight] = useState(0);

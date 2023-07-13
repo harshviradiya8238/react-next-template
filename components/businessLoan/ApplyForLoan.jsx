@@ -126,6 +126,10 @@ import React, { useState, useRef } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Stepper from "react-stepper-horizontal";
+import "react-phone-number-input/style.css";
+import PhoneInput from "react-phone-number-input";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -134,14 +138,14 @@ const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
-    phone: Yup.string().required("Phone Number is required"),
+    phone: Yup.string().required("Contact No is required"),
     state: Yup.string().required("State is required"),
   }),
   step2: Yup.object().shape({
     pan: Yup.string().required("pan is required"),
     loanType: Yup.string().required("LoanType is required"),
     loanAmount: Yup.string().required("LoanAmount is required"),
-    loanTerm: Yup.string().required("LoanTerm is required"),
+    loanTerm: Yup.string().required("LoanTenure is required"),
   }),
   step3: Yup.object().shape({
     businessProof: Yup.string().required("Address is required"),
@@ -175,6 +179,8 @@ function ApplyForLoan() {
   const [docFiles, setdocFiles] = useState([]);
   const [sendOtp, setVerifyOtp] = useState(false);
   const [eligiblity, setEligiblity] = useState(false);
+  const [phoneValue, setPhoneValue] = useState();
+  const [startDate, setStartDate] = useState(new Date());
 
   const aRef = useRef(null);
   const handlePanFileChange = (event) => {
@@ -216,8 +222,15 @@ function ApplyForLoan() {
   };
 
   const [selectedOption, setSelectedOption] = useState("business");
+  const [selectedPurpose, setSelectedPurpose] = useState("education");
+
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
+    // setSelectedPurpose(e.target.value);
+  };
+  const handleOptionChangePurpose = (e) => {
+    setSelectedPurpose(e.target.value);
+    // setSelectedPurpose(e.target.value);
   };
 
   const [documentFields, setDocumentFields] = useState([]);
@@ -388,7 +401,7 @@ function ApplyForLoan() {
                                       <Field
                                         type="text"
                                         name="step1.name"
-                                        placeholder="Name"
+                                        placeholder="John Test"
                                       />
                                       <ErrorMessage
                                         name="step1.name"
@@ -403,7 +416,7 @@ function ApplyForLoan() {
                                       <Field
                                         type="email"
                                         name="step1.email"
-                                        placeholder="Email"
+                                        placeholder="johntest@gmail.com"
                                       />
                                       <ErrorMessage
                                         name="step1.email"
@@ -412,42 +425,57 @@ function ApplyForLoan() {
                                       />
                                     </div>
                                   </div>
-                                  <div className="row">
-                                    <div className="col-6">
-                                      <div className="single-input">
-                                        <label>Phone:</label>
-                                        <Field
+
+                                  <div className="col-6">
+                                    <div className="single-input">
+                                      <label>Contact No:</label>
+                                      {/* <Field
                                           name="step1.phone"
                                           placeholder="+91 9999999999"
-                                        />
-                                        <ErrorMessage
-                                          name="step1.phone"
-                                          component="div"
-                                          style={{ color: "red" }}
-                                        />
-                                      </div>
+                                        /> */}
+
+                                      <PhoneInput
+                                        international
+                                        defaultCountry="IN"
+                                        placeholder="+91 9999999999"
+                                        value={phoneValue}
+                                        onChange={setPhoneValue}
+                                      />
+                                      <ErrorMessage
+                                        name="step1.phone"
+                                        component="div"
+                                        style={{ color: "red" }}
+                                      />
                                     </div>
+                                  </div>
 
-                                    <div className="col-6">
-                                      <div className="single-input">
-                                        <label>State</label>
-
-                                        <Field
+                                  <div className="col-6">
+                                    <div className="single-input">
+                                      <label>Date Of Birth</label>
+                                      <DatePicker
+                                        selected={startDate}
+                                        onChange={(date) => setStartDate(date)}
+                                      />
+                                      {/* <Field
                                           type="text"
                                           name="step1.state"
                                           placeholder="Gujarat"
-                                        />
-                                        <ErrorMessage
-                                          name="step1.state"
-                                          component="div"
-                                          style={{ color: "red" }}
-                                        />
-                                      </div>
+                                        /> */}
+                                      <ErrorMessage
+                                        name="step1.state"
+                                        component="div"
+                                        style={{ color: "red" }}
+                                      />
                                     </div>
                                   </div>
                                 </div>
                                 <div>
-                                  <button onClick={handleSendOtp}>Next</button>
+                                  <button
+                                    className="cmn-btn"
+                                    onClick={handleSendOtp}
+                                  >
+                                    Next
+                                  </button>
                                 </div>
                               </>
                             )}
@@ -663,13 +691,31 @@ function ApplyForLoan() {
                                       <Field
                                         type="text"
                                         name="step2.loanTerm"
-                                        placeholder="12 months"
+                                        placeholder="1 Year"
                                       />
                                       <ErrorMessage
                                         name="step2.loanTerm"
                                         component="div"
                                         style={{ color: "red" }}
                                       />
+                                    </div>
+                                  </div>
+
+                                  <div className="col-6">
+                                    <div className="single-input">
+                                      <label>Purpose Of Loan</label>
+                                      <select
+                                        className="selectDrop form-select"
+                                        aria-label="Default select example"
+                                        name="step2.loanType"
+                                        value={selectedPurpose}
+                                        onChange={handleOptionChangePurpose}
+                                      >
+                                        <option value="education" selected>
+                                          Education
+                                        </option>
+                                        <option value="home">Home</option>
+                                      </select>
                                     </div>
                                   </div>
                                 </div>

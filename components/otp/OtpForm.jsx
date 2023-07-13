@@ -12,7 +12,7 @@ const OtpForm = () => {
               <div className="form-content">
                 <div className="section-header">
                   <h5 className="sub-title">Give yourself the Bankio Edge</h5>
-                  <h2 className="title">Varified Your Phone Number</h2>
+                  <h2 className="title">Varified Your Contact No</h2>
                   <p>
                     A 6 digit One Time Password (OTP) has been sent to your
                     given email address which will expire in 15 minutes, after

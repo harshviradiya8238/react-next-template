@@ -127,7 +127,7 @@ function ViewLoan() {
                   />
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="phone">Phone Number</label>
+                  <label for="phone">Contact No</label>
                   <input
                     type="number"
                     id="phone"
@@ -173,8 +173,15 @@ function ViewLoan() {
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
                   <div class="single-input">
-                    <label for="name">Loan Type</label>
-                    <select
+                    <label>Loan Type</label>
+                    <input
+                      // type="number"
+                      // id="Loan-Amount"
+                      name="BusinessLoan"
+                      value="BusinessLoan"
+                      disabled
+                    />
+                    {/* <select
                       class="selectDrop form-select"
                       aria-label="Default select example"
 
@@ -184,7 +191,7 @@ function ViewLoan() {
                       <option value="1">Personal Loan</option>
                       <option value="2">Home Loan</option>
                       <option value="3">Car Loan</option>
-                    </select>
+                    </select> */}
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
@@ -193,17 +200,17 @@ function ViewLoan() {
                     <input
                       type="text"
                       id="term"
-                      placeholder=" 12 months"
+                      placeholder="1 Year"
                       disabled
                     />
                   </div>
                 </div>
               </div>
 
-              <div class="btn-section">
+              {/* <div class="btn-section">
                 <button class="profile-btn me-3">Edit</button>
                 <button class="profile-btn">Save</button>
-              </div>
+              </div> */}
             </form>
           </div>
 
@@ -273,7 +280,7 @@ function ViewLoan() {
                       name="files[]"
                       multiple
                     />
-                    <i class="fa-solid fa-xmark"></i>
+                    {/* <i class="fa-solid fa-xmark"></i> */}
                   </div>
                 </div>
 
@@ -312,7 +319,7 @@ function ViewLoan() {
                       name="files[]"
                       multiple
                     />
-                    <i class="fa-solid fa-xmark"></i>
+                    {/* <i class="fa-solid fa-xmark"></i> */}
                   </div>
                 </div>
 
@@ -325,7 +332,7 @@ function ViewLoan() {
                       name="files[]"
                       multiple
                     />
-                    <i class="fa-solid fa-xmark"></i>
+                    {/* <i class="fa-solid fa-xmark"></i> */}
                   </div>
                 </div>
 
@@ -339,7 +346,7 @@ function ViewLoan() {
                         name="files[]"
                         multiple
                       />
-                      <i class="fa-solid fa-xmark"></i>
+                      {/* <i class="fa-solid fa-xmark"></i> */}
                     </div>
                   </div>
 
@@ -433,10 +440,10 @@ function ViewLoan() {
                   </button>
                 </div>
               </div>
-              <div class="btn-section">
+              {/* <div class="btn-section">
                 <button class="profile-btn me-3">Edit</button>
                 <button class="profile-btn">Save</button>
-              </div>
+              </div> */}
             </form>
           </div>
 
@@ -449,24 +456,6 @@ function ViewLoan() {
           >
             <div class="loan-content-body">
               <div class="loan-section-table">
-                <div class="d-flex justify-content-end">
-                  <div class="col-lg-3 col-sm-12 ">
-                    <form class="form">
-                      <div>
-                        <i class="fa-solid fa-magnifying-glass"></i>
-                      </div>
-                      <input
-                        class="input"
-                        placeholder="Search for product"
-                        required=""
-                        type="text"
-                      />
-                      <button class="reset" type="reset">
-                        <i class="fa-solid fa-xmark"></i>
-                      </button>
-                    </form>
-                  </div>
-                </div>
                 <div class="table-responsive">
                   <table class="table ">
                     <thead>
@@ -497,7 +486,7 @@ function ViewLoan() {
                         </td>
                         <td>
                           {" "}
-                          <button class="table-btn btn ">Sumbit</button>
+                          <button class="table-btn btn ">Submit</button>
                         </td>
                       </tr>
                       <tr>
@@ -526,7 +515,7 @@ function ViewLoan() {
                         </td>
                         <td> Sattar Patel </td>
                         <td>
-                          <span class="all-btn Re-Active-btn">Re-Activate</span>
+                          <span class="all-btn Re-Active-btn">ReActivate</span>
                         </td>
                         <td>GST Certificate not match</td>
                         <td>
@@ -537,7 +526,7 @@ function ViewLoan() {
                         </td>
                         <td>
                           {" "}
-                          <button class="table-btn btn ">Sumbit</button>
+                          <button class="table-btn btn ">Submit</button>
                         </td>
                       </tr>
                       <tr>
@@ -557,7 +546,7 @@ function ViewLoan() {
                         </td>
                         <td>
                           {" "}
-                          <button class="table-btn btn ">Sumbit</button>
+                          <button class="table-btn btn ">Submit</button>
                         </td>
                       </tr>
                     </tbody>

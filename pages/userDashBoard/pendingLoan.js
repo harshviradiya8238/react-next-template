@@ -17,7 +17,7 @@ function PendingLoan() {
                 </div>
                 <input
                   class="input"
-                  placeholder="Search for product"
+                  placeholder="Search"
                   required=""
                   type="text"
                 />
@@ -74,7 +74,7 @@ function PendingLoan() {
                   <td>vfok65c10</td>
                   <td>20 Apr,2023</td>
                   <td>
-                    <span class="all-btn Process-btn">QUERY</span>{" "}
+                    <span class="all-btn qyery-btn">QUERY</span>{" "}
                   </td>
 
                   <td>Car Loan</td>

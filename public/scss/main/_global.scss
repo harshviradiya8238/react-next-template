@@ -1,5 +1,5 @@
 :root {
-  --body-font: "Jost", sans-serif;
+  --body-font: "Roboto";
 
   --body-color: #ffffff;
   --para-color: #2c3655;
@@ -105,12 +105,12 @@ button {
 
 input,
 textarea {
-  // padding: 10px 20px;
-  color: #1e266d;
+  padding: 0px 20px;
+  // color: #1e266d;
   width: 100%;
   font-family: var(--body-font) !important;
   height: 50px;
-  background: #f5faff;
+  // background: #f5faff;
   border: 1px solid #eef1ff;
   border-radius: 5px;
 }
@@ -129,6 +129,15 @@ input[type="password"] {
   font-family: initial;
 }
 
+.countrySelect div div{
+  min-height: 50px;
+
+}
+.countrySelect div div div{
+  height: 100%;
+  
+  
+}
 .select {
   position: relative;
   background-color: transparent;
@@ -491,7 +500,7 @@ li {
   -webkit-transition: 0.3s;
   transition: 0.3s;
   width: auto;
-  border-radius: 50px;
+  border-radius: 10px;
   &:hover {
     color: #0a1023;
     background: transparent;

@@ -44,7 +44,7 @@ function LoanDetailForm() {
         <div className="col-6">
           <div className="single-input">
             <label htmlFor="term">Loan Tenure</label>
-            <input type="text" id="term" placeholder="12 months" />
+            <input type="text" id="term" placeholder="1 Year" />
           </div>
         </div>
       </div>

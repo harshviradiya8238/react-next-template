@@ -59,12 +59,12 @@ html {
     color: var(--white);
     padding: 4px 12px;
     border-radius: 5px;
-    // width: min(100% - 5px, 50%);
+    width: 68%;
     // margin-inline: auto;
     // margin-bottom: 0;
     margin: 0 auto;
     display: inline-block;
-    font-size: 12px;
+    font-size: 14px;
 }
 
 .Pending-btn {
@@ -80,11 +80,18 @@ html {
 }
 
 .Process-btn {
-    background-color: #D4C004;
+    background-color: #Ffac1c;
+}
+.qyery-btn{
+    background-color: orangered;
+
 }
 
 .Accepted-btn {
     background-color: #0050B8;
+}
+.Re-Active-btn{
+    background-color: #8b8ba7;
 }
 
 // img {
@@ -123,7 +130,7 @@ button {
     align-items: center;
     padding: 10px 5px;
     border: 1px solid var(--theam-color);
-    border-radius: 30px;
+    border-radius: 10px;
     background-color: transparent;
 }
 
@@ -355,7 +362,7 @@ button {
 
 .loan-content-body {
     margin-top: 10px;
-    padding: 40px 20px;
+    padding: 100px 20px;
 
     .card-setion {
         display: flex;
@@ -404,7 +411,7 @@ button {
                 position: relative;
                 font-size: 26px;
                 font-weight: 600;
-                font-size: 15px;
+                
                 z-index: 0;
                 &::before{
                     content: "";
@@ -535,7 +542,7 @@ button {
         .table {
             // border-spacing:0 5px;
             min-width: 1020px;
-
+            font-size: small;
             thead {
                 tr {
                     th {

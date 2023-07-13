@@ -18,7 +18,7 @@ function LogoutModal({ show, close }) {
             Cancel
           </Button>
           <Button variant="primary" onClick={close} class="Logout-btn">
-            Logout
+            Yes
           </Button>
         </Modal.Footer>
       </Modal>

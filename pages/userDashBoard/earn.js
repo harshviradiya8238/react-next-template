@@ -39,7 +39,7 @@ function Earn() {
           <h3 class="text-head">
             <span class="Refer">Refer & Earn</span>
           </h3>
-          <div class="d-flex justify-content-end">
+          {/* <div class="d-flex justify-content-end">
             <div class="col-lg-3 col-sm-12 ">
               <form class="form">
                 <div>
@@ -47,7 +47,7 @@ function Earn() {
                 </div>
                 <input
                   class="input"
-                  placeholder="Search for product"
+                  placeholder="Search"
                   required=""
                   type="text"
                 />
@@ -56,7 +56,7 @@ function Earn() {
                 </button>
               </form>
             </div>
-          </div>
+          </div> */}
           <div class="table-responsive">
             <table class="table align-td-middle table-card">
               <thead>
