@@ -21,7 +21,7 @@ const LatestArticles = () => {
             </div>
           </div>
           <div className="row cus-mar">
-            <div className="col-xl-4 col-md-4">
+            <div className="col-xl-4 col-md-4 mt-5">
               <div
                 className="count-content text-center d-flex justify-content-center align-items-center flex-column"
                 style={{
@@ -38,7 +38,7 @@ const LatestArticles = () => {
                 <p>Customer satisfaction</p>
               </div>
             </div>
-            <div className="col-xl-4 col-md-4">
+            <div className="col-xl-4 col-md-4 mt-5">
               <div
                 className="count-content text-center d-flex justify-content-center align-items-center flex-column"
                 style={{
@@ -55,7 +55,7 @@ const LatestArticles = () => {
                 <p>Monthly active users</p>
               </div>
             </div>
-            <div className="col-xl-4 col-md-4">
+            <div className="col-xl-4 col-md-4 mt-5">
               <div
                 className="count-content text-center d-flex justify-content-center align-items-center flex-column"
                 style={{

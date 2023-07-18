@@ -1,49 +1,49 @@
 import React, { useState } from "react";
 import LogoutModal from "../../logoutModal/LogoutModal";
 
-function Navbar() {
+function Navbar({ toggleSidebar }) {
   const [showLogout, setShowLogout] = useState(false);
 
   return (
     <div>
       <nav class="navbarDashBoard navbar-expand-md  sticky-top">
-        <div class="container">
-          <div class="col-3 d-flex justify-content-between d-block d-md-none ">
-            <div class="btn px-1 py-0 open-btn me-2">
-              <i class="fa-solid fa-bars-staggered"></i>
+        <div class="container" style={{ margin: "0", maxWidth: "100%" }}>
+          <div class="d-flex justify-content-between align-items-center">
+            <div style={{ color: "white", margin: "10px", cursor: "pointer" }}>
+              <i class="fa-solid fa-bars-staggered" onClick={toggleSidebar}></i>
             </div>
-          </div>
 
-          <div class="profile-section ">
-            <ul class="navbar-nav ms-auto ">
-              <li>
-                <div class="dropdown">
-                  <div
-                    class="dropdown-toggle user-dropdown"
-                    type="button"
-                    data-bs-toggle="dropdown"
-                    aria-expanded="false"
-                  >
-                    <div class="user-icon">
-                      <img src="/images/user.png" alt="" />{" "}
-                    </div>{" "}
-                    User
-                  </div>
-                  <ul class="dropdown-menu ">
-                    {/* <li>
+            <div class="profile-section ">
+              <ul class="navbar-nav ms-auto ">
+                <li>
+                  <div class="dropdown">
+                    <div
+                      class="dropdown-toggle user-dropdown"
+                      type="button"
+                      data-bs-toggle="dropdown"
+                      aria-expanded="false"
+                    >
+                      <div class="user-icon">
+                        <img src="/images/user.png" alt="" />{" "}
+                      </div>{" "}
+                      User
+                    </div>
+                    <ul class="dropdown-menu ">
+                      {/* <li>
                       <a class="dropdown-item" href="Profile.html">
                         View profile
                       </a>
                     </li> */}
-                    <li onClick={() => setShowLogout(true)}>
-                      <a class="dropdown-item" href="#">
-                        Logout
-                      </a>
-                    </li>
-                  </ul>
-                </div>
-              </li>
-            </ul>
+                      <li onClick={() => setShowLogout(true)}>
+                        <a class="dropdown-item" href="#">
+                          Logout
+                        </a>
+                      </li>
+                    </ul>
+                  </div>
+                </li>
+              </ul>
+            </div>
           </div>
 
           <div

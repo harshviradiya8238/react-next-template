@@ -109,14 +109,20 @@ function Profile() {
               </div>
               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
                 <label for="bdate">Birthday Date</label>
-                <DatePicker
-                  selected={startDate}
-                  onChange={(date) => setStartDate(date)}
-                />
+                <div
+                  style={{
+                    width: "100%",
+                  }}
+                >
+                  <DatePicker
+                    selected={startDate}
+                    onChange={(date) => setStartDate(date)}
+                  />
+                </div>
               </div>
             </div>
             <div class="row">
-              <div class="col-lg-12 col-md-6 col-sm-12 m-basics">
+              <div class="col-lg-12 col-md-12 col-sm-12 m-basics">
                 <label for="address"> Address Line 1 :</label>
                 <input
                   id="address"
@@ -128,7 +134,7 @@ function Profile() {
               </div>
             </div>
             <div className="row">
-              <div class="col-lg-12 col-md-6 col-sm-12 m-basics">
+              <div class="col-lg-12 col-md-12 col-sm-12 m-basics">
                 <label for="address-2"> Address Line 2 :</label>
                 <input
                   id="address-2"

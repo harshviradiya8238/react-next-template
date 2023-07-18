@@ -46,18 +46,21 @@ function HomePageCarousal() {
   };
   return (
     <>
-      <Carousel activeIndex={index} onSelect={handleSelect}>
-        {bootstrap.map((item) => (
-          <Carousel.Item key={item.id} interval={4000}>
-            <img src={item.imageUrl} alt="slides" />
-            <Carousel.Caption>
-              <h1 style={{ color: "white" }}>{item.title}</h1>
-              <p style={{ color: "white" }}>{item.body}</p>
-              <button className="btn btn-danger">Visit Docs</button>
-            </Carousel.Caption>
-          </Carousel.Item>
-        ))}
-      </Carousel>
+      <div>
+        <Carousel activeIndex={index} onSelect={handleSelect}>
+          {bootstrap.map((item) => (
+            <Carousel.Item key={item.id} interval={4000}>
+              <img src={item.imageUrl} alt="slides" />
+              <Carousel.Caption>
+                <h1 style={{ color: "white" }}>{item.title}</h1>
+                <p style={{ color: "white" }}>{item.body}</p>
+                <button className="btn btn-danger">Visit Docs</button>
+              </Carousel.Caption>
+            </Carousel.Item>
+          ))}
+        </Carousel>
+      </div>
+
       {/* <MDBCarousel showIndicators showControls fade>
         <MDBCarouselItem
           className="w-100 d-block"

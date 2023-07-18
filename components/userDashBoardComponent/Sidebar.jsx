@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
-function Sidebar() {
+function Sidebar({ toggleSidebar, isOpen }) {
   //   const [activeItem, setActiveItem] = useState("dashboard");
 
   //   const handleItemClick = (item) => {
@@ -14,9 +14,12 @@ function Sidebar() {
 
   const { pathname } = router;
   console.log(pathname);
+  console.log(isOpen);
   return (
     <>
-      <div class="sidebar sticky-top" id="side_nav">
+      <div
+        class={`sidebar sticky-top  ${isOpen ? "side_nav" : "side_nav_close"}`}
+      >
         <div class="header-box ">
           <h1 class="fs-4">
             <span class="img-box">
@@ -25,6 +28,12 @@ function Sidebar() {
             </span>
             <span class="text-white">Loan Bazaar</span>{" "}
           </h1>
+          <div
+            style={{ color: "white", margin: "10px", cursor: "pointer" }}
+            onClick={toggleSidebar}
+          >
+            <i class="fa-solid fa-arrow-left"></i>
+          </div>
           <div class="btn d-md-none close-btn px-1 py-0 ">
             {/* <i class="fa-solid fa-xmark"></i> */}
           </div>

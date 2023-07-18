@@ -194,25 +194,33 @@ button {
         }
     }
 }
-#side_nav {
+.side_nav {
     min-width: 250px;
     max-width: 250px;
     position: fixed;
     height: 100vh;
+    z-index: 9999;
     transition: all ease-in-out 0.5s;
 }
-*::-webkit-scrollbar-track {
-    background: none;
-  }
+.side_nav_close{ 
+        margin-left: -250px;
+        position: fixed;
+        min-height: 100vh;
+        z-index: 9999;
+        transition: all ease-in-out 0.5s;
+}
+
+//     *::-webkit-scrollbar-track {
+//     background: none;
+//   }
   
-  *::-webkit-scrollbar {
-    width: 0px;
-  }
+//   *::-webkit-scrollbar {
+//     width: 0px;
+//   }
   
-  *::-webkit-scrollbar-button,
-  *::-webkit-scrollbar-thumb {
-    background-color: white;
-  }
+
+
+  
 .sidebar {
     background-color: var(--theam-color);
     box-shadow: rgba(0, 0, 0, 0.15) 1.95px 1.95px 2.6px;
@@ -334,12 +342,13 @@ button {
     align-items: center;
     position: fixed;
     top: 0;
+    z-index: 9999;
     width: 100%;
     .open-btn{
         color: var(--white);
     }
     .profile-section {
-        width: 100%;
+        // width: 100%;
         display: flex;
         color: var(--white);
         .nav-link{
@@ -867,6 +876,7 @@ button {
     }
 }
 
+
 .loan-aplication-approver-section{
     width: min(100% - 20px, 80%);
     margin-inline: auto;
@@ -990,19 +1000,22 @@ button {
 }
 
 @media (max-width:767px) {
-    #side_nav {
-        margin-left: -250px;
-        position: fixed;
-        min-height: 100vh;
-        z-index: 9999;
-    }
+    // #side_nav {
+    //     margin-left: -250px;
+    //     position: fixed;
+    //     min-height: 100vh;
+    //     z-index: 9999;
+    // }
 
-    #side_nav.active {
-        margin-left: 0;
-    }
+    // #side_nav.active {
+    //     margin-left: 0;
+    // }
 
     .profile-section {
         width: auto !important;
+    }
+    .wrapper{
+        width: 100%;
     }
     
 
