@@ -3,7 +3,7 @@ import React from "react";
 
 function PendingLoan() {
   return (
-    <div class="loan-content-body wrapper">
+    <div class="loan-content-body">
       <div class="container">
         <div class="loan-section-table">
           <h3 class="text-head">

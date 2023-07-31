@@ -12,7 +12,7 @@ const ContactForm = () => {
           <div className="single-input">
             <label htmlFor="email">Email</label>
             <input
-              type="text"
+              type="email"
               id="email"
               placeholder="abc@gmail.com"
               required
@@ -25,7 +25,7 @@ const ContactForm = () => {
           <div className="single-input">
             <label htmlFor="phone">Phone</label>
             <input
-              type="text"
+              type={"number"}
               id="phone"
               placeholder="(123) 480 - 3540"
               required

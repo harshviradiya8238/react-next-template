@@ -2,7 +2,7 @@ import React from "react";
 
 function Earn() {
   return (
-    <div class="loan-content-body wrapper">
+    <div class="loan-content-body">
       <div class="container">
         <div class="cashback-section"></div>
         <div class="invite-section">

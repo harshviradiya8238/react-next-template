@@ -334,6 +334,7 @@ function ApplyForLoan() {
                                     <Field
                                       name="step1.otp"
                                       placeholder="xxxxxx"
+                                      type={"number"}
                                     />
                                     <ErrorMessage
                                       name="step1.otp"
@@ -347,6 +348,7 @@ function ApplyForLoan() {
                                     <label>Email OTP:</label>
                                     <Field
                                       name="step1.otp"
+                                      type={"number"}
                                       placeholder="xxxxxx"
                                     />
                                     <ErrorMessage
@@ -453,6 +455,7 @@ function ApplyForLoan() {
                                     <div className="single-input">
                                       <label>Date Of Birth</label>
                                       <DatePicker
+                                        type="number"
                                         selected={startDate}
                                         onChange={(date) => setStartDate(date)}
                                       />
@@ -649,7 +652,7 @@ function ApplyForLoan() {
                                     <div className="single-input">
                                       <label>Loan Amount (INR)</label>
                                       <Field
-                                        type="text"
+                                        type={"number"}
                                         placeholder="Loan Amount"
                                         name="step2.loanAmount"
                                       />

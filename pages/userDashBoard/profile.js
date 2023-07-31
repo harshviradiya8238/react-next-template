@@ -22,7 +22,7 @@ function Profile() {
   const handleKycOnchange = () => {};
 
   return (
-    <div class="profile-page-section wrapper">
+    <div class="profile-page-section">
       <div>
         <div class="nav nav-tabs " id="nav-tab" role="tablist">
           <div
@@ -115,6 +115,7 @@ function Profile() {
                   }}
                 >
                   <DatePicker
+                    type="number"
                     selected={startDate}
                     onChange={(date) => setStartDate(date)}
                   />

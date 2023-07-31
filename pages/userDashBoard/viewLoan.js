@@ -52,7 +52,7 @@ function ViewLoan() {
   };
 
   return (
-    <div className="  wrapper">
+    <div>
       <div class="profile-page-section">
         <div>
           <div class="nav nav-tabs " id="nav-tab" role="tablist">

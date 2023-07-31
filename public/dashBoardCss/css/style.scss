@@ -57,7 +57,7 @@ html {
 
 .all-btn {
     color: var(--white);
-    padding: 4px 12px;
+    padding: 4px 17px;
     border-radius: 5px;
     width: 68%;
     // margin-inline: auto;
@@ -936,7 +936,7 @@ button {
     .profile-page-section{
         margin-top: 20px;
         .form{
-            width: min(100% - 20px , 80%);
+            // width: min(100% - 20px , 80%);
             margin-inline: auto;
             box-shadow: 0 8px 30px -7px #c9dff0;
             border-radius: 10px;

@@ -28,7 +28,7 @@ const ForgetPasswordForm = () => {
                         <label>Mobile Number or Email</label>
                         <div className="password-show d-flex align-items-center">
                           <input
-                            type={"number"}
+                            type="text"
                             className="passInput"
                             autocomplete="off"
                             placeholder="Enter Your Mobile Number OR Email"

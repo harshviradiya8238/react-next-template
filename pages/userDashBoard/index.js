@@ -3,7 +3,7 @@ import Link from "next/link";
 export default function DashBoardDefault() {
   return (
     <>
-      <div className="wrapper">
+      <div>
         <div class="loan-content-body">
           <div class="container">
             <div class="card-setion">

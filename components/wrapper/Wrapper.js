@@ -4,7 +4,7 @@ import Navbar from "../userDashBoardComponent/dashboardNavbar/navbar";
 function Wrapper({ data }) {
   return (
     <>
-      <div className="wrapper">
+      <div>
         <Navbar />
         {data}
       </div>

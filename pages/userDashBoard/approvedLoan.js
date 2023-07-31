@@ -3,7 +3,7 @@ import React from "react";
 
 function ApprovedLoan() {
   return (
-    <div class="loan-content-body wrapper">
+    <div class="loan-content-body">
       <div class="container">
         <div class="loan-section-table">
           <div class="row">

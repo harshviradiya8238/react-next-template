@@ -137,7 +137,7 @@ function LoanApplication() {
 
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form ">
-      <div className="overlay pt-120 wrapper">
+      <div className="overlay pt-120">
         <div className="container wow fadeInUp">
           <div className="row justify-content-center">
             {/* <div className="col-lg-8">
@@ -334,7 +334,7 @@ function LoanApplication() {
                                     <div className="single-input">
                                       <label>Loan Amount (INR)</label>
                                       <Field
-                                        type="text"
+                                        type={"number"}
                                         placeholder="Loan Amount (INR)"
                                         name="step2.loanAmount"
                                       />

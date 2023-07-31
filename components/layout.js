@@ -29,8 +29,15 @@ const Layout = ({ children }) => {
       ) : (
         <NavBar />
       )}
-
-      {children}
+      <div
+        className={
+          pathname.includes("userDashBoard") && isOpen === true
+            ? "wrapper"
+            : "wrapper_close"
+        }
+      >
+        {children}
+      </div>
       {/* <Ready /> */}
       {pathname.includes("userDashBoard") ? "" : <Footer />}
       {/* {pathname.includes("userDashBoard") ? <Sidebar /> : ""} */}
