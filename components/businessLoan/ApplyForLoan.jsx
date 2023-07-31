@@ -130,6 +130,8 @@ import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
+import { useDispatch } from "react-redux";
+import { sendOTP } from "../../store/actions/userAction";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -154,8 +156,10 @@ const validationSchema = Yup.object().shape({
   }),
 });
 function ApplyForLoan() {
+  const dispatch = useDispatch();
+
   const [state, setSatate] = useState({
-    step1: { name: "", email: "" },
+    step1: { name: "", email: "", phone: "" },
     step2: { pan: "", loanType: "", loanAmount: "", loanTerm: "", state: "" },
     step3: {
       businessProof: [],
@@ -198,7 +202,8 @@ function ApplyForLoan() {
     });
   };
 
-  const handleSendOtp = () => {
+  const handleSendOtp = async (data) => {
+    await dispatch(sendOTP(data.mobileNo, values.otp));
     setVerifyOtp(true);
   };
   const handleCheckEligiblity = () => {
@@ -427,7 +432,6 @@ function ApplyForLoan() {
                                       />
                                     </div>
                                   </div>
-
                                   <div className="col-6">
                                     <div className="single-input">
                                       <label>Contact No:</label>
@@ -445,27 +449,6 @@ function ApplyForLoan() {
                                       />
                                       <ErrorMessage
                                         name="step1.phone"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      />
-                                    </div>
-                                  </div>
-
-                                  <div className="col-6">
-                                    <div className="single-input">
-                                      <label>Date Of Birth</label>
-                                      <DatePicker
-                                        type="number"
-                                        selected={startDate}
-                                        onChange={(date) => setStartDate(date)}
-                                      />
-                                      {/* <Field
-                                          type="text"
-                                          name="step1.state"
-                                          placeholder="Gujarat"
-                                        /> */}
-                                      <ErrorMessage
-                                        name="step1.state"
                                         component="div"
                                         style={{ color: "red" }}
                                       />
