@@ -115,7 +115,15 @@ textarea {
   border: 1px solid #eef1ff;
   border-radius: 5px;
 }
+.react-bootstrap-table{
+  text-align: center;
+}
 
+.selection-cell ,.selection-cell-header{
+  input{
+    height: 15px;
+  }
+}
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
   -webkit-appearance: none;
@@ -337,6 +345,9 @@ li {
 
 .pt-120 {
   padding-top: 120px;
+}
+.pt-60 {
+  padding-top: 60px;
 }
 
 @media (max-width: 991px) {

@@ -1,13 +1,25 @@
 import Button from "react-bootstrap/Button";
 import Modal from "react-bootstrap/Modal";
+import { useRouter } from "next/router";
+import Notification from "../utils/Notification";
 
 function LogoutModal({ show, close }) {
+  const router = useRouter();
+
+  const handleLogout = () => {
+    localStorage.clear();
+    Notification("success", "Logout successFully");
+    router.push("/login");
+  };
   return (
     <div
-      className="modal show"
-      style={{ display: "block", position: "initial" }}
+      className="modal show "
+      style={{
+        display: "block",
+        position: "initial",
+      }}
     >
-      <Modal show={show} onHide={close}>
+      <Modal show={show} onHide={close} style={{ zIndex: "9999" }}>
         <Modal.Header closeButton>
           {/* <Modal.Title>Logout</Modal.Title> */}
         </Modal.Header>
@@ -17,7 +29,7 @@ function LogoutModal({ show, close }) {
           <Button variant="secondary" onClick={close} class="Cancel-btn">
             Cancel
           </Button>
-          <Button variant="primary" onClick={close} class="Logout-btn">
+          <Button variant="primary" onClick={handleLogout} class="Logout-btn">
             Yes
           </Button>
         </Modal.Footer>

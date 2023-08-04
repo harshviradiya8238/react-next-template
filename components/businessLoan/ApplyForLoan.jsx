@@ -132,16 +132,27 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
 import { sendOTP } from "../../store/actions/userAction";
+// import BootstrapTable from "react-bootstrap-table-next";
+// import "bootstrap/dist/css/bootstrap.min.css";
+
+import axios from "axios";
+import Notification from "../utils/Notification";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
   step1: Yup.object().shape({
-    name: Yup.string().required("Name is required"),
+    lastName: Yup.string().required("lastName is required"),
+
+    firstName: Yup.string().required("firstName is required"),
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
     phone: Yup.string().required("Contact No is required"),
     state: Yup.string().required("State is required"),
+  }),
+  stepVerify: Yup.object().shape({
+    mobileotp: Yup.string().required("Mobile otp is required"),
+    emailotp: Yup.string().required("Email otp is required"),
   }),
   step2: Yup.object().shape({
     pan: Yup.string().required("pan is required"),
@@ -155,11 +166,30 @@ const validationSchema = Yup.object().shape({
     panCard: Yup.string().required("Country is required"),
   }),
 });
+
+const data = [
+  { id: 1, bankName: "HDFC Bank	", intrest: "12%" },
+  { id: 2, bankName: "Axis Bank	", intrest: "14%" },
+  { id: 3, bankName: "ICICI Bank	", intrest: "14%" },
+];
+
+const columns = [
+  { dataField: "id", text: "ID" },
+  { dataField: "bankName", text: "Bank Name" },
+  { dataField: "intrest", text: "Rate of Intrest" },
+];
+
+const selectRow = {
+  mode: "checkbox",
+  clickToSelect: true,
+  bgColor: "#f8f9fa",
+};
+
 function ApplyForLoan() {
   const dispatch = useDispatch();
 
   const [state, setSatate] = useState({
-    step1: { name: "", email: "", phone: "" },
+    step1: { firstName: "", lastName: "", email: "", phone: "" },
     step2: { pan: "", loanType: "", loanAmount: "", loanTerm: "", state: "" },
     step3: {
       businessProof: [],
@@ -180,31 +210,49 @@ function ApplyForLoan() {
     { title: "Application confirmation" },
   ];
 
-  const [docFiles, setdocFiles] = useState([]);
   const [sendOtp, setVerifyOtp] = useState(false);
   const [eligiblity, setEligiblity] = useState(false);
   const [phoneValue, setPhoneValue] = useState();
   const [startDate, setStartDate] = useState(new Date());
+  const [apiData, setapiData] = useState({});
+  const [loanTypeOption, setLoanTypeOption] = useState([]);
+
+  // const handleGetAllType = async () => {
+  //   try {
+  //     const response = await axios.get(
+  //       "https://loan-bazar-dev.azurewebsites.net/api/LoanType/GetAll"
+  //     );
+  //     const { data } = response;
+  //     setLoanTypeOption(data.value);
+  //   } catch (error) {
+  //     Notification("error", error?.response?.data[0]?.errorMessage);
+  //   }
+  // };
 
   const aRef = useRef(null);
-  const handlePanFileChange = (event) => {
-    const files = event.target.files;
-    const fileArray = Array.from(files);
-    setdocFiles([...docFiles, ...fileArray]);
-  };
 
-  const handleRemoveFile = (index) => {
-    setdocFiles((prevFiles) => {
-      const updatedFiles = [...prevFiles];
-      if (updatedFiles.length === 1) aRef.current.value = null;
-      updatedFiles.splice(index, 1);
-      return updatedFiles;
-    });
-  };
+  const handleSendOtp = async (data, value) => {
+    try {
+      const response = await axios.post(
+        "https://loancrmtrn.azurewebsites.net/api/User/Create",
+        {
+          firstName: value.step1.firstName,
+          lastName: value.step1.lastName,
+          email: value.step1.email,
+          phoneNumber: Number(phoneValue),
+        }
+      );
 
-  const handleSendOtp = async (data) => {
-    await dispatch(sendOTP(data.mobileNo, values.otp));
-    setVerifyOtp(true);
+      const { data } = response;
+      if (data?.success) {
+        Notification("success", "OTP Sent SuccessFully");
+        setVerifyOtp(true);
+        setapiData(value);
+      }
+    } catch (error) {
+      Notification("error", error?.response?.data[0]?.errorMessage);
+      // console.log(error);
+    }
   };
   const handleCheckEligiblity = () => {
     setEligiblity(true);
@@ -227,67 +275,101 @@ function ApplyForLoan() {
   };
 
   const [selectedOption, setSelectedOption] = useState("business");
-  const [selectedPurpose, setSelectedPurpose] = useState("education");
 
   const handleOptionChange = (e) => {
     setSelectedOption(e.target.value);
     // setSelectedPurpose(e.target.value);
   };
-  const handleOptionChangePurpose = (e) => {
-    setSelectedPurpose(e.target.value);
-    // setSelectedPurpose(e.target.value);
+
+  const [docFiles, setdocFiles] = useState({
+    itrFile: [],
+    bankStatements: [],
+    otherDocuments: [],
+  });
+
+  const handleFieldChange = (index, field, value) => {
+    setdocFiles((prevState) => {
+      const otherDocuments = [...prevState.otherDocuments];
+      otherDocuments[index][field] = value;
+      return {
+        ...prevState,
+        otherDocuments,
+      };
+    });
   };
 
-  const [documentFields, setDocumentFields] = useState([]);
-
-  const addDynamicField = () => {
-    setDocumentFields((prevFields) => [
-      ...prevFields,
-      { label: "", value: "", editLabel: true },
-    ]);
+  const addOtherDocumentField = () => {
+    if (docFiles.otherDocuments.length < 5) {
+      setdocFiles((prevState) => ({
+        ...prevState,
+        otherDocuments: [
+          ...prevState.otherDocuments,
+          { label: "", files: [], editable: true },
+        ],
+      }));
+    }
   };
 
-  const handleLabelChange = (index, event) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].label = event.target.value;
-    setDocumentFields(updatedFields);
+  const handlePanFileChange = (fieldType, event) => {
+    const selectedFiles = [...event.target.files];
+    const updatedFiles = selectedFiles.slice(0, 3);
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: updatedFiles,
+    }));
   };
 
-  const handleValueChange = (index, event) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].value = event.target.value;
-    setDocumentFields(updatedFields);
+  const handleRemoveFile = (fieldType, index) => {
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
+    }));
   };
 
-  const toggleEditLabel = (index) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].editLabel = !updatedFields[index].editLabel;
-    setDocumentFields(updatedFields);
+  const handleOtherDocumentFileChange = (index, event) => {
+    const selectedFiles = [...event.target.files];
+    const updatedFiles = selectedFiles.slice(0, 3);
+    handleFieldChange(index, "files", updatedFiles);
   };
 
-  const deleteField = (index) => {
-    const updatedFields = [...documentFields];
-    updatedFields.splice(index, 1);
-    setDocumentFields(updatedFields);
+  const handleRemoveOtherDocumentFile = (index, fileIndex) => {
+    setdocFiles((prevState) => {
+      const otherDocuments = [...prevState.otherDocuments];
+      otherDocuments[index].files.splice(fileIndex, 1);
+      return {
+        ...prevState,
+        otherDocuments,
+      };
+    });
+  };
+
+  const handleToggleEdit = (index) => {
+    setdocFiles((prevState) => {
+      const otherDocuments = [...prevState.otherDocuments];
+      otherDocuments[index].editable = !otherDocuments[index].editable;
+      return {
+        ...prevState,
+        otherDocuments,
+      };
+    });
+  };
+
+  const handleDeleteField = (index) => {
+    setdocFiles((prevState) => {
+      const otherDocuments = [...prevState.otherDocuments];
+      otherDocuments.splice(index, 1);
+      return {
+        ...prevState,
+        otherDocuments,
+      };
+    });
   };
 
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form">
       <div className="overlay pt-120">
         <div className="container wow fadeInUp">
-          <div className="row justify-content-center">
-            {/* <div className="col-lg-8">
-              <div className="section-header text-center">
-                <h2 className="title">
-                  Apply for a loan today.
-                </h2>
-                <p>
-                  Get business loans approved within days with transparent
-                  lending criteria and transparent processes.
-                </p>
-              </div>
-            </div> */}
-          </div>
+          <div className="row justify-content-center"></div>
           <div className="row justify-content-center">
             <div className="col-lg-10">
               <div className="form-content">
@@ -315,34 +397,18 @@ function ApplyForLoan() {
 
                         {values.activeStep === 0 && (
                           <div>
-                            {/* <h2>Basic Details</h2> */}
-
-                            {/* {values.step1.phone?.length === 10 && (
-                              <div className="col-6">
-                                <div className="single-input">
-                                  <label>Name:</label>
-                                  <Field type="text" name="step1.name" />
-                                  <ErrorMessage
-                                    name="step1.name"
-                                    component="div"
-                                    style={{ color: "red" }}
-                                  />
-                                </div>
-                              </div>
-                            )} */}
-
                             {sendOtp ? (
                               <div className="row">
                                 <div className="col-6">
                                   <div className="single-input">
                                     <label>Mobile OTP:</label>
                                     <Field
-                                      name="step1.otp"
+                                      name="stepVerify.mobileotp"
                                       placeholder="xxxxxx"
                                       type={"number"}
                                     />
                                     <ErrorMessage
-                                      name="step1.otp"
+                                      name="stepVerify.mobileotp"
                                       component="div"
                                       style={{ color: "red" }}
                                     />
@@ -352,12 +418,12 @@ function ApplyForLoan() {
                                   <div className="single-input">
                                     <label>Email OTP:</label>
                                     <Field
-                                      name="step1.otp"
+                                      name="stepVerify.emailotp"
                                       type={"number"}
                                       placeholder="xxxxxx"
                                     />
                                     <ErrorMessage
-                                      name="step1.otp"
+                                      name="stepVerify.emailotp"
                                       component="div"
                                       style={{ color: "red" }}
                                     />
@@ -383,9 +449,44 @@ function ApplyForLoan() {
                                   </button>
                                   <button
                                     type="button"
-                                    onClick={() =>
-                                      handleNext(setFieldValue, values)
-                                    }
+                                    onClick={async () => {
+                                      try {
+                                        const response = await axios.post(
+                                          "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
+                                          {
+                                            sendEmail: true,
+                                            email: apiData.step1.email,
+                                            phoneNumber: Number(phoneValue),
+                                            mobileOTP: "123456",
+                                            emailOTP:
+                                              values.stepVerify.emailotp.toString(),
+                                          }
+                                        );
+                                        console.log(response);
+                                        const { data } = response;
+                                        if (data?.success) {
+                                          Notification(
+                                            "success",
+                                            "OTP Verify SuccessFully and Password Send on Your Email"
+                                          );
+                                          localStorage.setItem(
+                                            "token",
+                                            data?.value?.token
+                                          );
+
+                                          setVerifyOtp(true);
+                                          handleNext(setFieldValue, values);
+                                          // handleGetAllType();
+                                        }
+                                      } catch (error) {
+                                        console.log(error);
+                                        Notification(
+                                          "error",
+                                          error?.response?.data[0]?.errorMessage
+                                        );
+                                        // console.log(error);
+                                      }
+                                    }}
                                     style={{ width: "auto" }}
                                     className="cmn-btn"
                                     // disabled={
@@ -404,14 +505,29 @@ function ApplyForLoan() {
                                 <div className="row">
                                   <div className="col-6">
                                     <div className="single-input">
-                                      <label>Name:</label>
+                                      <label>First Name:</label>
                                       <Field
                                         type="text"
-                                        name="step1.name"
+                                        name="step1.firstName"
                                         placeholder="John Test"
                                       />
                                       <ErrorMessage
-                                        name="step1.name"
+                                        name="step1.firstName"
+                                        component="div"
+                                        style={{ color: "red" }}
+                                      />
+                                    </div>
+                                  </div>
+                                  <div className="col-6">
+                                    <div className="single-input">
+                                      <label>Last Name:</label>
+                                      <Field
+                                        type="text"
+                                        name="step1.lastName"
+                                        placeholder="John Test"
+                                      />
+                                      <ErrorMessage
+                                        name="step1.lastName"
                                         component="div"
                                         style={{ color: "red" }}
                                       />
@@ -435,30 +551,29 @@ function ApplyForLoan() {
                                   <div className="col-6">
                                     <div className="single-input">
                                       <label>Contact No:</label>
-                                      {/* <Field
-                                          name="step1.phone"
-                                          placeholder="+91 9999999999"
-                                        /> */}
 
                                       <PhoneInput
+                                        name="step1.phone"
                                         international
                                         defaultCountry="IN"
                                         placeholder="+91 9999999999"
                                         value={phoneValue}
                                         onChange={setPhoneValue}
                                       />
-                                      <ErrorMessage
+                                      {/* <ErrorMessage
                                         name="step1.phone"
-                                        component="div"
+                                        component="input"
                                         style={{ color: "red" }}
-                                      />
+                                      /> */}
                                     </div>
                                   </div>
                                 </div>
                                 <div>
                                   <button
                                     className="cmn-btn"
-                                    onClick={handleSendOtp}
+                                    onClick={() => {
+                                      handleSendOtp(setFieldValue, values);
+                                    }}
                                   >
                                     Next
                                   </button>
@@ -487,145 +602,48 @@ function ApplyForLoan() {
                               padding: "20px 0px",
                             }}
                           >
-                            {/* <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "center",
-                                alignItems: "center",
-                                padding: "20px 0px",
-                              }}
-                            >
-                              <h3>Step 2</h3>
-                            </div> */}
-
                             {eligiblity ? (
                               <>
-                                <div class="table-section">
-                                  <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Select</th>
-                                        <th scope="col">Bank Name</th>
-                                        <th scope="col">Rate of Interest</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      <tr>
-                                        <th>
-                                          <label class="checkbox">
-                                            <input type="checkbox" />
-                                            <div class="checkbox-circle">
-                                              <svg
-                                                viewBox="0 0 52 52"
-                                                class="checkmark"
-                                              >
-                                                <circle
-                                                  fill="none"
-                                                  r="25"
-                                                  cy="26"
-                                                  cx="26"
-                                                  class="checkmark-circle"
-                                                ></circle>
-                                                <path
-                                                  d="M16 26l9.2 8.4 17.4-21.4"
-                                                  class="checkmark-kick"
-                                                ></path>
-                                              </svg>
-                                            </div>
-                                          </label>
-                                        </th>
-                                        <td>HDFC Bank</td>
-                                        <td>12%</td>
-                                      </tr>
-                                      <tr>
-                                        <th>
-                                          <label class="checkbox">
-                                            <input type="checkbox" />
-                                            <div class="checkbox-circle">
-                                              <svg
-                                                viewBox="0 0 52 52"
-                                                class="checkmark"
-                                              >
-                                                <circle
-                                                  fill="none"
-                                                  r="25"
-                                                  cy="26"
-                                                  cx="26"
-                                                  class="checkmark-circle"
-                                                ></circle>
-                                                <path
-                                                  d="M16 26l9.2 8.4 17.4-21.4"
-                                                  class="checkmark-kick"
-                                                ></path>
-                                              </svg>
-                                            </div>
-                                          </label>
-                                        </th>
-                                        <td>Axis Bank</td>
-                                        <td>14%</td>
-                                      </tr>
-                                      <tr>
-                                        <th>
-                                          <label class="checkbox">
-                                            <input type="checkbox" />
-                                            <div class="checkbox-circle">
-                                              <svg
-                                                viewBox="0 0 52 52"
-                                                class="checkmark"
-                                              >
-                                                <circle
-                                                  fill="none"
-                                                  r="25"
-                                                  cy="26"
-                                                  cx="26"
-                                                  class="checkmark-circle"
-                                                ></circle>
-                                                <path
-                                                  d="M16 26l9.2 8.4 17.4-21.4"
-                                                  class="checkmark-kick"
-                                                ></path>
-                                              </svg>
-                                            </div>
-                                          </label>
-                                        </th>
-                                        <td>ICICI Bank</td>
-                                        <td>14%</td>
-                                      </tr>
-                                    </tbody>
-                                  </table>
+                                <div className="tableBootstrap">
+                                  {/* <BootstrapTable
+                                    keyField="id"
+                                    data={data}
+                                    columns={columns}
+                                    selectRow={selectRow}
+                                  /> */}
+                                </div>
 
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "flex-start",
-                                      alignItems: "center",
-                                    }}
+                                <div
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                    alignItems: "center",
+                                  }}
+                                >
+                                  <button
+                                    type="button"
+                                    className="cmn-btn"
+                                    style={{ marginRight: "10px" }}
+                                    onClick={() => setEligiblity(false)}
                                   >
-                                    <button
-                                      type="button"
-                                      className="cmn-btn"
-                                      style={{ marginRight: "10px" }}
-                                      onClick={() => setEligiblity(false)}
-                                    >
-                                      Previous
-                                    </button>
-                                    <button
-                                      type="button"
-                                      className="cmn-btn"
-                                      onClick={() =>
-                                        handleNext(setFieldValue, values)
-                                      }
-                                      // disabled={
-                                      //   !values.step2 ||
-                                      //   !values.step2.loanAmount ||
-                                      //   !values.step2.loanType ||
-                                      //   !values.step2.state ||
-                                      //   !values.step2.loanTerm
-                                      // }
-                                    >
-                                      Next
-                                    </button>
-                                  </div>
+                                    Previous
+                                  </button>
+                                  <button
+                                    type="button"
+                                    className="cmn-btn"
+                                    onClick={() =>
+                                      handleNext(setFieldValue, values)
+                                    }
+                                    // disabled={
+                                    //   !values.step2 ||
+                                    //   !values.step2.loanAmount ||
+                                    //   !values.step2.loanType ||
+                                    //   !values.step2.state ||
+                                    //   !values.step2.loanTerm
+                                    // }
+                                  >
+                                    Next
+                                  </button>
                                 </div>
                               </>
                             ) : (
@@ -657,6 +675,8 @@ function ApplyForLoan() {
                                         value={selectedOption}
                                         onChange={handleOptionChange}
                                       >
+                                        {}
+
                                         <option value="business" selected>
                                           Business Loan
                                         </option>
@@ -672,7 +692,7 @@ function ApplyForLoan() {
                                 <div className="row">
                                   <div className="col-6">
                                     <div className="single-input">
-                                      <label>Loan Tenure</label>
+                                      <label>Loan Tenure (Year)</label>
 
                                       <Field
                                         type="text"
@@ -686,22 +706,21 @@ function ApplyForLoan() {
                                       />
                                     </div>
                                   </div>
-
                                   <div className="col-6">
                                     <div className="single-input">
-                                      <label>Purpose Of Loan</label>
-                                      <select
-                                        className="selectDrop form-select"
-                                        aria-label="Default select example"
-                                        name="step2.loanType"
-                                        value={selectedPurpose}
-                                        onChange={handleOptionChangePurpose}
-                                      >
-                                        <option value="education" selected>
-                                          Education
-                                        </option>
-                                        <option value="home">Home</option>
-                                      </select>
+                                      <label>State</label>
+
+                                      <Field
+                                        type="text"
+                                        name="step2.state"
+                                        // name="step2.loanTerm"
+                                        placeholder="1 Year"
+                                      />
+                                      {/* <ErrorMessage
+                                        name="step2.loanTerm"
+                                        component="div"
+                                        style={{ color: "red" }}
+                                      /> */}
                                     </div>
                                   </div>
                                 </div>
@@ -740,29 +759,6 @@ function ApplyForLoan() {
                               padding: "20px 0px",
                             }}
                           >
-                            {/* <h2>Step 3</h2> */}
-                            {/* <div>
-                              <label>Address:</label>
-                              <Field type="text" name="step3.address" />
-                              <ErrorMessage
-                                name="step3.address"
-                                component="div"
-                              />
-                            </div>
-                            <div>
-                              <label>City:</label>
-                              <Field type="text" name="step3.city" />
-                              <ErrorMessage name="step3.city" component="div" />
-                            </div>
-                            <div>
-                              <label>Country:</label>
-                              <Field type="text" name="step3.country" />
-                              <ErrorMessage
-                                name="step3.country"
-                                component="div"
-                              />
-                            </div> */}
-
                             <div class="row">
                               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                                 <h4>3 year ITR /Form 16</h4>
@@ -772,22 +768,27 @@ function ApplyForLoan() {
                                     multiple
                                     ref={aRef}
                                     class="upload-box"
-                                    name="step3.business"
-                                    onChange={handlePanFileChange}
+                                    onChange={(e) =>
+                                      handlePanFileChange("itrFile", e)
+                                    }
                                   />
                                 </div>
-                                {docFiles.length > 0 && (
+                                {docFiles?.itrFile?.length > 0 && (
                                   <div>
                                     <h4>Selected files:</h4>
                                     {docFiles &&
-                                      docFiles?.map((file, index) => (
+                                      docFiles?.itrFile?.map((file, index) => (
                                         <div key={index}>
                                           <div className="selectfile">
+                                            {console.log(file?.name)}
                                             <p>{file?.name}</p>
                                             <i
                                               class="fa-solid fa-xmark"
                                               onClick={() =>
-                                                handleRemoveFile(index)
+                                                handleRemoveFile(
+                                                  "itrFile",
+                                                  index
+                                                )
                                               }
                                               style={{ cursor: "pointer" }}
                                             ></i>
@@ -814,274 +815,200 @@ function ApplyForLoan() {
                               </div>
 
                               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                <h4>Light Bill</h4>
-                                <div class="input-box">
+                                <h4>Bank Statement</h4>
+                                <div class="input-box ">
                                   <input
                                     type="file"
-                                    class="upload-box"
-                                    name="files[]"
                                     multiple
-                                  />
-                                  {/* <i class="fa-solid fa-xmark"></i> */}
-                                </div>
-                              </div>
-
-                              <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                <h4> Bank Statement</h4>
-                                <div class="input-box">
-                                  <input
-                                    type="file"
+                                    ref={aRef}
                                     class="upload-box"
-                                    name="files[]"
-                                    multiple
+                                    onChange={(e) =>
+                                      handlePanFileChange("bankStatements", e)
+                                    }
                                   />
-                                  {/* <i class="fa-solid fa-xmark"></i> */}
                                 </div>
+                                {docFiles?.bankStatements?.length > 0 && (
+                                  <div>
+                                    <h4>Selected files:</h4>
+                                    {docFiles &&
+                                      docFiles?.bankStatements?.map(
+                                        (file, index) => (
+                                          <div key={index}>
+                                            <div className="selectfile">
+                                              <p>{file?.name}</p>
+                                              <i
+                                                class="fa-solid fa-xmark"
+                                                onClick={() =>
+                                                  handleRemoveFile(
+                                                    "bankStatements",
+                                                    index
+                                                  )
+                                                }
+                                                style={{ cursor: "pointer" }}
+                                              ></i>
+                                            </div>
+
+                                            <div
+                                              class="progress"
+                                              role="progressbar"
+                                              aria-label="Basic example"
+                                              aria-valuenow="100"
+                                              aria-valuemin="0"
+                                              aria-valuemax="100"
+                                              style={{ height: "6px" }}
+                                            >
+                                              <div
+                                                class="progress-bar"
+                                                style={{ width: "100%" }}
+                                              ></div>
+                                            </div>
+                                          </div>
+                                        )
+                                      )}
+                                  </div>
+                                )}
                               </div>
-                              {selectedOption === "business" && (
-                                <>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> GST Certificate </h4>
-
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Business Proof</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Balance Sheet- P&L</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> GST Certificate 3B Last 12 month</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Master File OF property</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              {selectedOption === "personal" && (
-                                <>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> 6 month Salary Slip</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              {selectedOption === "home" && (
-                                <>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> 6 month Salary Slip</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Master File OF property</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              {selectedOption === "car" && (
-                                <>
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Business Proof /Salary Slip</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4> Car Quotation</h4>
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        class="upload-box"
-                                        name="files[]"
-                                        multiple
-                                      />
-                                      {/* <i class="fa-solid fa-xmark"></i> */}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              <div class="row">
-                                {/* <div class="my-4 col-lg-6 col-md-6 col-sm-12"> */}
-                                {documentFields.map((field, index) => (
-                                  <div
-                                    key={index}
-                                    class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                  >
-                                    {field.editLabel ? (
-                                      <div className="field-container">
-                                        <input
-                                          type="text"
-                                          value={field.label}
-                                          onChange={(event) =>
-                                            handleLabelChange(index, event)
-                                          }
-                                          placeholder="Other Document"
-                                        />
-                                        <i
-                                          class="fa-solid fa-pen-to-square"
-                                          style={{
-                                            color: "green",
-                                            cursor: "pointer",
-                                            marginRight: "10px",
-                                          }}
-                                          onClick={() => toggleEditLabel(index)}
-                                        />
-                                        <i
-                                          style={{
-                                            color: "red",
-                                            cursor: "pointer",
-                                            marginRight: "10px",
-                                          }}
-                                          class="fa-solid fa-trash"
-                                          onClick={() => deleteField(index)}
-                                        />
-                                      </div>
-                                    ) : (
-                                      <label
-                                        onClick={() => toggleEditLabel(index)}
-                                      >
-                                        <div
-                                          style={{
-                                            display: "flex",
-                                          }}
-                                        >
-                                          <h4 style={{ marginRight: "10px" }}>
-                                            {" "}
-                                            {field.label}
-                                          </h4>
-                                          <i
-                                            class="fa-solid fa-pen-to-square"
+                              <div>
+                                <div class="row">
+                                  {docFiles.otherDocuments.map(
+                                    (field, fieldIndex) => (
+                                      <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                                        <div key={fieldIndex}>
+                                          {field.editable ? (
+                                            <input
+                                              type="text"
+                                              value={field.label}
+                                              onChange={(e) =>
+                                                handleFieldChange(
+                                                  fieldIndex,
+                                                  "label",
+                                                  e.target.value
+                                                )
+                                              }
+                                              placeholder="Enter label for this field"
+                                            />
+                                          ) : (
+                                            <h4>{field.label}</h4>
+                                          )}
+                                          <div
                                             style={{
-                                              color: "green",
-                                              cursor: "pointer",
-                                              marginRight: "10px",
+                                              display: "flex",
+                                              alignItems: "center",
                                             }}
-                                          />
-                                          <i
-                                            style={{
-                                              color: "red",
-                                              cursor: "pointer",
-                                              marginRight: "10px",
-                                            }}
-                                            class="fa-solid fa-trash"
-                                            onClick={() => deleteField(index)}
-                                          />
+                                          >
+                                            {field && field.editable ? (
+                                              <button
+                                                style={{ margin: "10px" }}
+                                                onClick={() =>
+                                                  handleToggleEdit(fieldIndex)
+                                                }
+                                              >
+                                                Save
+                                              </button>
+                                            ) : (
+                                              <button
+                                                style={{
+                                                  width: "40px",
+                                                  border: "none",
+                                                }}
+                                                onClick={() =>
+                                                  handleToggleEdit(fieldIndex)
+                                                }
+                                              >
+                                                <i
+                                                  class="fa-solid fa-pen-to-square"
+                                                  style={{
+                                                    color: "green",
+                                                    cursor: "pointer",
+                                                  }}
+                                                />
+                                              </button>
+                                            )}
+                                            <i
+                                              style={{
+                                                color: "red",
+                                                cursor: "pointer",
+                                                marginRight: "10px",
+                                              }}
+                                              class="fa-solid fa-trash"
+                                              onClick={() =>
+                                                handleDeleteField(fieldIndex)
+                                              }
+                                            />
+                                          </div>
+                                          <div className="input-box">
+                                            <input
+                                              type="file"
+                                              multiple
+                                              class="upload-box"
+                                              onChange={(e) =>
+                                                handleOtherDocumentFileChange(
+                                                  fieldIndex,
+                                                  e
+                                                )
+                                              }
+                                            />
+                                          </div>
+                                          {field?.files?.length > 0 && (
+                                            <div>
+                                              <h4>Selected files:</h4>
+                                              {field?.files?.map(
+                                                (file, fileIndex) => (
+                                                  <div key={fileIndex}>
+                                                    <div className="selectfile">
+                                                      <p>{file?.name}</p>
+                                                      <i
+                                                        class="fa-solid fa-xmark"
+                                                        onClick={() =>
+                                                          handleRemoveOtherDocumentFile(
+                                                            fieldIndex,
+                                                            fileIndex
+                                                          )
+                                                        }
+                                                        style={{
+                                                          cursor: "pointer",
+                                                        }}
+                                                      ></i>
+                                                    </div>
+
+                                                    <div
+                                                      class="progress"
+                                                      role="progressbar"
+                                                      aria-label="Basic example"
+                                                      aria-valuenow="100"
+                                                      aria-valuemin="0"
+                                                      aria-valuemax="100"
+                                                      style={{ height: "6px" }}
+                                                    >
+                                                      <div
+                                                        class="progress-bar"
+                                                        style={{
+                                                          width: "100%",
+                                                        }}
+                                                      ></div>
+                                                    </div>
+                                                  </div>
+                                                )
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
-                                      </label>
-                                    )}
-                                    <div class="input-box">
-                                      <input
-                                        type="file"
-                                        value={field.value}
-                                        class="upload-box"
-                                        onChange={(event) =>
-                                          handleValueChange(index, event)
-                                        }
-                                        // class="input-box"
-                                      />
-                                    </div>
-                                  </div>
-                                ))}
-                                {/* </div> */}
-                              </div>
+                                      </div>
+                                    )
+                                  )}
+                                </div>
 
-                              <div
-                                class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                style={{
-                                  display: "flex",
-                                  justifyContent: "flex-start",
-                                }}
-                              >
-                                <button
-                                  type="button"
-                                  className="cmn-btn"
-                                  onClick={addDynamicField}
+                                <div
+                                  class="my-4 col-lg-6 col-md-6 col-sm-12"
+                                  style={{
+                                    display: "flex",
+                                    justifyContent: "flex-start",
+                                  }}
                                 >
-                                  + Other Documents
-                                </button>
+                                  <button onClick={addOtherDocumentField}>
+                                    Add Field
+                                  </button>
+                                </div>
                               </div>
                             </div>
 

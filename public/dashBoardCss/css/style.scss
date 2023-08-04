@@ -194,6 +194,9 @@ button {
         }
     }
 }
+.modalLogout{
+    z-index: 9999 !important;
+}
 .side_nav {
     min-width: 250px;
     max-width: 250px;

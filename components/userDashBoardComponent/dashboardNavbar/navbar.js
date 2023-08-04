@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import LogoutModal from "../../logoutModal/LogoutModal";
+import { useRouter } from "next/router";
 
 function Navbar({ toggleSidebar }) {
+  const router = useRouter();
+
   const [showLogout, setShowLogout] = useState(false);
 
   return (
@@ -34,7 +37,13 @@ function Navbar({ toggleSidebar }) {
                         View profile
                       </a>
                     </li> */}
-                      <li onClick={() => setShowLogout(true)}>
+                      <li
+                        onClick={() => {
+                          setShowLogout(true);
+                          // localStorage.clear();
+                          // router.push("/login");
+                        }}
+                      >
                         <a class="dropdown-item" href="#">
                           Logout
                         </a>

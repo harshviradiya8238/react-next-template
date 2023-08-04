@@ -7,6 +7,8 @@ import { useRouter } from "next/router";
 import Sidebar from "./userDashBoardComponent/Sidebar";
 import Navbar from "./userDashBoardComponent/dashboardNavbar/navbar";
 import { useState } from "react";
+import { NotificationContainer } from "react-notifications";
+import "react-notifications/lib/notifications.css";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -36,6 +38,8 @@ const Layout = ({ children }) => {
             : "wrapper_close"
         }
       >
+        <NotificationContainer />
+
         {children}
       </div>
       {/* <Ready /> */}

@@ -66,7 +66,7 @@ function Profile() {
             <div class="row">
               <div
                 class="col-lg
-              -3 col-md-6 col-sm-12 m-basics"
+              -4 col-md-6 col-sm-12 m-basics"
               >
                 <label for="first-name">First Name</label>
                 <input
@@ -79,7 +79,7 @@ function Profile() {
                   required
                 />
               </div>
-              <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
+              <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
                 <label for="email">E-mail</label>
                 <input
                   type="email"
@@ -92,7 +92,7 @@ function Profile() {
                 />
               </div>
 
-              <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
+              <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
                 <label for="phone">Contact No</label>
                 <PhoneInput
                   style={{
@@ -106,20 +106,6 @@ function Profile() {
                   value={phoneValue}
                   onChange={setPhoneValue}
                 />
-              </div>
-              <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-                <label for="bdate">Birthday Date</label>
-                <div
-                  style={{
-                    width: "100%",
-                  }}
-                >
-                  <DatePicker
-                    type="number"
-                    selected={startDate}
-                    onChange={(date) => setStartDate(date)}
-                  />
-                </div>
               </div>
             </div>
             <div class="row">
@@ -268,6 +254,16 @@ function Profile() {
               </div>
               <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
                 <label for="ac-number">Account Number</label>
+                <input
+                  type="number"
+                  id="ac-number"
+                  name="ac-number"
+                  required
+                  onChange={handleKycOnchange}
+                />
+              </div>
+              <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                <label for="ac-number">ConfirmAccount Number</label>
                 <input
                   type="number"
                   id="ac-number"

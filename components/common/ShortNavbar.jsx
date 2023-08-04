@@ -38,7 +38,7 @@ const ShortNavbar = () => {
                   <li className="nav-item">Don&#39;t have an account</li>
                 </ul>
                 <div className="right-area header-action d-flex align-items-center">
-                  <Link href="/register" className="cmn-btn">
+                  <Link href="/loanapplication" className="cmn-btn">
                     Register
                   </Link>
                 </div>
