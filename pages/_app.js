@@ -9,7 +9,6 @@ import { NotificationContainer } from "react-notifications";
 import { wrapper } from "../store";
 
 function App({ Component, pageProps }) {
-  console.log(Component, pageProps);
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);

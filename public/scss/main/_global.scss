@@ -1,6 +1,5 @@
 :root {
-  --body-font: "Roboto";
-
+  --body-font: "" ;
   --body-color: #ffffff;
   --para-color: #2c3655;
   --head-color: #0a1023;
@@ -17,7 +16,7 @@ html {
 }
 
 body {
-  font-family: var(--body-font);
+  // font-family: var(--body-font) !important;
   background-color: var(--body-color);
   font-size: 18px;
   line-height: 30px;
@@ -25,6 +24,15 @@ body {
   margin: 0;
   font-weight: 400;
   overflow-x: hidden;
+}
+
+.loader {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* Set a desired height */
+  font-size: 18px;
+  color: #555;
 }
 
 h1,
@@ -49,7 +57,7 @@ h5,
 h5 > a,
 h6,
 h6 > a {
-  font-family: var(--body-font);
+  // font-family: var(--body-font) !important;
   color: var(--head-color);
   font-weight: 600;
   text-transform: initial;
@@ -109,7 +117,7 @@ textarea {
   padding: 0px 20px;
   // color: #1e266d;
   width: 100%;
-  font-family: var(--body-font) !important;
+  // font-family: var(--body-font) !important;
   height: 50px;
   // background: #f5faff;
   border: 1px solid #eef1ff;
@@ -275,7 +283,7 @@ p,
 span,
 li {
   margin: 0;
-  font-family: var(--body-font);
+  // font-family: var(--body-font) !important;
   font-size: 18px;
   font-weight: 400;
   // color: var(--para-color);
@@ -618,7 +626,7 @@ li {
   padding: 10px 20px;
   color: #1e266d;
   width: 100%;
-  font-family: var(--body-font) !important;
+  // font-family: var(--body-font) !important;
   height: 50px;
   // background: #f5faff;
   border: 1px solid #eef1ff;
@@ -664,7 +672,7 @@ li {
         // padding: 10px ;
           color: #1e266d;
           width: 100%;
-          font-family: var(--body-font) !important;
+          // font-family: var(--body-font) !important;
           // height: 60px;
           background :none !important;
           border: none !important;

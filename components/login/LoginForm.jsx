@@ -70,11 +70,12 @@ const LoginForm = () => {
                         const { data } = dataset;
                         console.log(data);
                         if (data.success) {
+                          console.log(data);
                           // Redirect to a new page using the router
                           router.push("/userDashBoard");
 
                           Notification("success", "Login SuccessFully");
-                          localStorage.setItem("token", data.value);
+                          localStorage.setItem("logintoken", data.value.token);
                         } else {
                           Notification("error", "error");
                         }
@@ -120,7 +121,7 @@ const LoginForm = () => {
                                 }
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                placeholder="Your email ID here"
+                                placeholder="Enter Your Email Id or phone number"
                                 required
                               />
 
@@ -141,7 +142,6 @@ const LoginForm = () => {
                             <div className="password-show d-flex align-items-center">
                               <input
                                 type={showPassword ? "text" : "password"}
-                                className="passInput"
                                 name="password"
                                 id="confirmPass"
                                 placeholder="Enter Your Password"

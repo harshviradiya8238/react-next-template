@@ -64,11 +64,12 @@ const PasswordSetForm = () => {
                       const response = await axios.post(
                         "https://loancrmtrn.azurewebsites.net/api/User/ResetPasswordWithOTP",
                         {
-                          otp: values.otp,
+                          otp: values.otp.toString(),
                           newPassword: values.newPassword,
                           confirmPassword: values.confirmPassword,
                         }
                       );
+                      console.log(response);
                       const { data } = response;
                       console.log(data);
                       if (data?.success) {

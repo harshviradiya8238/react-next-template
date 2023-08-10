@@ -13,7 +13,6 @@ import "react-notifications/lib/notifications.css";
 const Layout = ({ children }) => {
   const router = useRouter();
   const { pathname } = router;
-  console.log(pathname);
 
   const [isOpen, setIsOpen] = useState(false);
 

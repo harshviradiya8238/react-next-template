@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useMemo, useRef } from "react";
 import "react-phone-number-input/style.css";
 import PhoneInput from "react-phone-number-input";
 import { useState } from "react";
@@ -7,19 +7,101 @@ import "react-datepicker/dist/react-datepicker.css";
 // import { CountryDropdown, CountrySelect } from "react-select-country-flag";
 import Select from "react-select";
 import countryList from "react-select-country-list";
+import jwtDecode from "jwt-decode";
+import { useEffect } from "react";
+import axios from "axios";
 
 function Profile() {
+  const aRef = useRef(null);
+
   const [phoneValue, setPhoneValue] = useState();
   const [startDate, setStartDate] = useState(new Date());
   const [value, setValue] = useState("");
+  const [userInfo, setUserInfo] = useState("");
+
   const options = useMemo(() => countryList().getData(), []);
 
   const changeHandler = (value) => {
     setValue(value);
   };
 
-  const handleChange = () => {};
+  useEffect(async () => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+          const userData = jwtDecode(token);
+          const response = await axios.get(
+            `https://loancrmtrn.azurewebsites.net/api/User/GetById?userId=${userData?.UserDetails?.Id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const { data } = response;
+          if (data?.success) {
+            setUserInfo(data.value);
+          }
+          return response;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    await fetchData();
+  }, []);
+
   const handleKycOnchange = () => {};
+
+  const [profileState, setProfileState] = useState({
+    firstName: "",
+    phoneNumber: "",
+    email: "",
+    address1: "",
+    address2: "",
+    city: "",
+    state: "",
+    zipCode: "",
+    country: "",
+  });
+  useEffect(() => {
+    setProfileState({
+      firstName: userInfo?.firstName,
+      phoneNumber: userInfo?.phoneNumber,
+      email: userInfo?.email,
+    });
+  }, [userInfo]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setProfileState((prevFormData) => ({
+      ...prevFormData,
+      [name]: value,
+    }));
+  };
+
+  const [docFiles, setdocFiles] = useState({
+    panCard: [],
+    aadharFront: [],
+    aadharBack: [],
+  });
+
+  const handlePanFileChange = (fieldType, event) => {
+    const selectedFiles = [...event.target.files];
+    const updatedFiles = selectedFiles.slice(0, 3);
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: updatedFiles,
+    }));
+  };
+
+  const handleRemoveFile = (fieldType, index) => {
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
+    }));
+  };
 
   return (
     <div class="profile-page-section">
@@ -72,9 +154,9 @@ function Profile() {
                 <input
                   type="text"
                   id="first-name"
-                  name="first-name"
+                  name="firstName"
                   placeholder="John Test"
-                  // value="Jignesh Patel"
+                  value={profileState.firstName}
                   onChange={handleChange}
                   required
                 />
@@ -87,7 +169,7 @@ function Profile() {
                   placeholder="johntest@gmail.com"
                   name="email"
                   onChange={handleChange}
-                  // value="jigneshp123@gmail.com"
+                  value={profileState?.email}
                   required
                 />
               </div>
@@ -101,9 +183,10 @@ function Profile() {
                     borderBottom: "1px solid #eef1ff",
                   }}
                   international
+                  name="phoneNumber"
                   defaultCountry="IN"
                   placeholder="+91 9999999999"
-                  value={phoneValue}
+                  value={profileState?.phoneNumber}
                   onChange={setPhoneValue}
                 />
               </div>
@@ -114,8 +197,9 @@ function Profile() {
                 <input
                   id="address"
                   placeholder="A-301 Santosa Heights"
-                  name="address"
+                  name="address1"
                   rows="1"
+                  value={profileState?.address1}
                   onChange={handleChange}
                 ></input>
               </div>
@@ -125,9 +209,10 @@ function Profile() {
                 <label for="address-2"> Address Line 2 :</label>
                 <input
                   id="address-2"
-                  name="address-2"
+                  name="address2"
                   placeholder="near Royal Farm,satellite"
                   rows="1"
+                  value={profileState?.address2}
                   onChange={handleChange}
                 ></input>
               </div>
@@ -140,6 +225,7 @@ function Profile() {
                   type="text"
                   placeholder="Surat"
                   id="city"
+                  value={profileState?.city}
                   name="city"
                   onChange={handleChange}
                   // value="9237781246"
@@ -150,6 +236,7 @@ function Profile() {
                 <label for="phone">State:</label>
                 <input
                   type="text"
+                  value={profileState?.state}
                   id="state"
                   placeholder="Gujarat"
                   name="state"
@@ -165,7 +252,8 @@ function Profile() {
                   type="text"
                   id="zip"
                   placeholder="394101"
-                  name="zip"
+                  name="zipCode"
+                  value={profileState?.zip}
                   onChange={handleChange}
                   // value="9237781246"
                   required
@@ -176,7 +264,8 @@ function Profile() {
                 <div className="countrySelect">
                   <Select
                     options={options}
-                    value={value}
+                    name="country"
+                    value={profileState?.country}
                     onChange={changeHandler}
                   />
                 </div>
@@ -203,41 +292,141 @@ function Profile() {
                 <div class="input-box ">
                   <input
                     type="file"
-                    class="upload-box"
-                    name="files[]"
-                    onChange={handleKycOnchange}
                     multiple
+                    ref={aRef}
+                    class="upload-box"
+                    onChange={(e) => handlePanFileChange("panCard", e)}
                   />
-                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
+                {docFiles?.panCard?.length > 0 && (
+                  <div>
+                    <h4>Selected files:</h4>
+                    {docFiles &&
+                      docFiles?.panCard?.map((file, index) => (
+                        <div key={index}>
+                          <div className="selectfile">
+                            <p>{file?.name}</p>
+                            <i
+                              class="fa-solid fa-xmark"
+                              onClick={() => handleRemoveFile("panCard", index)}
+                              style={{ cursor: "pointer" }}
+                            ></i>
+                          </div>
+
+                          <div
+                            class="progress"
+                            role="progressbar"
+                            aria-label="Basic example"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style={{ height: "6px" }}
+                          >
+                            <div
+                              class="progress-bar"
+                              style={{ width: "100%" }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
 
               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                 <h4>Aadhaar Upload- Front Side</h4>
-                <div class="input-box">
+                <div class="input-box ">
                   <input
                     type="file"
-                    class="upload-box"
-                    name="files[]"
-                    onChange={handleKycOnchange}
                     multiple
+                    ref={aRef}
+                    class="upload-box"
+                    onChange={(e) => handlePanFileChange("aadharFront", e)}
                   />
-                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
+                {docFiles?.aadharFront?.length > 0 && (
+                  <div>
+                    <h4>Selected files:</h4>
+                    {docFiles &&
+                      docFiles?.aadharFront?.map((file, index) => (
+                        <div key={index}>
+                          <div className="selectfile">
+                            <p>{file?.name}</p>
+                            <i
+                              class="fa-solid fa-xmark"
+                              onClick={() =>
+                                handleRemoveFile("aadharFront", index)
+                              }
+                              style={{ cursor: "pointer" }}
+                            ></i>
+                          </div>
+
+                          <div
+                            class="progress"
+                            role="progressbar"
+                            aria-label="Basic example"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style={{ height: "6px" }}
+                          >
+                            <div
+                              class="progress-bar"
+                              style={{ width: "100%" }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
 
               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                 <h4>Aadhaar Upload- Back Side</h4>
-                <div class="input-box">
+                <div class="input-box ">
                   <input
                     type="file"
-                    class="upload-box"
-                    onChange={handleKycOnchange}
-                    name="files[]"
                     multiple
+                    ref={aRef}
+                    class="upload-box"
+                    onChange={(e) => handlePanFileChange("aadharBack", e)}
                   />
-                  {/* <i class="fa-solid fa-xmark"></i> */}
                 </div>
+                {docFiles?.aadharBack?.length > 0 && (
+                  <div>
+                    <h4>Selected files:</h4>
+                    {docFiles &&
+                      docFiles?.aadharBack?.map((file, index) => (
+                        <div key={index}>
+                          <div className="selectfile">
+                            <p>{file?.name}</p>
+                            <i
+                              class="fa-solid fa  -xmark"
+                              onClick={() =>
+                                handleRemoveFile("aadharBack", index)
+                              }
+                              style={{ cursor: "pointer" }}
+                            ></i>
+                          </div>
+
+                          <div
+                            class="progress"
+                            role="progressbar"
+                            aria-label="Basic example"
+                            aria-valuenow="100"
+                            aria-valuemin="0"
+                            aria-valuemax="100"
+                            style={{ height: "6px" }}
+                          >
+                            <div
+                              class="progress-bar"
+                              style={{ width: "100%" }}
+                            ></div>
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
             <div class="row">
@@ -263,7 +452,7 @@ function Profile() {
                 />
               </div>
               <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                <label for="ac-number">ConfirmAccount Number</label>
+                <label for="ac-number">Confirm Account Number</label>
                 <input
                   type="number"
                   id="ac-number"
@@ -278,7 +467,6 @@ function Profile() {
                   type="text"
                   id="IFSC"
                   name="IFSC"
-                  value=""
                   required
                   onChange={handleKycOnchange}
                 />

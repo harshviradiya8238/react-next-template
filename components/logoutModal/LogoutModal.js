@@ -6,10 +6,10 @@ import Notification from "../utils/Notification";
 function LogoutModal({ show, close }) {
   const router = useRouter();
 
-  const handleLogout = () => {
-    localStorage.clear();
+  const handleLogout = async () => {
+    await localStorage.clear();
+    await router.push("/login");
     Notification("success", "Logout successFully");
-    router.push("/login");
   };
   return (
     <div

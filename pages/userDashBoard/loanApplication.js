@@ -157,7 +157,19 @@ function LoanApplication() {
       };
     });
   };
-
+  // const handleFilePreview = (file) => {
+  //   // return URL.createObjectURL(file.target.files[0]);
+  //   return new Promise((resolve, reject) => {
+  //     const reader = new FileReader();
+  //     reader.onload = (event) => {
+  //       resolve(event.target.result);
+  //     };
+  //     reader.onerror = (event) => {
+  //       reject(event.target.error);
+  //     };
+  //     reader.readAsDataURL(file);
+  //   });
+  // };
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form ">
       <div className="overlay pt-120">
@@ -423,17 +435,6 @@ function LoanApplication() {
                                   }}
                                 >
                                   <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() =>
-                                      handlePrevious(setFieldValue, values)
-                                    }
-                                  >
-                                    Previous
-                                  </button>
-
-                                  <button
                                     onClick={handleCheckEligiblity}
                                     className="cmn-btn"
                                   >
@@ -471,8 +472,8 @@ function LoanApplication() {
                                       docFiles?.itrFile?.map((file, index) => (
                                         <div key={index}>
                                           <div className="selectfile">
-                                            {console.log(file?.name)}
                                             <p>{file?.name}</p>
+
                                             <i
                                               class="fa-solid fa-xmark"
                                               onClick={() =>
@@ -481,7 +482,9 @@ function LoanApplication() {
                                                   index
                                                 )
                                               }
-                                              style={{ cursor: "pointer" }}
+                                              style={{
+                                                cursor: "pointer",
+                                              }}
                                             ></i>
                                           </div>
 
@@ -496,7 +499,9 @@ function LoanApplication() {
                                           >
                                             <div
                                               class="progress-bar"
-                                              style={{ width: "100%" }}
+                                              style={{
+                                                width: "100%",
+                                              }}
                                             ></div>
                                           </div>
                                         </div>
@@ -559,12 +564,15 @@ function LoanApplication() {
                                   </div>
                                 )}
                               </div>
-                              <div>
+                              {/* <div>
                                 <div class="row">
                                   {docFiles.otherDocuments.map(
                                     (field, fieldIndex) => (
-                                      <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                        <div key={fieldIndex}>
+                                      <div
+                                        key={fieldIndex}
+                                        class="my-4 col-lg-6 col-md-6 col-sm-12"
+                                      >
+                                        <div>
                                           {field.editable ? (
                                             <input
                                               type="text"
@@ -576,7 +584,7 @@ function LoanApplication() {
                                                   e.target.value
                                                 )
                                               }
-                                              placeholder="Enter label for this field"
+                                              placeholder="Upload Document"
                                             />
                                           ) : (
                                             <h4>{field.label}</h4>
@@ -697,10 +705,10 @@ function LoanApplication() {
                                   }}
                                 >
                                   <button onClick={addOtherDocumentField}>
-                                    Add Field
+                                    other
                                   </button>
                                 </div>
-                              </div>
+                              </div> */}
                             </div>
 
                             <div
