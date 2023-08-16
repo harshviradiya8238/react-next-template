@@ -50,7 +50,7 @@ function HomePageCarousal() {
         <Carousel activeIndex={index} onSelect={handleSelect}>
           {bootstrap.map((item) => (
             <Carousel.Item key={item.id} interval={4000}>
-              <img src={item.imageUrl} alt="slides" />
+              <img src={item.imageUrl} alt="slides" className="homeCarousel" />
               <Carousel.Caption>
                 <h1 style={{ color: "white" }}>{item.title}</h1>
                 <p style={{ color: "white" }}>{item.body}</p>

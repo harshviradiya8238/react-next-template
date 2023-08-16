@@ -1,6 +1,39 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useRouter } from "next/router";
+import axios from "axios";
 
 function ViewLoan() {
+  const router = useRouter();
+  const { id } = router.query;
+  const [loanData, setLoanData] = useState("");
+  console.log(loanData, "-=-=");
+  useEffect(() => {
+    const token = localStorage.getItem("logintoken");
+
+    const GetLoanById = async (token) => {
+      // const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.get(
+          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetById?id=${id}`,
+
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+
+        setLoanData(data.value);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
+
+    GetLoanById(token);
+  }, []);
+
   const [docFiles, setdocFiles] = useState([]);
 
   const aRef = useRef(null);
@@ -110,7 +143,7 @@ function ViewLoan() {
                     type="text"
                     id="first-name"
                     name="first-name"
-                    value="Jignesh Patel"
+                    value={`${loanData?.user?.firstName} ${loanData?.user?.lastName}`}
                     required
                     disabled
                   />
@@ -121,7 +154,7 @@ function ViewLoan() {
                     type="email"
                     id="email"
                     name="email"
-                    value="jigneshp123@gmail.com"
+                    value={loanData?.user?.email}
                     required
                     disabled
                   />
@@ -132,7 +165,7 @@ function ViewLoan() {
                     type="number"
                     id="phone"
                     name="phone"
-                    value="9237781246"
+                    value={loanData?.user?.phoneNumber}
                     required
                     disabled
                   />
@@ -144,6 +177,7 @@ function ViewLoan() {
                       type="text"
                       id="state"
                       placeholder="Gujarat"
+                      value={loanData?.state}
                       required=""
                       disabled
                     />
@@ -155,7 +189,7 @@ function ViewLoan() {
                     type="loan-status"
                     id="loan-status"
                     name="loan-status"
-                    value="Pending"
+                    value={loanData?.status}
                     required
                     disabled
                   />
@@ -167,7 +201,7 @@ function ViewLoan() {
                     type="number"
                     id="Loan-Amount"
                     name="begin"
-                    value="500000"
+                    value={loanData?.amount}
                     disabled
                   />
                 </div>
@@ -177,21 +211,10 @@ function ViewLoan() {
                     <input
                       // type="number"
                       // id="Loan-Amount"
-                      name="BusinessLoan"
-                      value="BusinessLoan"
+                      value={loanData?.loanType}
+                      //   name="BusinessLoan"
                       disabled
                     />
-                    {/* <select
-                      class="selectDrop form-select"
-                      aria-label="Default select example"
-
-                      // disabled
-                    >
-                      <option>Business Loan</option>
-                      <option value="1">Personal Loan</option>
-                      <option value="2">Home Loan</option>
-                      <option value="3">Car Loan</option>
-                    </select> */}
                   </div>
                 </div>
                 <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
@@ -199,6 +222,7 @@ function ViewLoan() {
                     <label for="term">Loan Tenure</label>
                     <input
                       type="text"
+                      value={loanData?.tenure}
                       id="term"
                       placeholder="1 Year"
                       disabled
@@ -221,230 +245,72 @@ function ViewLoan() {
             aria-labelledby="nav-kyc-tab"
             tabindex="0"
           >
-            <form action="" class="form">
-              <div class="row">
-                <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                  <h4>Business proof</h4>
-                  <div class="input-box ">
-                    <input
-                      type="file"
-                      multiple
-                      ref={aRef}
-                      class="upload-box"
-                      name="step3.business"
-                      onChange={handlePanFileChange}
-                    />
-                  </div>
-                  {docFiles.length > 0 && (
-                    <div>
-                      <h4>Selected files:</h4>
-                      {docFiles &&
-                        docFiles?.map((file, index) => (
-                          <div key={index}>
-                            <div className="selectfile">
-                              <p>{file?.name}</p>
-                              <i
-                                class="fa-solid fa-xmark"
-                                onClick={() => handleRemoveFile(index)}
-                                style={{ cursor: "pointer" }}
-                              ></i>
-                            </div>
+            {/* <form action="" class="form">
+            <div class="row">
+                                  {documentOption?.length > 0 &&
+                                    documentOption.map((data, index) => {
+                                      return (
+                                        <>
+                                          <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                                            <div key={index}>
+                                              <h4>{data?.name}</h4>
+                                              <div class="input-box ">
+                                                <input
+                                                  type="file"
+                                                  multiple
+                                                  ref={aRef}
+                                                  class="upload-box"
+                                                  onChange={(e) =>
+                                                    handlePanFileChange(
+                                                      data?.name,
+                                                      e,
+                                                      data?.id
+                                                    )
+                                                  }
+                                                />
+                                              </div>
+                                            </div>
+                                            {docFiles[data?.name]?.length >
+                                              0 && (
+                                              <div>
+                                                <h4>Selected files:</h4>
+                                                {docFiles[data?.name] &&
+                                                  docFiles[data?.name]?.map(
+                                                    (file, index) => (
+                                                      <div key={index}>
+                                                        <div className="selectfile">
+                                                          <p>{file?.name}</p>
 
-                            <div
-                              class="progress"
-                              role="progressbar"
-                              aria-label="Basic example"
-                              aria-valuenow="100"
-                              aria-valuemin="0"
-                              aria-valuemax="100"
-                              style={{ height: "6px" }}
-                            >
-                              <div
-                                class="progress-bar"
-                                style={{ width: "100%" }}
-                              ></div>
-                            </div>
-                          </div>
-                        ))}
-                    </div>
-                  )}
-                </div>
-
-                <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                  <h4> GST Certificate </h4>
-
-                  <div class="input-box">
-                    <input
-                      type="file"
-                      class="upload-box"
-                      name="files[]"
-                      multiple
-                    />
-                    {/* <i class="fa-solid fa-xmark"></i> */}
-                  </div>
-                </div>
-
-                {/* <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                                <h4>PAN Card</h4>
-                                <div class="input-box">
-                                  <input
-                                    type="file"
-                                    class="upload-box"
-                                    name="files[]"
-                                    multiple
-                                  />
-                                  <i class="fa-solid fa-xmark"></i>
-                                </div>
-                              </div>
-
-                              <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                                <h4>Adhar card</h4>
-                                <div class="input-box">
-                                  <input
-                                    type="file"
-                                    class="upload-box"
-                                    name="files[]"
-                                    multiple
-                                  />
-                                  <i class="fa-solid fa-xmark"></i>
-                                </div>
-                              </div> */}
-
-                <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                  <h4>Light Bill</h4>
-                  <div class="input-box">
-                    <input
-                      type="file"
-                      class="upload-box"
-                      name="files[]"
-                      multiple
-                    />
-                    {/* <i class="fa-solid fa-xmark"></i> */}
-                  </div>
-                </div>
-
-                <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                  <h4>3 year ITR</h4>
-                  <div class="input-box">
-                    <input
-                      type="file"
-                      class="upload-box"
-                      name="files[]"
-                      multiple
-                    />
-                    {/* <i class="fa-solid fa-xmark"></i> */}
-                  </div>
-                </div>
-
-                <div class="row">
-                  <div class="my-5 col-lg-6 col-md-6 col-sm-12">
-                    <h4> Bank Statement</h4>
-                    <div class="input-box">
-                      <input
-                        type="file"
-                        class="upload-box"
-                        name="files[]"
-                        multiple
-                      />
-                      {/* <i class="fa-solid fa-xmark"></i> */}
-                    </div>
-                  </div>
-
-                  {documentFields.map((field, index) => (
-                    <div key={index} class="my-5 col-lg-6 col-md-6 col-sm-12">
-                      {field.editLabel ? (
-                        <div className="field-container">
-                          <input
-                            type="text"
-                            value={field.label}
-                            onChange={(event) =>
-                              handleLabelChange(index, event)
-                            }
-                            placeholder="Other Document"
-                          />
-                          <i
-                            class="fa-solid fa-pen-to-square"
-                            style={{
-                              color: "green",
-                              cursor: "pointer",
-                              marginRight: "10px",
-                            }}
-                            onClick={() => toggleEditLabel(index)}
-                          />
-                          <i
-                            style={{
-                              color: "red",
-                              cursor: "pointer",
-                              marginRight: "10px",
-                            }}
-                            class="fa-solid fa-trash"
-                            onClick={() => deleteField(index)}
-                          />
-                        </div>
-                      ) : (
-                        <label onClick={() => toggleEditLabel(index)}>
-                          <div
-                            style={{
-                              display: "flex",
-                            }}
-                          >
-                            <h4 style={{ marginRight: "10px" }}>
-                              {" "}
-                              {field.label}
-                            </h4>
-                            <i
-                              class="fa-solid fa-pen-to-square"
-                              style={{
-                                color: "green",
-                                cursor: "pointer",
-                                marginRight: "10px",
-                              }}
-                            />
-                            <i
-                              style={{
-                                color: "red",
-                                cursor: "pointer",
-                                marginRight: "10px",
-                              }}
-                              class="fa-solid fa-trash"
-                              onClick={() => deleteField(index)}
-                            />
-                          </div>
-                        </label>
-                      )}
-                      <div class="input-box">
-                        <input
-                          type="file"
-                          value={field.value}
-                          class="upload-box"
-                          onChange={(event) => handleValueChange(index, event)}
-                          // class="input-box"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div
-                  class="my-5 col-lg-6 col-md-6 col-sm-12"
-                  style={{
-                    display: "flex",
-                    justifyContent: "flex-start",
-                  }}
-                >
-                  <button
-                    type="button"
-                    className="cmn-btn"
-                    onClick={addDynamicField}
-                  >
-                    + Other Documents
-                  </button>
-                </div>
-              </div>
-              {/* <div class="btn-section">
-                <button class="profile-btn me-3">Edit</button>
-                <button class="profile-btn">Save</button>
-              </div> */}
-            </form>
+                                                          <i
+                                                            class="fa-solid fa-xmark"
+                                                            onClick={() =>
+                                                              handleRemoveFile(
+                                                                data?.name,
+                                                                index
+                                                              )
+                                                            }
+                                                            style={{
+                                                              cursor: "pointer",
+                                                            }}
+                                                          ></i>
+                                                        </div>
+                                                        {file && (
+                                                          <PreviewComponent
+                                                            file={file}
+                                                          />
+                                                        )}
+                                                
+                                                      </div>
+                                                    )
+                                                  )}
+                                              </div>
+                                            )}
+                                          </div>
+                                        </>
+                                      );
+                                    })}
+</div>
+            </form> */}
           </div>
 
           <div
@@ -460,8 +326,6 @@ function ViewLoan() {
                   <table class="table ">
                     <thead>
                       <tr>
-                        <th>Date</th>
-                        <th> Name</th>
                         <th>Status</th>
                         <th>Comment</th>
                         <th>Remarks</th>
@@ -470,10 +334,6 @@ function ViewLoan() {
                     </thead>
                     <tbody>
                       <tr>
-                        <td>
-                          6/27/2023 <br /> 3:20:10 PM{" "}
-                        </td>
-                        <td> Sattar Patel </td>
                         <td>
                           <span class="all-btn Accepted-btn">New</span>
                         </td>
@@ -491,10 +351,6 @@ function ViewLoan() {
                       </tr>
                       <tr>
                         <td>
-                          6/26/2023 <br /> 1:49:50 PM{" "}
-                        </td>
-                        <td> Sattar Patel </td>
-                        <td>
                           <span class="all-btn Approved-btn">Approved</span>
                         </td>
                         <td>GST Certificate has been received</td>
@@ -511,10 +367,6 @@ function ViewLoan() {
                       </tr>
                       <tr>
                         <td>
-                          6/25/2023 <br /> 7:20:10 PM{" "}
-                        </td>
-                        <td> Sattar Patel </td>
-                        <td>
                           <span class="all-btn Re-Active-btn">ReActivate</span>
                         </td>
                         <td>GST Certificate not match</td>
@@ -530,10 +382,6 @@ function ViewLoan() {
                         </td>
                       </tr>
                       <tr>
-                        <td>
-                          6/25/2023 <br /> 3:20:10 PM{" "}
-                        </td>
-                        <td> Sattar Patel </td>
                         <td>
                           <span class="all-btn Process-btn">Re-submit</span>
                         </td>

@@ -1,6 +1,39 @@
+import axios from "axios";
+import jwtDecode from "jwt-decode";
 import Link from "next/link";
+import { useEffect, useState } from "react";
 
 export default function DashBoardDefault() {
+  const [loanApplication, setLoanApplication] = useState("");
+  console.log(loanApplication, "-==-");
+
+  useEffect(() => {
+    const token = localStorage.getItem("logintoken");
+
+    const GetAllApplication = async (token) => {
+      // const token = localStorage.getItem("logintoken");
+      try {
+        const userData = jwtDecode(token);
+        const response = await axios.get(
+          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+
+        setLoanApplication(data.value);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
+
+    GetAllApplication(token);
+  }, [0]);
+
   return (
     <>
       <div>
@@ -73,7 +106,39 @@ export default function DashBoardDefault() {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
+                    {loanApplication &&
+                      loanApplication.length &&
+                      loanApplication.map((data, index) => {
+                        return (
+                          <>
+                            <tr>
+                              <td>{index + 1}</td>
+                              <td>{data?.applicationNumber}</td>
+                              <td>Bajaj</td>
+                              <td>{data?.amount}</td>
+                              <td>
+                                <span class="all-btn Accepted-btn">
+                                  {data?.status}
+                                </span>
+                              </td>
+                              <td>
+                                <Link
+                                  href={`/userDashBoard/viewLoan/${data?.id}`}
+                                  className="cmn-btn"
+                                  style={{
+                                    background: "none",
+                                    padding: "0",
+                                    border: "none",
+                                  }}
+                                >
+                                  <i class="fa-regular fa-eye" />
+                                </Link>
+                              </td>
+                            </tr>
+                          </>
+                        );
+                      })}
+                    {/* <tr>
                       <td>1</td>
                       <td>vfok65c8 </td>
                       <td> SBI </td>
@@ -94,9 +159,9 @@ export default function DashBoardDefault() {
                           <i class="fa-regular fa-eye" />
                         </Link>
                       </td>
-                    </tr>
+                    </tr> */}
 
-                    <tr>
+                    {/* <tr>
                       <td>2</td>
                       <td>vfok65c9</td>
                       <td>Bajaj</td>
@@ -184,7 +249,7 @@ export default function DashBoardDefault() {
                           <i class="fa-regular fa-eye" />
                         </Link>
                       </td>
-                    </tr>
+                    </tr> */}
                   </tbody>
                 </table>
               </div>

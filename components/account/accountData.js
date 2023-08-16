@@ -11,7 +11,7 @@ export const business_solutions_data = [
     id: 1,
     title: "Home Loan",
     icon: checking,
-    desc: "Choose from our checking options that allow you to earn interest, avoid fees, and easily manage your account and make dream come true.",
+    desc: "Choose from our checking options that allow you to earn interest and easily manage your account and make dream come true.",
     link: "/loanapplication",
   },
   {

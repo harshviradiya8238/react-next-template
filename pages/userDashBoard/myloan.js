@@ -1,7 +1,7 @@
 import Link from "next/link";
 import React from "react";
 
-function PendingLoan() {
+function Myloan() {
   return (
     <div class="loan-content-body">
       <div class="container">
@@ -139,4 +139,4 @@ function PendingLoan() {
   );
 }
 
-export default PendingLoan;
+export default Myloan;

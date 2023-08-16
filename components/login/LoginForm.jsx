@@ -34,7 +34,7 @@ const LoginForm = () => {
   };
   return (
     <section className="sign-in-up login">
-      <div className="overlay pt-60 pb-120">
+      <div className="overlay pt-40 pb-120">
         <div className="container">
           <div className="row">
             <div className="col-lg-8">
@@ -85,15 +85,6 @@ const LoginForm = () => {
                         Notification("error", "invalid credential");
                         console.log("error", err);
                       });
-
-                    // try {
-                    //     saveJob(values, navigate);
-                    //     if (setReadOnly) setReadOnly(true);
-                    // } catch (err) {
-                    //     setStatus({ success: false });
-                    //     setErrors({ submit: err.message });
-                    //     setSubmitting(false);
-                    // }
                   }}
                 >
                   {({
@@ -138,7 +129,7 @@ const LoginForm = () => {
                         </div>
                         <div className="col-12">
                           <div className="single-input ">
-                            <label htmlFor="confirmPass"> Password</label>
+                            <label> Password</label>
                             <div className="password-show d-flex align-items-center">
                               <input
                                 type={showPassword ? "text" : "password"}
@@ -146,15 +137,16 @@ const LoginForm = () => {
                                 id="confirmPass"
                                 placeholder="Enter Your Password"
                                 onBlur={handleBlur}
+                                className="passInput"
                                 onChange={handleChange}
                                 required
                               />
 
                               <span onClick={togglePasswordVisibility}>
                                 {showPassword ? (
-                                  <i className="fas fa-eye-slash"></i>
+                                  <i className="fas fa-eye-slash cursor-pointer"></i>
                                 ) : (
-                                  <i className="fas fa-eye"></i>
+                                  <i className="fas fa-eye cursor-pointer	"></i>
                                 )}
                               </span>
                             </div>

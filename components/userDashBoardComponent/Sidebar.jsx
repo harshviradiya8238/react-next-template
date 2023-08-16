@@ -64,60 +64,28 @@ function Sidebar({ toggleSidebar, isOpen }) {
           </li>
 
           <li
-          // className={` ${activeItem === "myloan" ? "active" : ""}`}
-          // onClick={() => handleItemClick("myloan")}
+            className={` ${pathname.includes("myloan") ? "active" : ""}`}
+            // className={` ${activeItem === "myloan" ? "active" : ""}`}
+            // onClick={() => handleItemClick("myloan")}
           >
-            <li style={{ color: "white" }}>
-              {" "}
+            {" "}
+            <Link href="/userDashBoard/myloan">
               <i class="fa-solid fa-note-sticky"></i>
               <span class="text">My Loan</span>
-            </li>
-
-            <ul class="my-loan-list">
-              <li
-                className={`${
-                  pathname.includes("pendingLoan") ? "active" : "normal"
-                }`}
-              >
-                <Link href="/userDashBoard/pendingLoan">
-                  {" "}
-                  <span class="text">Pending </span>
-                </Link>
-              </li>
-              <li
-                className={`${
-                  pathname.includes("approvedLoan") ? "active" : "normal"
-                }`}
-              >
-                <Link href="/userDashBoard/approvedLoan">
-                  {" "}
-                  <span class="text">Approved </span>
-                </Link>
-              </li>
-              <li
-                className={` ${
-                  pathname.includes("rejectedLoan") ? "active" : ""
-                }`}
-              >
-                <Link href="/userDashBoard/rejectedLoan">
-                  {" "}
-                  <span class="text">Rejected </span>
-                </Link>
-              </li>
-            </ul>
+            </Link>
           </li>
 
           <li className={`${pathname.includes("cashback") ? "active" : ""}`}>
-            <Link href="/userDashBoard/cashback">
-              <i class="fa-solid fa-sack-dollar"></i>
-              <span class="text">Cashback</span>
-            </Link>
+            {/* <Link href="/userDashBoard/cashback"> */}
+            <i class="fa-solid fa-sack-dollar"></i>
+            <span class="text">Cashback</span>
+            {/* </Link> */}
           </li>
           <li className={` ${pathname.includes("earn") ? "active" : ""}`}>
-            <Link href="/userDashBoard/earn">
-              <i class="fa-solid fa-gift"></i>
-              <span class="text">Referrals</span>
-            </Link>
+            {/* <Link href="/userDashBoard/earn"> */}
+            <i class="fa-solid fa-gift"></i>
+            <span class="text">Refer & Earn</span>
+            {/* </Link> */}
           </li>
           <li className={` ${pathname.includes("profile") ? "active" : ""}`}>
             <Link href="/userDashBoard/profile">

@@ -14,7 +14,7 @@ const validationSchema = Yup.object({
   newPassword: Yup.string().required("Password is required"),
   confirmPassword: Yup.string().oneOf(
     [Yup.ref("newPassword"), null],
-    "Passwords And ConfirmPassword  must match"
+    "New password and confirm password must match "
   ),
 });
 
@@ -34,6 +34,16 @@ const PasswordSetForm = () => {
   };
   const toggleConfirmPasswordVisibility = () => {
     setShowConfirmPassword(!showConfirmPassword);
+  };
+
+  const handleKeyPress = (event) => {
+    var charCode = event.which ? event.which : event.keyCode;
+    if (
+      String.fromCharCode(charCode).match(/[^0-9]/g) ||
+      event.target.value.length > 4
+    ) {
+      event.preventDefault();
+    }
   };
   return (
     <section className="sign-in-up set-password">
@@ -101,8 +111,16 @@ const PasswordSetForm = () => {
                             <label htmlFor="choosePass">Enter OTP</label>
                             <div className="password-show d-flex align-items-center">
                               <Field
-                                type={"number"}
+                                // type={"number"}
                                 name="otp"
+                                onKeyPress={(event) => {
+                                  handleKeyPress(event);
+                                }}
+                                onInput={(event) => {
+                                  if (event.target.value.length > 5) {
+                                    event.preventDefault();
+                                  }
+                                }}
                                 required
                                 placeholder="Enter Your OTP"
                               />
@@ -128,7 +146,7 @@ const PasswordSetForm = () => {
                                 placeholder="Enter Your Password"
                               />
                               <span onClick={togglePasswordVisibility}>
-                                {showNewPassword ? (
+                                {!showNewPassword ? (
                                   <i className="fas fa-eye-slash"></i>
                                 ) : (
                                   <i className="fas fa-eye"></i>
@@ -158,7 +176,7 @@ const PasswordSetForm = () => {
                                 placeholder="Enter Your Password"
                               />
                               <span onClick={toggleConfirmPasswordVisibility}>
-                                {showConfirmPassword ? (
+                                {!showConfirmPassword ? (
                                   <i className="fas fa-eye-slash"></i>
                                 ) : (
                                   <i className="fas fa-eye"></i>

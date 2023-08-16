@@ -25,7 +25,7 @@ function Profile() {
     setValue(value);
   };
 
-  useEffect(async () => {
+  useEffect(() => {
     const fetchData = async () => {
       const token = localStorage.getItem("logintoken");
       try {
@@ -49,8 +49,8 @@ function Profile() {
         console.log(error);
       }
     };
-    await fetchData();
-  }, []);
+    fetchData();
+  }, [0]);
 
   const handleKycOnchange = () => {};
 
@@ -258,17 +258,6 @@ function Profile() {
                   // value="9237781246"
                   required
                 />
-              </div>
-              <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-                <label for="phone">Country:</label>
-                <div className="countrySelect">
-                  <Select
-                    options={options}
-                    name="country"
-                    value={profileState?.country}
-                    onChange={changeHandler}
-                  />
-                </div>
               </div>
             </div>
 

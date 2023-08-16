@@ -147,18 +147,26 @@ const validationSchema = Yup.object().shape({
     email: Yup.string()
       .email("Invalid email format")
       .required("Email is required"),
-    phone: Yup.string().required("Contact No is required"),
-    state: Yup.string().required("State is required"),
+    // phone: Yup.string().required("Contact No is required"),
+    // state: Yup.string().required("State is required"),
   }),
   stepVerify: Yup.object().shape({
     mobileotp: Yup.string().required("Mobile otp is required"),
     emailotp: Yup.string().required("Email otp is required"),
   }),
+
   step2: Yup.object().shape({
     loanAmount: Yup.string().required("LoanAmount is required"),
     loanTerm: Yup.string().required("LoanTenure is required"),
-    // loanType: Yup.string().required("LoanType is required"),
-    // : Yup.string().required("pan is required"),
+    loanType: Yup.string().required("LoanType is required"),
+    State: Yup.string().required("State is required"),
+  }),
+
+  step2verify: Yup.object().shape({
+    loanAmount: Yup.string().required("LoanAmount is required"),
+    loanTerm: Yup.string().required("LoanTenure is required"),
+    loanType: Yup.string().required("LoanType is required"),
+    State: Yup.string().required("State is required"),
   }),
   step3: Yup.object().shape({
     businessProof: Yup.string().required("Address is required"),
@@ -214,20 +222,24 @@ function ApplyForLoan() {
     { title: "Document Details" },
     { title: "Application confirmation" },
   ];
+  const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const [sendOtp, setVerifyOtp] = useState(false);
+  const [uploadError, setUploadError] = useState("");
+
   const [eligiblity, setEligiblity] = useState(false);
   const [phoneValue, setPhoneValue] = useState();
   const [startDate, setStartDate] = useState(new Date());
   const [apiData, setapiData] = useState({});
   const [loanTypeOption, setLoanTypeOption] = useState([]);
-  const [countryStateOption, SetCountryStateOption] = useState([]);
-  const [countryState, SetCountryState] = useState();
+  const [countryStateOption, SetCountryStateOption] = useState("");
+  const [countryState, SetCountryState] = useState("");
   const [selectOption, setSelectOption] = useState("");
-  const [selectOptionName, setSelectOptionName] = useState("");
   const [bankOption, setBankOption] = useState([]);
   const [documentOption, setDocumentOption] = useState([]);
+  const [selectOptionName, setSelectOptionName] = useState("");
   const [loanApplicationId, setLoanAppliactionId] = useState("");
+  const [loanApplicationNumber, setLoanAppliactionNumber] = useState("");
 
   const [previewURL, setPreviewURL] = useState(null);
   const [fileType, setFileType] = useState("");
@@ -283,6 +295,8 @@ function ApplyForLoan() {
       value.step1.email &&
       phoneValue
     ) {
+      setButtonDisabled(true);
+
       try {
         const response = await axios.post(
           "https://loancrmtrn.azurewebsites.net/api/User/Create",
@@ -297,10 +311,13 @@ function ApplyForLoan() {
         const { data } = response;
         if (data?.success) {
           await Notification("success", "OTP Sent SuccessFully");
+
           setVerifyOtp(true);
+          setButtonDisabled(false);
           setapiData(value);
         }
       } catch (error) {
+        setButtonDisabled(false);
         Notification("error", error?.response?.data[0]?.errorMessage);
       }
     }
@@ -333,7 +350,9 @@ function ApplyForLoan() {
         value.step2.loanTerm,
         setFieldValue
       );
+
       setLoanAppliactionId(data?.value?.id);
+      setLoanAppliactionNumber(data?.value?.applicationNumber);
     } catch (error) {
       console.log(error);
       Notification("error", "Please Enter All Field");
@@ -395,19 +414,19 @@ function ApplyForLoan() {
       if (data?.value?.document?.length > 0) {
         const inputArray = data.value.document;
 
-        const uniqueObjects = inputArray.reduce(
-          (accumulator, currentObject) => {
-            if (!accumulator[currentObject.id]) {
-              accumulator[currentObject.id] = currentObject;
-            }
-            return accumulator;
-          },
-          {}
-        );
+        // const uniqueObjects = inputArray.reduce(
+        //   (accumulator, currentObject) => {
+        //     if (!accumulator[currentObject.id]) {
+        //       accumulator[currentObject.id] = currentObject;
+        //     }
+        //     return accumulator;
+        //   },
+        //   {}
+        // );
 
-        const uniqueArray = Object.values(uniqueObjects);
+        // const uniqueArray = Object.values(uniqueObjects);
 
-        setDocumentOption([...uniqueArray]);
+        setDocumentOption(inputArray);
       }
     } catch (error) {
       console.log(error);
@@ -423,7 +442,11 @@ function ApplyForLoan() {
   };
 
   const handlePrevious = (setFieldValue, values) => {
-    if (values.activeStep === 1) setVerifyOtp(false);
+    if (values.activeStep === 1) {
+      setButtonDisabled(false);
+
+      setVerifyOtp(false);
+    }
     setFieldValue("activeStep", values.activeStep - 1);
   };
 
@@ -456,44 +479,44 @@ function ApplyForLoan() {
 
   const handleSubmitUploadDoc = async (setFieldValue) => {
     var newAraay = [];
-    console.log("docFiles=-", docFiles);
+    // console.log("docFiles=-", docFiles);
     Object?.keys(docFiles)?.forEach((key) => {
-      console.log(docFiles[key], "-=-=-=");
+      // console.log(docFiles[key], "-=-=-=");
       docFiles[key]?.forEach((item) => {
         newAraay.push(item);
       });
     });
-    // if (newAraay.length > 0) {
-    //   // newAraay
-    //   newAraay.forEach(async (element) => {
-    //     const formData = new FormData();
-    //     formData.append("LoanApplicationId", loanApplicationId);
-    //     formData.append("DocumentTypeId", element.documentTypeId);
-    //     formData.append("Documents", element);
+    if (newAraay.length > 0) {
+      // newAraay
+      newAraay.forEach(async (element) => {
+        const formData = new FormData();
+        formData.append("LoanApplicationId", loanApplicationId);
+        formData.append("DocumentTypeId", element.documentTypeId);
+        formData.append("Documents", element);
 
-    //     const token = localStorage.getItem("logintoken");
+        const token = localStorage.getItem("logintoken");
 
-    //     try {
-    //       const response = await axios.post(
-    //         "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
-    //         formData,
-    //         {
-    //           headers: {
-    //             Authorization: `Bearer ${token}`,
-    //           },
-    //         }
-    //       );
-    //       // const { data } = response;
-    //       Notification("success", "document Upload Successfully ");
+        try {
+          const response = await axios.post(
+            "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+            formData,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          // const { data } = response;
+          Notification("success", "document Upload Successfully ");
 
-    //       setFieldValue("activeStep", 3);
-    //     } catch (error) {
-    //       console.log(error);
-    //       Notification("error", error?.response?.data[0]?.errorMessage);
-    //     }
-    //   });
-    // } else {
-    // }
+          setFieldValue("activeStep", 3);
+        } catch (error) {
+          console.log(error);
+          Notification("error", error?.response?.data[0]?.errorMessage);
+        }
+      });
+    } else {
+    }
   };
 
   // const handleFieldChange = (index, field, value) => {
@@ -520,6 +543,7 @@ function ApplyForLoan() {
   // };
 
   const handlePanFileChange = (fieldType, event, id) => {
+    console.log(fieldType, "0-0-");
     // const file = event.target.files[0];
     // if (file) {
     //   // setSelectedFile(file);
@@ -530,7 +554,11 @@ function ApplyForLoan() {
     //   };
     //   reader.readAsDataURL(file);
     // }
+    // const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
 
+    // if (!allowedTypes.includes(event.target.files.type)) {
+    //   setUploadError("only accept this");
+    // } else {
     if (event.target.files.length) {
       for (let index = 0; index < event.target.files.length; index++) {
         event.target.files[index].documentTypeId = id;
@@ -538,18 +566,13 @@ function ApplyForLoan() {
     } else {
       event.target.files[0].documentTypeId = id;
     }
-
-    // for (let index = 0; index < array.length; index++) {
-    //   const element = array[index];
-
-    // }
-
     var selectedFiles = [...event?.target?.files];
 
     setdocFiles((prevState) => ({
       ...prevState,
       [fieldType]: selectedFiles,
     }));
+    // }
   };
 
   const PreviewComponent = ({ file }) => {
@@ -623,6 +646,15 @@ function ApplyForLoan() {
   //     };
   //   });
   // };
+  const handleKeyPress = (event) => {
+    var charCode = event.which ? event.which : event.keyCode;
+    if (
+      String.fromCharCode(charCode).match(/[^0-9]/g) ||
+      event.target.value.length > 5
+    ) {
+      event.preventDefault();
+    }
+  };
 
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form">
@@ -641,7 +673,7 @@ function ApplyForLoan() {
                 </div>
                 {/* Loan form  */}
 
-                <div style={{ marginTop: "100px" }}>
+                <div className="stepper-main">
                   <Formik
                     initialValues={state}
                     validationSchema={validationSchema}
@@ -653,203 +685,236 @@ function ApplyForLoan() {
                           steps={stepsmain}
                           activeStep={values.activeStep}
                         />
-
-                        {values.activeStep === 0 && (
-                          <div>
-                            {sendOtp ? (
-                              <div className="row">
-                                <div className="col-6">
-                                  <div className="single-input">
-                                    <label>Mobile OTP:</label>
-                                    <Field
-                                      name="stepVerify.mobileotp"
-                                      placeholder="enter Mobile OTP "
-                                      type={"number"}
-                                    />
-                                    <ErrorMessage
-                                      name="stepVerify.mobileotp"
-                                      component="div"
-                                      style={{ color: "red" }}
-                                    />
-                                  </div>
-                                </div>
-                                <div className="col-6">
-                                  <div className="single-input">
-                                    <label>Email OTP:</label>
-                                    <Field
-                                      name="stepVerify.emailotp"
-                                      type={"number"}
-                                      placeholder="enter Email OTP"
-                                    />
-                                    <ErrorMessage
-                                      name="stepVerify.emailotp"
-                                      component="div"
-                                      style={{ color: "red" }}
-                                    />
-                                  </div>
-                                </div>
-
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "flex-start",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    onClick={() => setVerifyOtp(false)}
-                                    style={{
-                                      marginRight: "10px",
-                                    }}
-                                  >
-                                    Previous
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={async () => {
-                                      {
-                                        try {
-                                          const response = await axios.post(
-                                            "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
-                                            {
-                                              sendEmail: true,
-                                              email: apiData.step1.email,
-                                              phoneNumber: Number(phoneValue),
-                                              mobileOTP:
-                                                values.stepVerify.mobileotp.toString(),
-                                              emailOTP:
-                                                values.stepVerify.emailotp.toString(),
+                        <div className="stepper-field-form">
+                          {values.activeStep === 0 && (
+                            <div>
+                              {sendOtp ? (
+                                <>
+                                  {/* <div>sfsdf</div> */}
+                                  <div className="row">
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Mobile OTP:</label>
+                                        <Field
+                                          name="stepVerify.mobileotp"
+                                          placeholder="Enter Mobile OTP "
+                                          type={"number"}
+                                          onKeyPress={(event) => {
+                                            handleKeyPress(event);
+                                          }}
+                                          onInput={(event) => {
+                                            if (event.target.value.length > 7) {
+                                              event.preventDefault();
                                             }
-                                          );
+                                          }}
+                                        />
+                                        <ErrorMessage
+                                          name="stepVerify.mobileotp"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Email OTP:</label>
+                                        <Field
+                                          name="stepVerify.emailotp"
+                                          type={"number"}
+                                          placeholder="Enter Email OTP"
+                                          onKeyPress={(event) => {
+                                            handleKeyPress(event);
+                                          }}
+                                          onInput={(event) => {
+                                            if (event.target.value.length > 7) {
+                                              event.preventDefault();
+                                            }
+                                          }}
+                                        />
+                                        <ErrorMessage
+                                          name="stepVerify.emailotp"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        />
+                                      </div>
+                                    </div>
 
-                                          const { data } = response;
-                                          if (data?.success) {
-                                            const tokenData =
-                                              data?.value?.token;
-                                            await localStorage.setItem(
-                                              "logintoken",
-                                              tokenData
-                                            );
-                                            await setVerifyOtp(true);
-                                            await Notification(
-                                              "success",
-                                              "OTP Verify SuccessFully and Password Send on Your Email"
-                                            );
-                                            await GetAllState();
-                                            await GetAll(tokenData);
-                                            await handleNext(
-                                              setFieldValue,
-                                              values
-                                            );
-                                            // handleGetAllType();
+                                    <div
+                                      style={{
+                                        display: "flex",
+                                        justifyContent: "flex-start",
+                                        alignItems: "center",
+                                      }}
+                                    >
+                                      <button
+                                        type="button"
+                                        className="cmn-btn"
+                                        onClick={() => setVerifyOtp(false)}
+                                        style={{
+                                          marginRight: "10px",
+                                        }}
+                                      >
+                                        Previous
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={async () => {
+                                          {
+                                            try {
+                                              const response = await axios.post(
+                                                "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
+                                                {
+                                                  sendEmail: true,
+                                                  email: apiData.step1.email,
+                                                  phoneNumber:
+                                                    Number(phoneValue),
+                                                  mobileOTP:
+                                                    values.stepVerify.mobileotp.toString(),
+                                                  emailOTP:
+                                                    values.stepVerify.emailotp.toString(),
+                                                }
+                                              );
+
+                                              const { data } = response;
+                                              if (data?.success) {
+                                                const tokenData =
+                                                  data?.value?.token;
+                                                await localStorage.setItem(
+                                                  "logintoken",
+                                                  tokenData
+                                                );
+                                                await setVerifyOtp(true);
+                                                await Notification(
+                                                  "success",
+                                                  "OTP Verify SuccessFully and Password Send on Your Email"
+                                                );
+                                                await GetAllState();
+                                                await GetAll(tokenData);
+                                                await handleNext(
+                                                  setFieldValue,
+                                                  values
+                                                );
+                                                // handleGetAllType();
+                                              }
+                                            } catch (error) {
+                                              console.log(error);
+                                              Notification(
+                                                "error",
+                                                error?.response?.data[0]
+                                                  .errorMessage
+                                              );
+                                              // console.log(error);
+                                            }
                                           }
-                                        } catch (error) {
-                                          console.log(error);
-                                          Notification(
-                                            "error",
-                                            "OTP required "
-                                          );
-                                          // console.log(error);
-                                        }
-                                      }
-                                    }}
-                                    style={{ width: "auto" }}
-                                    className="cmn-btn"
-                                    // disabled={
-                                    //   !values.step1 ||
-                                    //   !values.step1.name ||
-                                    //   !values.step1.email ||
-                                    //   !values.step1.state
-                                    // }
-                                  >
-                                    Verify OTP
-                                  </button>
-                                </div>
-                              </div>
-                            ) : (
-                              <>
-                                <div className="row">
-                                  <div className="col-6">
-                                    <div className="single-input">
-                                      <label>First Name:</label>
-                                      <Field
-                                        type="text"
-                                        name="step1.firstName"
-                                        placeholder="enter your firstName "
-                                      />
-                                      <ErrorMessage
-                                        name="step1.firstName"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      />
+                                        }}
+                                        style={{ width: "auto" }}
+                                        className="cmn-btn"
+                                        // disabled={
+                                        //   !values.step1 ||
+                                        //   !values.step1.name ||
+                                        //   !values.step1.email ||
+                                        //   !values.step1.state
+                                        // }
+                                      >
+                                        Verify OTP
+                                      </button>
                                     </div>
                                   </div>
-                                  <div className="col-6">
-                                    <div className="single-input">
-                                      <label>Last Name:</label>
-                                      <Field
-                                        type="text"
-                                        name="step1.lastName"
-                                        placeholder="enter your lastName"
-                                      />
-                                      <ErrorMessage
-                                        name="step1.lastName"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      />
+                                </>
+                              ) : (
+                                <>
+                                  <div className="row">
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>First Name:</label>
+                                        <Field
+                                          type="text"
+                                          name="step1.firstName"
+                                          placeholder="Enter your First Name "
+                                        />
+                                        <ErrorMessage
+                                          name="step1.firstName"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="col-6">
-                                    <div className="single-input">
-                                      <label>Email:</label>
-                                      <Field
-                                        type="email"
-                                        name="step1.email"
-                                        placeholder="enter your Email"
-                                      />
-                                      <ErrorMessage
-                                        name="step1.email"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      />
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Last Name:</label>
+                                        <Field
+                                          type="text"
+                                          name="step1.lastName"
+                                          placeholder="Enter your Last Name"
+                                        />
+                                        <ErrorMessage
+                                          name="step1.lastName"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        />
+                                      </div>
                                     </div>
-                                  </div>
-                                  <div className="col-6">
-                                    <div className="single-input">
-                                      <label>Contact No:</label>
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Email:</label>
+                                        <Field
+                                          type="email"
+                                          name="step1.email"
+                                          placeholder="Enter your Email"
+                                        />
+                                        <ErrorMessage
+                                          name="step1.email"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        />
+                                      </div>
+                                    </div>
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Contact No:</label>
 
-                                      <PhoneInput
-                                        name="step1.phone"
-                                        international
-                                        defaultCountry="IN"
-                                        placeholder="+91 9999999999"
-                                        value={phoneValue}
-                                        onChange={setPhoneValue}
-                                      />
-                                      {/* <ErrorMessage
+                                        <PhoneInput
+                                          name="step1.phone"
+                                          international
+                                          defaultCountry="IN"
+                                          placeholder="+91 9999999999"
+                                          value={phoneValue}
+                                          onChange={setPhoneValue}
+                                          onKeyPress={(event) => {
+                                            if (
+                                              event.target.value.length > 18
+                                            ) {
+                                              event.preventDefault();
+                                            }
+                                          }}
+                                        />
+                                        {/* <ErrorMessage
                                         name="step1.phone"
                                         component="input"
                                         style={{ color: "red" }}
                                       /> */}
+                                      </div>
                                     </div>
                                   </div>
-                                </div>
-                                <div>
-                                  <button
-                                    className="cmn-btn"
-                                    onClick={() => {
-                                      handleSendOtp(setFieldValue, values);
-                                    }}
-                                  >
-                                    Next
-                                  </button>
-                                </div>
-                              </>
-                            )}
+                                  <div>
+                                    <button
+                                      className="cmn-btn"
+                                      disabled={buttonDisabled}
+                                      onClick={() => {
+                                        console.log("jjoo");
 
-                            {/* <button
+                                        handleSendOtp(setFieldValue, values);
+                                      }}
+                                    >
+                                      {buttonDisabled
+                                        ? "Processing..."
+                                        : "Next"}
+                                    </button>
+                                  </div>
+                                </>
+                              )}
+
+                              {/* <button
                               type="button"
                               onClick={() => handleNext(setFieldValue, values)}
                               className="cmn-btn"
@@ -862,405 +927,389 @@ function ApplyForLoan() {
                             >
                               Next
                             </button> */}
-                          </div>
-                        )}
-                        {values.activeStep === 1 && (
-                          <>
-                            {bankOption && bankOption.length > 0 ? (
-                              <>
-                                <div class="table-section">
-                                  <table class="table">
-                                    <thead>
-                                      <tr>
-                                        <th scope="col">Select</th>
-                                        <th scope="col">Bank Name</th>
-                                        <th scope="col">Rate of interest</th>
-                                        <th scope="col">EMI</th>
-                                      </tr>
-                                    </thead>
-                                    <tbody>
-                                      {bankOption &&
-                                        bankOption.map((elm, index) => {
-                                          return (
-                                            <>
-                                              <tr key={index}>
-                                                <th>
-                                                  <label class="checkbox">
-                                                    <input
-                                                      type="checkbox"
-                                                      checked={selectedRowData.includes(
-                                                        elm.id
-                                                      )}
-                                                      onChange={(e) =>
-                                                        handleCheckboxChange(
-                                                          e,
-                                                          elm
-                                                        )
-                                                      }
-                                                    />
-                                                    <div class="checkbox-circle">
-                                                      <svg
-                                                        viewBox="0 0 52 52"
-                                                        class="checkmark"
-                                                      >
-                                                        <circle
-                                                          fill="none"
-                                                          r="25"
-                                                          cy="26"
-                                                          cx="26"
-                                                          class="checkmark-circle"
-                                                        ></circle>
-                                                        <path
-                                                          d="M16 26l9.2 8.4 17.4-21.4"
-                                                          class="checkmark-kick"
-                                                        ></path>
-                                                      </svg>
-                                                    </div>
-                                                  </label>
-                                                </th>
-                                                <td>{elm?.name}</td>
-                                                <td>{elm?.interestRate}</td>
-                                                <td>{elm?.tenure}</td>
-                                              </tr>
-                                            </>
-                                          );
-                                        })}
-                                    </tbody>
-                                  </table>
-                                </div>
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "flex-start",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() => {
-                                      // handlePrevious(setFieldValue, values);
-                                      // setFieldValue("activeStep", 1);
-                                      setBankOption([]);
-                                      setEligiblity(false);
+                            </div>
+                          )}
+                          {values.activeStep === 1 && (
+                            <>
+                              {bankOption && bankOption.length > 0 ? (
+                                <>
+                                  <div class="table-section">
+                                    <table class="table">
+                                      <thead>
+                                        <tr>
+                                          <th scope="col">Select</th>
+                                          <th scope="col">Bank Name</th>
+                                          <th scope="col">Rate of interest</th>
+                                          <th scope="col">EMI</th>
+                                        </tr>
+                                      </thead>
+                                      <tbody>
+                                        {bankOption &&
+                                          bankOption.map((elm, index) => {
+                                            return (
+                                              <>
+                                                <tr key={index}>
+                                                  <th>
+                                                    <label class="checkbox">
+                                                      <input
+                                                        type="checkbox"
+                                                        checked={selectedRowData.includes(
+                                                          elm.id
+                                                        )}
+                                                        onChange={(e) =>
+                                                          handleCheckboxChange(
+                                                            e,
+                                                            elm
+                                                          )
+                                                        }
+                                                      />
+                                                      <div class="checkbox-circle">
+                                                        <svg
+                                                          viewBox="0 0 52 52"
+                                                          class="checkmark"
+                                                        >
+                                                          <circle
+                                                            fill="none"
+                                                            r="25"
+                                                            cy="26"
+                                                            cx="26"
+                                                            class="checkmark-circle"
+                                                          ></circle>
+                                                          <path
+                                                            d="M16 26l9.2 8.4 17.4-21.4"
+                                                            class="checkmark-kick"
+                                                          ></path>
+                                                        </svg>
+                                                      </div>
+                                                    </label>
+                                                  </th>
+                                                  <td>{elm?.name}</td>
+                                                  <td>{elm?.interestRate}</td>
+                                                  <td>{elm?.tenure}</td>
+                                                </tr>
+                                              </>
+                                            );
+                                          })}
+                                      </tbody>
+                                    </table>
+                                  </div>
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "flex-start",
+                                      alignItems: "center",
                                     }}
                                   >
-                                    Previous
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    onClick={async () => {
-                                      const token =
-                                        localStorage.getItem("logintoken");
-                                      if (selectedRowData.length > 0) {
-                                        try {
-                                          const response = await axios.post(
-                                            `https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateLoanApplication`,
-                                            {
-                                              loanApplicationId:
-                                                loanApplicationId,
-                                              bankIds: selectedRowData,
-                                              loanTypeId: selectOption,
-                                            },
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${token}`,
+                                    {/* <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      style={{ marginRight: "10px" }}
+                                      onClick={() => {
+                                        // handlePrevious(setFieldValue, values);
+                                        // setFieldValue("activeStep", 1);
+                                        setBankOption([]);
+                                        setEligiblity(false);
+                                      }}
+                                    >
+                                      Previous
+                                    </button> */}
+                                    <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      onClick={async () => {
+                                        const token =
+                                          localStorage.getItem("logintoken");
+                                        if (selectedRowData.length > 0) {
+                                          try {
+                                            const response = await axios.post(
+                                              `https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateLoanApplication`,
+                                              {
+                                                loanApplicationId:
+                                                  loanApplicationId,
+                                                bankIds: selectedRowData,
+                                                loanTypeId: selectOption,
                                               },
-                                            }
-                                          );
-                                          const { data } = response;
+                                              {
+                                                headers: {
+                                                  Authorization: `Bearer ${token}`,
+                                                },
+                                              }
+                                            );
+                                            const { data } = response;
 
-                                          await Notification(
-                                            "success",
-                                            data?.messages[0]?.messageText
+                                            await Notification(
+                                              "success",
+                                              data?.messages[0]?.messageText
+                                            );
+                                            // setEligiblity(true);
+                                            // setFieldValue("activeStep", values.activeStep + 1);
+                                            handleNext(setFieldValue, values);
+                                          } catch (error) {
+                                            console.log(error);
+                                            Notification("error", "catch erro");
+                                          }
+                                        } else {
+                                          Notification(
+                                            "error",
+                                            "Please Select Bank "
                                           );
-                                          // setEligiblity(true);
-                                          // setFieldValue("activeStep", values.activeStep + 1);
-                                          handleNext(setFieldValue, values);
-                                        } catch (error) {
-                                          console.log(error);
-                                          Notification("error", "catch erro");
                                         }
-                                      } else {
-                                        Notification(
-                                          "error",
-                                          "Please Select Bank "
-                                        );
-                                      }
+                                      }}
+                                    >
+                                      Next
+                                    </button>
+                                  </div>
+                                </>
+                              ) : (
+                                <>
+                                  <div
+                                    style={{
+                                      padding: "20px 0px",
                                     }}
                                   >
-                                    Next
-                                  </button>
-                                </div>
-                              </>
-                            ) : (
-                              <>
-                                <div
-                                  style={{
-                                    padding: "20px 0px",
-                                  }}
-                                >
-                                  <>
-                                    <div className="row">
-                                      <div className="col-6">
-                                        <div className="single-input">
-                                          <label>Loan Amount (INR)</label>
-                                          <Field
-                                            type={"number"}
-                                            placeholder="enter loan amount"
-                                            name="step2.loanAmount"
-                                          />
-                                          {/* <ErrorMessage
-                                        name="step2.loanAmount"
+                                    <>
+                                      <div className="row">
+                                        <div className="col-6">
+                                          <div className="single-input">
+                                            <label>Loan Amount (INR)</label>
+                                            <Field
+                                              type={"number"}
+                                              placeholder="Enter loan amount"
+                                              name="step2.loanAmount"
+                                            />
+                                            {/* <ErrorMessage
+                                              name="step2verify.loanAmount"
+                                              component="div"
+                                              style={{ color: "red" }}
+                                            /> */}
+                                          </div>
+                                        </div>
+
+                                        <div className="col-6">
+                                          <div className="single-input">
+                                            <label>Loan Type</label>
+
+                                            <>
+                                              {loanTypeOption &&
+                                                loanTypeOption.length > 0 && (
+                                                  <select
+                                                    className="selectDrop form-select"
+                                                    // aria-label="Default select example"
+                                                    // placeholder="select Loan Type"
+                                                    // name="step2verify.loanType"
+                                                    value={selectOption}
+                                                    onChange={
+                                                      handleSelectoption
+                                                    }
+                                                  >
+                                                    <option
+                                                      disabled={true}
+                                                      value=""
+                                                    >
+                                                      select Loan Type
+                                                    </option>
+                                                    {loanTypeOption.map(
+                                                      (data, index) => (
+                                                        <>
+                                                          <option
+                                                            value={data?.id}
+                                                            key={index}
+                                                          >
+                                                            {data?.name}
+                                                          </option>
+                                                        </>
+                                                      )
+                                                    )}
+                                                  </select>
+                                                )}
+                                              {/* <ErrorMessage
+                                                name="step2verify.loanType"
+                                                component="div"
+                                                style={{ color: "red" }}
+                                              /> */}
+                                            </>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="row">
+                                        <div className="col-6">
+                                          <div className="single-input">
+                                            <label>Loan Tenure (Year)</label>
+
+                                            <Field
+                                              type="number"
+                                              name="step2.loanTerm"
+                                              placeholder="1 Year"
+                                              // onKeyPress={(event) => {
+                                              //   if (
+                                              //     event.target.value.length > 1
+                                              //   ) {
+                                              //     event.preventDefault();
+                                              //   }
+                                              //   // handleKeyPress(event);
+                                              // }}
+                                            />
+                                            {/* <ErrorMessage
+                                              name="step2verify.loanTerm"
+                                              component="div"
+                                              style={{ color: "red" }}
+                                            /> */}
+                                          </div>
+                                        </div>
+                                        <div className="col-6">
+                                          <div className="single-input">
+                                            <label>State</label>
+
+                                            {/* <Field
+                                        type="text"
+                                        name="step2.state"
+                                        // name="step2.loanTerm"
+                                        placeholder="1 Year"
+                                      /> */}
+                                            {/* <ErrorMessage
+                                        name="step2.loanTerm"
                                         component="div"
                                         style={{ color: "red" }}
                                       /> */}
-                                        </div>
-                                      </div>
 
-                                      <div className="col-6">
-                                        <div className="single-input">
-                                          <label>Loan Type</label>
-
-                                          <>
-                                            {loanTypeOption &&
-                                              loanTypeOption.length > 0 && (
-                                                <select
-                                                  className="selectDrop form-select"
-                                                  // aria-label="Default select example"
-                                                  // placeholder="select Loan Type"
-                                                  value={selectOption}
-                                                  onChange={handleSelectoption}
-                                                >
-                                                  <option
-                                                    disabled={true}
-                                                    value=""
+                                            <>
+                                              {countryStateOption &&
+                                                countryStateOption.length >
+                                                  0 && (
+                                                  <select
+                                                    className="selectDrop form-select"
+                                                    // aria-label="Default select example"
+                                                    value={countryState}
+                                                    onChange={
+                                                      handleSelectStateoption
+                                                    }
                                                   >
-                                                    --select Loan Type--
-                                                  </option>
-                                                  {loanTypeOption.map(
-                                                    (data, index) => (
-                                                      <>
+                                                    <option
+                                                      disabled={true}
+                                                      value=""
+                                                    >
+                                                      Select State
+                                                    </option>
+                                                    {countryStateOption.map(
+                                                      (data, index) => (
                                                         <option
                                                           value={data?.id}
                                                           key={index}
                                                         >
                                                           {data?.name}
                                                         </option>
-                                                      </>
-                                                    )
-                                                  )}
-                                                </select>
-                                              )}
-                                          </>
-
-                                          {/* <select
-                                        className="selectDrop form-select"
-                                        aria-label="Default select example"
-                                        name="step2.loanType"
-                                        value={selectedOption}
-                                        onChange={handleOptionChange}
-                                      >
-                                        <option value="business" selected>
-                                          Business Loan
-                                        </option>
-                                        <option value="personal">
-                                          Personal Loan
-                                        </option>
-                                        <option value="home">Home Loan</option>
-                                        <option value="car">Car Loan</option>
-                                      </select> */}
+                                                      )
+                                                    )}
+                                                  </select>
+                                                )}
+                                            </>
+                                          </div>
                                         </div>
                                       </div>
-                                    </div>
-                                    <div className="row">
-                                      <div className="col-6">
-                                        <div className="single-input">
-                                          <label>Loan Tenure (Year)</label>
-
-                                          <Field
-                                            type="text"
-                                            name="step2.loanTerm"
-                                            placeholder="1 Year"
-                                          />
-                                          {/* <ErrorMessage
-                                        name="step2.loanTerm"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      /> */}
-                                        </div>
-                                      </div>
-                                      <div className="col-6">
-                                        <div className="single-input">
-                                          <label>State</label>
-
-                                          {/* <Field
-                                        type="text"
-                                        name="step2.state"
-                                        // name="step2.loanTerm"
-                                        placeholder="1 Year"
-                                      /> */}
-                                          {/* <ErrorMessage
-                                        name="step2.loanTerm"
-                                        component="div"
-                                        style={{ color: "red" }}
-                                      /> */}
-
-                                          <>
-                                            {countryStateOption &&
-                                              countryStateOption.length > 0 && (
-                                                <select
-                                                  className="selectDrop form-select"
-                                                  // aria-label="Default select example"
-                                                  value={countryState}
-                                                  onChange={
-                                                    handleSelectStateoption
-                                                  }
-                                                >
-                                                  <option
-                                                    disabled={true}
-                                                    value=""
-                                                  >
-                                                    --select State --
-                                                  </option>
-                                                  {countryStateOption.map(
-                                                    (data, index) => (
-                                                      <option
-                                                        value={data?.id}
-                                                        key={index}
-                                                      >
-                                                        {data?.name}
-                                                      </option>
-                                                    )
-                                                  )}
-                                                </select>
-                                              )}
-                                          </>
-                                        </div>
-                                      </div>
-                                    </div>
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      <button
-                                        type="button"
-                                        className="cmn-btn"
-                                        style={{ marginRight: "10px" }}
-                                        onClick={() =>
-                                          handlePrevious(setFieldValue, values)
-                                        }
-                                      >
-                                        Previous
-                                      </button>
-
-                                      <button
-                                        onClick={async () => {
-                                          await handleCreateApplication(
-                                            values,
-                                            setFieldValue
-                                          );
-                                          // await handleNext(setFieldValue, values);
+                                      <div
+                                        style={{
+                                          display: "flex",
+                                          justifyContent: "flex-start",
+                                          alignItems: "center",
                                         }}
-                                        // onClick={async (value) => {
-                                        //   const token = localStorage.getItem("logintoken");
-                                        //   console.log(value);
-                                        //   // try {
-                                        //   //   const response = await axios.post(
-                                        //   //     "https://loancrmtrn.azurewebsites.net/api/LoanApplication/Create",
-                                        //   //     {
-                                        //   //       headers: {
-                                        //   //         Authorization: `Bearer ${token}`,
-                                        //   //       },
-                                        //   //     }
-                                        //   //   );
-                                        //   //   const { data } = response;
-                                        //   //   setLoanTypeOption(data.value);
-                                        //   // } catch (error) {
-                                        //   //   console.log(error);
-                                        //   //   // Notification("error", error?.response?.data[0]?.errorMessage);
-                                        //   // }
-                                        //     // console.log(error);
-                                        //   }
-                                        // }
-                                        className="cmn-btn"
                                       >
-                                        Next
-                                      </button>
-                                    </div>
-                                  </>
-                                </div>
-                              </>
-                            )}
-                          </>
-                        )}
-                        {values.activeStep === 2 && (
-                          <>
-                            <>
-                              <div
-                                style={{
-                                  padding: "20px 0px",
-                                }}
-                              >
-                                <div class="row">
-                                  {documentOption?.length > 0 &&
-                                    documentOption.map((data, index) => {
-                                      return (
-                                        <>
-                                          <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                            <div key={index}>
-                                              <h4>{data?.name}</h4>
-                                              <div class="input-box ">
-                                                <input
-                                                  type="file"
-                                                  multiple
-                                                  ref={aRef}
-                                                  class="upload-box"
-                                                  onChange={(e) =>
-                                                    handlePanFileChange(
-                                                      data?.name,
-                                                      e,
-                                                      data?.id
-                                                    )
-                                                  }
-                                                />
-                                              </div>
-                                            </div>
-                                            {docFiles[data?.name]?.length >
-                                              0 && (
-                                              <div>
-                                                <h4>Selected files:</h4>
-                                                {docFiles[data?.name] &&
-                                                  docFiles[data?.name]?.map(
-                                                    (file, index) => (
-                                                      <div key={index}>
-                                                        <div className="selectfile">
-                                                          <p>{file?.name}</p>
+                                        {/* <button
+                                          type="button"
+                                          className="cmn-btn"
+                                          style={{ marginRight: "10px" }}
+                                          onClick={() =>
+                                            handlePrevious(
+                                              setFieldValue,
+                                              values
+                                            )
+                                          }
+                                        >
+                                          Previous
+                                        </button> */}
 
-                                                          <i
-                                                            class="fa-solid fa-xmark"
-                                                            onClick={() =>
-                                                              handleRemoveFile(
-                                                                data?.name,
-                                                                index
-                                                              )
-                                                            }
-                                                            style={{
-                                                              cursor: "pointer",
-                                                            }}
-                                                          ></i>
-                                                        </div>
-                                                        {file && (
-                                                          <PreviewComponent
-                                                            file={file}
-                                                          />
-                                                        )}
-                                                        {/* {fileType.includes(
+                                        <button
+                                          onClick={async () => {
+                                            await handleCreateApplication(
+                                              values,
+                                              setFieldValue
+                                            );
+                                          }}
+                                          className="cmn-btn"
+                                        >
+                                          Next
+                                        </button>
+                                      </div>
+                                    </>
+                                  </div>
+                                </>
+                              )}
+                            </>
+                          )}
+                          {values.activeStep === 2 && (
+                            <>
+                              <>
+                                <div
+                                  style={{
+                                    padding: "20px 0px",
+                                  }}
+                                >
+                                  <div class="row">
+                                    {documentOption?.length > 0 &&
+                                      documentOption.map((data, index) => {
+                                        return (
+                                          <>
+                                            <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                                              <div key={index}>
+                                                <h4>{data?.name}</h4>
+                                                <div class="input-box ">
+                                                  <input
+                                                    type="file"
+                                                    multiple
+                                                    accept=".pdf, image/*"
+                                                    ref={aRef}
+                                                    class="upload-box"
+                                                    onChange={(e) =>
+                                                      handlePanFileChange(
+                                                        data?.name,
+                                                        e,
+                                                        data?.id
+                                                      )
+                                                    }
+                                                  />
+                                                </div>
+                                              </div>
+                                              {docFiles[data?.name]?.length >
+                                                0 && (
+                                                <div>
+                                                  <h4>Selected files:</h4>
+                                                  {docFiles[data?.name] &&
+                                                    docFiles[data?.name]?.map(
+                                                      (file, index) => (
+                                                        <div key={index}>
+                                                          <div className="selectfile">
+                                                            <p>{file?.name}</p>
+
+                                                            <i
+                                                              class="fa-solid fa-xmark"
+                                                              onClick={() =>
+                                                                handleRemoveFile(
+                                                                  data?.name,
+                                                                  index
+                                                                )
+                                                              }
+                                                              style={{
+                                                                cursor:
+                                                                  "pointer",
+                                                              }}
+                                                            ></i>
+                                                          </div>
+
+                                                          {file && (
+                                                            <PreviewComponent
+                                                              file={file}
+                                                            />
+                                                          )}
+                                                          {/* {fileType.includes(
                                                           "image"
                                                         ) ? (
                                                           <img
@@ -1279,7 +1328,7 @@ function ApplyForLoan() {
                                                             }}
                                                           />
                                                         )} */}
-                                                        {/* <img
+                                                          {/* <img
                                                           src={await handleFilePreview(
                                                             file
                                                           )}
@@ -1289,7 +1338,7 @@ function ApplyForLoan() {
                                                           }}
                                                         /> */}
 
-                                                        {/* <div
+                                                          {/* <div
                                                           class="progress"
                                                           role="progressbar"
                                                           aria-label="Basic example"
@@ -1307,17 +1356,17 @@ function ApplyForLoan() {
                                                             }}
                                                           ></div>
                                                         </div> */}
-                                                      </div>
-                                                    )
-                                                  )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </>
-                                      );
-                                    })}
+                                                        </div>
+                                                      )
+                                                    )}
+                                                </div>
+                                              )}
+                                            </div>
+                                          </>
+                                        );
+                                      })}
 
-                                  {/* <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                                    {/* <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                                     <h4>Bank Statement</h4>
                                     <div class="input-box ">
                                       <input
@@ -1442,11 +1491,11 @@ function ApplyForLoan() {
                                       </div>
                                     )}
                                   </div> */}
-                                  {/* <div>
+                                    {/* <div>
                                     <div class="row">
                                       {docFiles.otherDocuments.map(
                                         (field, fieldIndex) => (
-                                          <div
+                                          <div  
                                             key={fieldIndex}
                                             class="my-4 col-lg-6 col-md-6 col-sm-12"
                                           >
@@ -1597,103 +1646,106 @@ function ApplyForLoan() {
                                       </button>
                                     </div>
                                   </div> */}
-                                </div>
+                                  </div>
 
-                                <div
-                                  style={{
-                                    display: "flex",
-                                    justifyContent: "flex-start",
-                                    alignItems: "center",
-                                  }}
-                                >
-                                  <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() =>
-                                      handlePrevious(setFieldValue, values)
-                                    }
+                                  <div
+                                    style={{
+                                      display: "flex",
+                                      justifyContent: "flex-start",
+                                      alignItems: "center",
+                                    }}
                                   >
-                                    Previous
-                                  </button>
-                                  <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    onClick={() =>
-                                      handleSubmitUploadDoc(setFieldValue)
-                                    }
-                                    // onClick={() =>
-                                    //   handleNext(setFieldValue, values)
-                                    // }
-                                    // disabled={
-                                    //   !values.step2 ||
-                                    //   !values.step2.loanAmount ||
-                                    //   !values.step2.loanType ||
-                                    //   !values.step2.state ||
-                                    //   !values.step2.loanTerm
-                                    // }
-                                  >
-                                    Submit
-                                  </button>
+                                    {/* <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      style={{ marginRight: "10px" }}
+                                      onClick={() =>
+                                        handlePrevious(setFieldValue, values)
+                                      }
+                                    >
+                                      Previous
+                                    </button> */}
+                                    <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      onClick={() =>
+                                        handleSubmitUploadDoc(setFieldValue)
+                                      }
+                                      // onClick={() =>
+                                      //   handleNext(setFieldValue, values)
+                                      // }
+                                      // disabled={
+                                      //   !values.step2 ||
+                                      //   !values.step2.loanAmount ||
+                                      //   !values.step2.loanType ||
+                                      //   !values.step2.state ||
+                                      //   !values.step2.loanTerm
+                                      // }
+                                    >
+                                      Submit
+                                    </button>
+                                  </div>
                                 </div>
-                              </div>
+                              </>
                             </>
-                          </>
-                        )}
-                        {values.activeStep === 3 && (
-                          <div class="main-container d-flex container-fluid p-0">
-                            <div class="loan-aplication-approver-section">
-                              {/* <h1 class="text-center">Loan Bazar</h1> */}
-                              <div class="img-box">
-                                <img src="/images/t.jpg" alt="" />
-                              </div>
-                              {/* <h3 class="thank-you-head">THANK YOU</h3> */}
-                              <p>
-                                We have recevied your{" "}
-                                <b>
-                                  {" "}
-                                  {selectOptionName
-                                    ? selectOptionName
-                                    : ""}{" "}
-                                </b>{" "}
-                                application
-                              </p>
-                              <div class="my-4">
-                                <span class="app-no">
-                                  Application No.{" "}
-                                  <span>{loanApplicationId}</span>{" "}
-                                </span>
-                              </div>
-                              <p>
-                                From here onwards our loan expert will get in
-                                touch with you within 24 hours to take this
-                                application forward
-                              </p>
-                              <p>
-                                We thank you for choosing Loan Bazaar for your
-                                financial needs and would be keen to serve you
-                                in the future as well.
-                              </p>
-                              <p class="in-case">
-                                In case of any queries, feel free to reach out
-                                to us on below mentioned details
-                              </p>
-                              <div class="d-flex  justify-content-evenly">
-                                <div>
-                                  <p class="free-us">Toll Free</p>
-                                  <p class="number-email">1800 - 208 - 8877</p>
+                          )}
+                          {values.activeStep === 3 && (
+                            <div class="main-container d-flex container-fluid p-0">
+                              <div class="loan-aplication-approver-section">
+                                {/* <h1 class="text-center">Loan Bazar</h1> */}
+                                <div class="img-box">
+                                  <img src="/images/t.jpg" alt="" />
                                 </div>
-                                <div>
-                                  <p class="free-us"> Write to Us </p>
-                                  <p class="number-email">
+                                {/* <h3 class="thank-you-head">THANK YOU</h3> */}
+                                <p>
+                                  We have recevied your{" "}
+                                  <b>
                                     {" "}
-                                    info@loanbazar.com{" "}
-                                  </p>
+                                    {selectOptionName
+                                      ? selectOptionName
+                                      : ""}{" "}
+                                  </b>{" "}
+                                  application
+                                </p>
+                                <div class="my-4">
+                                  <span class="app-no">
+                                    Application No.{" "}
+                                    <span>{loanApplicationNumber}</span>{" "}
+                                  </span>
+                                </div>
+                                <p>
+                                  From here onwards our loan expert will get in
+                                  touch with you within 24 hours to take this
+                                  application forward
+                                </p>
+                                <p>
+                                  We thank you for choosing Loan Bazaar for your
+                                  financial needs and would be keen to serve you
+                                  in the future as well.
+                                </p>
+                                <p class="in-case">
+                                  In case of any queries, feel free to reach out
+                                  to us on below mentioned details
+                                </p>
+                                <div class="d-flex  justify-content-evenly">
+                                  <div>
+                                    <p class="free-us">Toll Free</p>
+                                    <p class="number-email">
+                                      1800 - 208 - 8877
+                                    </p>
+                                  </div>
+                                  <div>
+                                    <p class="free-us"> Write to Us </p>
+                                    <p class="number-email">
+                                      {" "}
+                                      info@loanbazar.com{" "}
+                                    </p>
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
+                        </div>
                       </Form>
                     )}
                   </Formik>

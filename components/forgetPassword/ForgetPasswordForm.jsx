@@ -58,6 +58,11 @@ const ForgetPasswordForm = () => {
 
                       if (data?.success) {
                         Notification("success", data?.messages[0]?.messageText);
+                        Notification(
+                          "success",
+                          "OTP sent to your registered Mobile number or Email"
+                        );
+
                         router.push("/password-set");
                       }
                     } catch (error) {

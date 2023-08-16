@@ -14,6 +14,10 @@ html {
   // overflow-x: hidden;
  
 }
+.form-select{
+  border: 1px solid  #cfcfcf !important;
+  color: black !important;
+}
 
 body {
   // font-family: var(--body-font) !important;
@@ -90,6 +94,12 @@ img {
   height: auto;
 }
 
+.homeCarousel{
+  height: 700px !important;
+  width: 100% !important;
+
+}
+
 .max-un {
   max-width: unset;
 }
@@ -120,11 +130,14 @@ textarea {
   // font-family: var(--body-font) !important;
   height: 50px;
   // background: #f5faff;
-  border: 1px solid #eef1ff;
+  border: 1px solid #cfcfcf;
   border-radius: 5px;
 }
 .react-bootstrap-table{
   text-align: center;
+}
+.cursor-pointer{
+  cursor: pointer;
 }
 
 .selection-cell ,.selection-cell-header{
@@ -142,9 +155,9 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type="password"] {
-  font-family: initial;
-}
+// input[type="password"] {
+//   font-family: initial;
+// }
 
 .countrySelect div div{
   min-height: 50px;
@@ -307,6 +320,13 @@ li {
   font-weight: 700;
   margin-bottom: 16px;
 }
+.stepper-main{
+  margin-top: -40px;
+}
+.stepper-field-form{
+ padding:4% 8.5% ;
+
+}
 
 .head-icon {
   width: 60px;
@@ -356,6 +376,9 @@ li {
 }
 .pt-60 {
   padding-top: 60px;
+}
+.pt-40 {
+  padding-top: 40px;
 }
 
 @media (max-width: 991px) {
@@ -622,12 +645,22 @@ li {
 // .carousel-item{
 // height: 750px;
 // }
+.notification {
+  position: fixed !important;
+  bottom: 30px !important;
+  left: 10px !important;
+  transform: translateX(0) !important;
+  transition: transform 1s ease-in-out !important;
+  z-index: 1000 !important; /* Adjust as needed */
+}
+// notification notification-error notification-enter-done"
 .selectDrop{
   padding: 10px 20px;
   color: #1e266d;
   width: 100%;
   // font-family: var(--body-font) !important;
   height: 50px;
+
   // background: #f5faff;
   border: 1px solid #eef1ff;
   border-radius: 5px;
@@ -646,20 +679,22 @@ li {
           align-items: center;
           border: 1px solid var(--light-gray);
           border-radius: 50px;
+        
           background-color: white;
-          box-shadow: 0 12px 24px rgba(47,65,129,.1);
+          // box-shadow: 0 12px 24px rgba(47,65,129,.1);
           padding: 5px;
           // padding: 10px 20px;
 
-          &:hover{
-              border: 1px solid var(--theam-color);
-          }
+          // &:hover{
+          //     border: 1px solid var(--theam-color);
+          // }
           i{
               margin-right: 20px;
           }
       }
       .selectfile{
         display: flex;
+        
         justify-content: space-between;
         align-items: center;
         p{
@@ -670,6 +705,8 @@ li {
       .upload-box{
           font-size: 14px;
         // padding: 10px ;
+  cursor: pointer;
+
           color: #1e266d;
           width: 100%;
           // font-family: var(--body-font) !important;
@@ -684,6 +721,8 @@ li {
               color: white;
               background-color: var(--theam-color);
               border-radius: 50px ;
+  cursor: pointer;
+
               width: 120px;
               // box-shadow: 1px 0 1px 1px #6b4559;
               outline: none !important;
@@ -692,6 +731,7 @@ li {
           
       }
       .btn-section{
+        
           display: flex;
           justify-content: center;
           margin: 10px 0;

@@ -37,7 +37,7 @@ const Layout = ({ children }) => {
             : "wrapper_close"
         }
       >
-        <NotificationContainer />
+        <NotificationContainer className="my-custom-notifications" />
 
         {children}
       </div>
