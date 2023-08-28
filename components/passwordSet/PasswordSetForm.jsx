@@ -40,7 +40,7 @@ const PasswordSetForm = () => {
     var charCode = event.which ? event.which : event.keyCode;
     if (
       String.fromCharCode(charCode).match(/[^0-9]/g) ||
-      event.target.value.length > 4
+      event.target.value.length > 5
     ) {
       event.preventDefault();
     }
@@ -117,7 +117,7 @@ const PasswordSetForm = () => {
                                   handleKeyPress(event);
                                 }}
                                 onInput={(event) => {
-                                  if (event.target.value.length > 5) {
+                                  if (event.target.value.length > 6) {
                                     event.preventDefault();
                                   }
                                 }}

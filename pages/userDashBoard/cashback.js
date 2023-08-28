@@ -1,6 +1,37 @@
-import React from "react";
+import axios from "axios";
+import jwtDecode from "jwt-decode";
+import React, { useEffect, useState } from "react";
 
 function Cashback() {
+  const [cashBack, setCashBack] = useState("");
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+          const userData = jwtDecode(token);
+          const response = await axios.get(
+            `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetLoanApplicationCashBackByUserId?userId=${userData?.UserDetails?.Id}`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const { data } = response;
+          if (data?.success) {
+            setCashBack(data.value);
+          }
+          return response;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div class="loan-content-body ">
       <div class="container">
@@ -39,52 +70,47 @@ function Cashback() {
                 </tr>
               </thead>
               <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>vfok65c9</td>
-                  <td>Bajaj</td>
-                  <td>28 June,2022</td>
-                  <td>₹ 400000.00</td>
-                  <td>₹ 700.00</td>
-                </tr>
-                <tr>
-                  <td>2</td>
-                  <td>vfok65c10</td>
-                  <td>Bajaj</td>
-                  <td>18 June,2022</td>
-                  <td>₹ 650000.00</td>
-                  <td>₹ 1200.00</td>
-                </tr>
-                <tr>
-                  <td>3</td>
-                  <td>vfok65c11</td>
-                  <td>Bajaj</td>
-                  <td>10 June,2022</td>
-                  <td>₹ 700000.00</td>
-                  <td>₹ 600.00</td>
-                </tr>
-                <tr>
-                  <td>4</td>
-                  <td>vfok65c12</td>
-                  <td>Bajaj</td>
-                  <td>29 March,2022</td>
-                  <td>₹ 500000.00</td>
-                  <td>₹ 800.00</td>
-                </tr>
+                {cashBack && cashBack.length
+                  ? cashBack.map((elem, index) => {
+                      return (
+                        <>
+                          <tr>
+                            <td>{index + 1}</td>
+                            <td>{elem?.applicationNumbr}</td>
+                            <td>Bajaj</td>
+                            <td>{elem?.createdon}</td>
+                            <td>₹ {elem?.loanAmount}</td>
+                            <td>₹ 1200.00</td>
+                          </tr>
+                        </>
+                      );
+                    })
+                  : ""}
               </tbody>
             </table>
+            <>
+              {!cashBack.length && (
+                <div style={{ textAlign: "center" }}>
+                  <h4>No Data Found</h4>
+                </div>
+              )}
+            </>
           </div>
           <div class="text-end">
-            <div class="pagination">
-              <a href="#">&laquo;</a>
-              <a href="#" class="active">
-                1
-              </a>
-              <a href="#">2</a>
-              <a href="#">3</a>
-              <a href="#">4</a>
-              <a href="#">&raquo;</a>
-            </div>
+            {cashBack.length ? (
+              <div class="pagination">
+                <a href="#">&laquo;</a>
+                <a href="#" class="active">
+                  1
+                </a>
+                <a href="#">2</a>
+                <a href="#">3</a>
+                <a href="#">4</a>
+                <a href="#">&raquo;</a>
+              </div>
+            ) : (
+              ""
+            )}
           </div>
         </div>
       </div>

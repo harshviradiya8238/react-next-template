@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import LogoutModal from "../../logoutModal/LogoutModal";
 import { useRouter } from "next/router";
 
@@ -6,7 +6,33 @@ function Navbar({ toggleSidebar }) {
   const router = useRouter();
 
   const [showLogout, setShowLogout] = useState(false);
+  const [userData, setUserData] = useState("");
 
+  useEffect(() => {
+    setUserData(
+      typeof window !== "undefined"
+        ? JSON.parse(localStorage.getItem("user"))
+        : ""
+    );
+
+    const handlePopstate = (event) => {
+      // Check if the user is navigating back to the login page
+      if (window.location.pathname === "/login") {
+        // Show an alert
+        // alert("ioajsodjasod");
+        return setShowLogout(true);
+      }
+    };
+
+    // Add the event listener
+    window.addEventListener("popstate", handlePopstate);
+
+    // Clean up the event listener when the component is unmounted
+    return () => {
+      window.removeEventListener("popstate", handlePopstate);
+    };
+  }, [showLogout]);
+  console.log(userData);
   return (
     <div>
       <nav class="navbarDashBoard navbar-expand-md  sticky-top">
@@ -28,8 +54,9 @@ function Navbar({ toggleSidebar }) {
                     >
                       <div class="user-icon">
                         <img src="/images/user.png" alt="" />{" "}
-                      </div>{" "}
-                      User
+                      </div>
+                      <span className="me-2">{userData?.firstName}</span>
+                      <span>{userData?.lastName}</span>
                     </div>
                     <ul class="dropdown-menu ">
                       {/* <li>
@@ -37,6 +64,7 @@ function Navbar({ toggleSidebar }) {
                         View profile
                       </a>
                     </li> */}
+                      <li className="p-10">{userData?.email}</li>
                       <li
                         onClick={() => {
                           setShowLogout(true);
@@ -91,7 +119,12 @@ function Navbar({ toggleSidebar }) {
                 </div>
               </div>
             </div> */}
-            <LogoutModal show={showLogout} close={() => setShowLogout(false)} />
+            {showLogout && (
+              <LogoutModal
+                show={showLogout}
+                close={() => setShowLogout(false)}
+              />
+            )}
           </div>
         </div>
       </nav>

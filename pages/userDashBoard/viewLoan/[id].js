@@ -6,7 +6,8 @@ function ViewLoan() {
   const router = useRouter();
   const { id } = router.query;
   const [loanData, setLoanData] = useState("");
-  console.log(loanData, "-=-=");
+  const [documentData, setDocumentData] = useState("");
+
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
 
@@ -30,8 +31,29 @@ function ViewLoan() {
         // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
+    const GetDocumentById = async (token) => {
+      // const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.get(
+          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`,
+
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+
+        setDocumentData(data.value);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
 
     GetLoanById(token);
+    GetDocumentById(token);
   }, []);
 
   const [docFiles, setdocFiles] = useState([]);
@@ -113,18 +135,6 @@ function ViewLoan() {
             >
               Document Details
             </div>
-            <div
-              class="nav-link"
-              id="nav-contact-tab"
-              data-bs-toggle="tab"
-              data-bs-target="#nav-contact"
-              type="button"
-              role="tab"
-              aria-controls="nav-contact"
-              aria-selected="false"
-            >
-              Comment
-            </div>
           </div>
         </div>
         <div class="tab-content" id="nav-tabContent">
@@ -136,97 +146,190 @@ function ViewLoan() {
             tabindex="0"
           >
             <form action="" class="form">
-              <div class="row">
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="first-name">Name</label>
-                  <input
-                    type="text"
-                    id="first-name"
-                    name="first-name"
-                    value={`${loanData?.user?.firstName} ${loanData?.user?.lastName}`}
-                    required
-                    disabled
-                  />
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="email">E-mail</label>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={loanData?.user?.email}
-                    required
-                    disabled
-                  />
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="phone">Contact No</label>
-                  <input
-                    type="number"
-                    id="phone"
-                    name="phone"
-                    value={loanData?.user?.phoneNumber}
-                    required
-                    disabled
-                  />
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <div class="single-input">
-                    <label for="state">State</label>
+              <div>
+                <div class="row">
+                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                    <label for="first-name">Name</label>
                     <input
                       type="text"
-                      id="state"
-                      placeholder="Gujarat"
-                      value={loanData?.state}
-                      required=""
+                      id="first-name"
+                      name="first-name"
+                      value={`${loanData?.user?.firstName} ${loanData?.user?.lastName}`}
+                      required
                       disabled
                     />
                   </div>
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="loan-status">Loan Status</label>
-                  <input
-                    type="loan-status"
-                    id="loan-status"
-                    name="loan-status"
-                    value={loanData?.status}
-                    required
-                    disabled
-                  />
-                </div>
+                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label>Loan Type</label>
+                      <input
+                        // type="number"
+                        // id="Loan-Amount"
+                        value={loanData?.loanTypeName}
+                        //   name="BusinessLoan"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+                    <label for="email">E-mail</label>
+                    <input
+                      type="email"
+                      id="email"
+                      name="email"
+                      value={loanData?.user?.email}
+                      required
+                      disabled
+                    />
+                  </div>
+                  <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+                    <label for="phone">Contact No</label>
+                    <div className="mobile-number-input">
+                      <img src="/images/india_2.png" className="indiaFlag" />
+                      <span className="country-code">+91</span>
+                      <input
+                        type="number"
+                        id="phone"
+                        name="phone"
+                        value={loanData?.user?.phoneNumber}
+                        required
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="state">State</label>
+                      <input
+                        type="text"
+                        id="state"
+                        placeholder="Gujarat"
+                        value={loanData?.state}
+                        required=""
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <label for="loan-status">Loan Status</label>
+                    <input
+                      type="loan-status"
+                      id="loan-status"
+                      name="loan-status"
+                      value={loanData?.status}
+                      required
+                      disabled
+                    />
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <label for="Loan-Amount">Loan Amount</label>
+                    <input
+                      type="number"
+                      id="Loan-Amount"
+                      name="begin"
+                      value={loanData?.amount}
+                      disabled
+                    />
+                  </div>
 
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <label for="Loan-Amount">Loan Amount</label>
-                  <input
-                    type="number"
-                    id="Loan-Amount"
-                    name="begin"
-                    value={loanData?.amount}
-                    disabled
-                  />
-                </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <div class="single-input">
-                    <label>Loan Type</label>
-                    <input
-                      // type="number"
-                      // id="Loan-Amount"
-                      value={loanData?.loanType}
-                      //   name="BusinessLoan"
-                      disabled
-                    />
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="term">Loan Tenure</label>
+                      <input
+                        type="text"
+                        value={loanData?.tenure}
+                        id="term"
+                        placeholder="1 Year"
+                        disabled
+                      />
+                    </div>
                   </div>
                 </div>
-                <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                  <div class="single-input">
-                    <label for="term">Loan Tenure</label>
-                    <input
-                      type="text"
-                      value={loanData?.tenure}
-                      id="term"
-                      placeholder="1 Year"
-                      disabled
-                    />
+                <div class="loan-content-body">
+                  <h5>Comment History</h5>
+                  <div class="loan-section-table">
+                    <div class="table-responsive">
+                      <table class="table ">
+                        <thead>
+                          <tr>
+                            <th>Status</th>
+                            <th>Comment</th>
+                            <th>Remarks</th>
+                            <th>View</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          <tr>
+                            <td>
+                              <span class="all-btn Accepted-btn">New</span>
+                            </td>
+                            <td>Light Bill not found</td>
+                            <td>
+                              {/* {loanData?.status === "Incomplete" ||
+                              loanData?.status === "Query" ? (
+                                <input
+                                  type="text"
+                                  placeholder="Enter your comment "
+                                />
+                              ) : ( */}
+                              <span className="remark">
+                                GST Certificate has been received
+                              </span>
+                              {/* )} */}
+                            </td>
+                            <td>
+                              {" "}
+                              <i class="fa-regular fa-eye" />
+                            </td>
+                          </tr>
+
+                          <tr>
+                            <td>
+                              <span class="all-btn Re-Active-btn">
+                                ReActivate
+                              </span>
+                            </td>
+                            <td>GST Certificate not match</td>
+                            <td>
+                              <span className="remark">
+                                Light Bill not found
+                              </span>
+                            </td>
+                            <td>
+                              {" "}
+                              <i class="fa-regular fa-eye" />
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <span class="all-btn Process-btn">Re-submit</span>
+                            </td>
+                            <td>GST Certificate not found</td>
+                            <td>
+                              <span className="remark">
+                                GST Certificate has been received
+                              </span>
+                            </td>
+                            <td>
+                              {" "}
+                              <i class="fa-regular fa-eye" />
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                    <div class="text-end">
+                      <div class="pagination">
+                        <a href="#">&laquo;</a>
+                        <a href="#" class="active">
+                          1
+                        </a>
+                        <a href="#">2</a>
+                        <a href="#">3</a>
+                        <a href="#">4</a>
+                        <a href="#">&raquo;</a>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -245,175 +348,88 @@ function ViewLoan() {
             aria-labelledby="nav-kyc-tab"
             tabindex="0"
           >
-            {/* <form action="" class="form">
-            <div class="row">
-                                  {documentOption?.length > 0 &&
-                                    documentOption.map((data, index) => {
-                                      return (
-                                        <>
-                                          <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                            <div key={index}>
-                                              <h4>{data?.name}</h4>
-                                              <div class="input-box ">
-                                                <input
-                                                  type="file"
-                                                  multiple
-                                                  ref={aRef}
-                                                  class="upload-box"
-                                                  onChange={(e) =>
-                                                    handlePanFileChange(
-                                                      data?.name,
-                                                      e,
-                                                      data?.id
-                                                    )
-                                                  }
-                                                />
-                                              </div>
-                                            </div>
-                                            {docFiles[data?.name]?.length >
-                                              0 && (
-                                              <div>
-                                                <h4>Selected files:</h4>
-                                                {docFiles[data?.name] &&
-                                                  docFiles[data?.name]?.map(
-                                                    (file, index) => (
-                                                      <div key={index}>
-                                                        <div className="selectfile">
-                                                          <p>{file?.name}</p>
+            <div class="form">
+              <>
+                {documentData && documentData.length
+                  ? documentData.map((elm, index) => {
+                      return (
+                        <>
+                          <div class="row">
+                            <div
+                              class="my-4 col-lg-12 col-md-12 col-sm-12"
+                              key={index}
+                            >
+                              <h4 style={{ marginLeft: "0px" }}>
+                                {elm?.otherDocumentName}
+                              </h4>
 
-                                                          <i
-                                                            class="fa-solid fa-xmark"
-                                                            onClick={() =>
-                                                              handleRemoveFile(
-                                                                data?.name,
-                                                                index
-                                                              )
-                                                            }
-                                                            style={{
-                                                              cursor: "pointer",
-                                                            }}
-                                                          ></i>
-                                                        </div>
-                                                        {file && (
-                                                          <PreviewComponent
-                                                            file={file}
-                                                          />
-                                                        )}
-                                                
-                                                      </div>
-                                                    )
-                                                  )}
-                                              </div>
-                                            )}
-                                          </div>
-                                        </>
-                                      );
-                                    })}
-</div>
-            </form> */}
-          </div>
-
-          <div
-            class="tab-pane fade "
-            id="nav-contact"
-            role="tabpanel"
-            aria-labelledby="nav-contact-tab"
-            tabindex="0"
-          >
-            <div class="loan-content-body">
-              <div class="loan-section-table">
-                <div class="table-responsive">
-                  <table class="table ">
-                    <thead>
-                      <tr>
-                        <th>Status</th>
-                        <th>Comment</th>
-                        <th>Remarks</th>
-                        <th>Submit</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <span class="all-btn Accepted-btn">New</span>
-                        </td>
-                        <td>Light Bill not found</td>
-                        <td>
-                          <input
-                            type="text"
-                            placeholder="Enter your comment "
-                          />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="all-btn Approved-btn">Approved</span>
-                        </td>
-                        <td>GST Certificate has been received</td>
-                        <td>
-                          <input
-                            type="text"
-                            placeholder="Enter your comment "
-                          />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn">Submit</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="all-btn Re-Active-btn">ReActivate</span>
-                        </td>
-                        <td>GST Certificate not match</td>
-                        <td>
-                          <input
-                            type="text"
-                            placeholder="Enter your comment "
-                          />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="all-btn Process-btn">Re-submit</span>
-                        </td>
-                        <td>GST Certificate not found</td>
-                        <td>
-                          <input
-                            type="text"
-                            placeholder="Enter your comment "
-                          />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="text-end">
-                  <div class="pagination">
-                    <a href="#">&laquo;</a>
-                    <a href="#" class="active">
-                      1
-                    </a>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">4</a>
-                    <a href="#">&raquo;</a>
-                  </div>
-                </div>
-              </div>
+                              <span
+                                className="document_hyper_link"
+                                onClick={() =>
+                                  window.open(elm?.documentURL, "_blank")
+                                }
+                              >
+                                {elm?.documentURL}
+                              </span>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })
+                  : "No Document Uploaded"}
+              </>
             </div>
+            {/* <form action="" class="form">
+              <div class="row">
+                {documentOption?.length > 0 &&
+                  documentOption.map((data, index) => {
+                    return (
+                      <>
+                        <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                          <div key={index}>
+                            <h4>{data?.name}</h4>
+                            <div class="input-box ">
+                              <input
+                                type="file"
+                                multiple
+                                ref={aRef}
+                                class="upload-box"
+                                onChange={(e) =>
+                                  handlePanFileChange(data?.name, e, data?.id)
+                                }
+                              />
+                            </div>
+                          </div>
+                          {docFiles[data?.name]?.length > 0 && (
+                            <div>
+                              <h4>Selected files:</h4>
+                              {docFiles[data?.name] &&
+                                docFiles[data?.name]?.map((file, index) => (
+                                  <div key={index}>
+                                    <div className="selectfile">
+                                      <p>{file?.name}</p>
+
+                                      <i
+                                        class="fa-solid fa-xmark"
+                                        onClick={() =>
+                                          handleRemoveFile(data?.name, index)
+                                        }
+                                        style={{
+                                          cursor: "pointer",
+                                        }}
+                                      ></i>
+                                    </div>
+                                    {file && <PreviewComponent file={file} />}
+                                  </div>
+                                ))}
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    );
+                  })}
+              </div>
+            </form> */}
           </div>
         </div>
 

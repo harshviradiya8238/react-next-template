@@ -5,7 +5,6 @@ import { useEffect, useState } from "react";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
-  console.log(loanApplication, "-==-");
 
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
@@ -23,8 +22,9 @@ export default function DashBoardDefault() {
           }
         );
         const { data } = response;
+        const sortedEntries = Array.from(data.value).reverse();
 
-        setLoanApplication(data.value);
+        setLoanApplication(sortedEntries);
       } catch (error) {
         console.log(error);
         // Notification("error", error?.response?.data[0]?.errorMessage);
@@ -93,51 +93,94 @@ export default function DashBoardDefault() {
               <h3 class="text-head">
                 <span> Loan Application status </span>
               </h3>
-              <div class="table-responsive">
-                <table class="table align-td-middle table-card">
+              <div class=" table-container">
+                <table class="table align-td-middle table-card custom-table">
                   <thead>
                     <tr>
                       <th>No.</th>
                       <th>Application Number</th>
-                      <th>Bank/NBFC</th>
-                      <th>Amount (₹)</th>
+                      <th>Amount (₹) </th>
+                      <th>Loan tenure(year) </th>
+                      <th>Loan type </th>
+
                       <th>Status</th>
-                      <th>View</th>
+                      <th>Action</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {loanApplication &&
-                      loanApplication.length &&
-                      loanApplication.map((data, index) => {
-                        return (
-                          <>
-                            <tr>
-                              <td>{index + 1}</td>
-                              <td>{data?.applicationNumber}</td>
-                              <td>Bajaj</td>
-                              <td>{data?.amount}</td>
-                              <td>
-                                <span class="all-btn Accepted-btn">
-                                  {data?.status}
-                                </span>
-                              </td>
-                              <td>
-                                <Link
-                                  href={`/userDashBoard/viewLoan/${data?.id}`}
-                                  className="cmn-btn"
-                                  style={{
-                                    background: "none",
-                                    padding: "0",
-                                    border: "none",
-                                  }}
-                                >
-                                  <i class="fa-regular fa-eye" />
-                                </Link>
-                              </td>
-                            </tr>
-                          </>
-                        );
-                      })}
+                    {loanApplication && loanApplication.length
+                      ? loanApplication.map((data, index) => {
+                          return (
+                            <>
+                              <tr key={index}>
+                                <td>{index + 1}</td>
+                                <td>{data?.applicationNumber}</td>
+                                <td>{data?.amount}</td>
+
+                                <td>{data?.tenure ? data?.tenure : 2}</td>
+                                <td>
+                                  {data?.loanTypeName
+                                    ? data?.loanTypeName
+                                        .charAt(0)
+                                        .toUpperCase() +
+                                      data?.loanTypeName.slice(1).toLowerCase()
+                                    : "Home Loan"}
+                                </td>
+                                <td>
+                                  <span
+                                    class={`all-btn ${
+                                      data?.status === "Pending"
+                                        ? "Pending-btn"
+                                        : data?.status === "Query"
+                                        ? "qyery-btn"
+                                        : data?.status === "Reject"
+                                        ? "Rejected-btn"
+                                        : data?.status === "Approve"
+                                        ? "Approved-btn"
+                                        : data?.status === "Incomplete"
+                                        ? "Process-btn"
+                                        : ""
+                                    }`}
+                                  >
+                                    {data?.status}
+                                  </span>
+                                </td>
+                                <td>
+                                  <div>
+                                    <Link
+                                      href={`/userDashBoard/viewLoan/${data?.id}`}
+                                      className="cmn-btn"
+                                      style={{
+                                        background: "none",
+                                        padding: "0",
+                                        border: "none",
+                                        marginRight: "10px",
+                                      }}
+                                    >
+                                      <i class="fa-regular fa-eye" />
+                                    </Link>
+                                    <Link
+                                      href={`/userDashBoard/editLoan/${data?.id}`}
+                                      className="cmn-btn"
+                                      style={{
+                                        background: "none",
+                                        padding: "0",
+                                        border: "none",
+                                        marginRight: "10px",
+                                      }}
+                                    >
+                                      <i
+                                        class="fa-solid fa-pen-to-square"
+                                        style={{ color: "red" }}
+                                      />
+                                    </Link>
+                                  </div>
+                                </td>
+                              </tr>
+                            </>
+                          );
+                        })
+                      : ""}
                     {/* <tr>
                       <td>1</td>
                       <td>vfok65c8 </td>
@@ -252,6 +295,13 @@ export default function DashBoardDefault() {
                     </tr> */}
                   </tbody>
                 </table>
+                <>
+                  {!loanApplication.length && (
+                    <div>
+                      <h4>No Data Found</h4>
+                    </div>
+                  )}
+                </>
               </div>
               {/* <div class="btn-section-dashbard">
                 <button class="view-btn-dashbard">View More</button>

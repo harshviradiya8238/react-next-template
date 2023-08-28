@@ -9,6 +9,7 @@ import Navbar from "./userDashBoardComponent/dashboardNavbar/navbar";
 import { useState } from "react";
 import { NotificationContainer } from "react-notifications";
 import "react-notifications/lib/notifications.css";
+import { useEffect } from "react";
 
 const Layout = ({ children }) => {
   const router = useRouter();
@@ -19,6 +20,20 @@ const Layout = ({ children }) => {
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+  // useEffect(() => {
+  //   const handleBeforePopState = (event) => {
+  //     if (event.state && event.state.route === "/userDashboard") {
+  //       router.replace("/userDashboard", undefined, { shallow: true });
+  //       // event.preventDefault();
+  //     }
+  //   };
+
+  //   window.addEventListener("beforepopstate", handleBeforePopState);
+
+  //   return () => {
+  //     window.removeEventListener("beforepopstate", handleBeforePopState);
+  //   };
+  // }, [router]);
   return (
     <>
       {pathname.includes("userDashBoard") ? (

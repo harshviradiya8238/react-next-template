@@ -76,6 +76,10 @@ const LoginForm = () => {
 
                           Notification("success", "Login SuccessFully");
                           localStorage.setItem("logintoken", data.value.token);
+                          localStorage.setItem(
+                            "user",
+                            JSON.stringify(data?.value)
+                          );
                         } else {
                           Notification("error", "error");
                         }
@@ -143,7 +147,7 @@ const LoginForm = () => {
                               />
 
                               <span onClick={togglePasswordVisibility}>
-                                {showPassword ? (
+                                {!showPassword ? (
                                   <i className="fas fa-eye-slash cursor-pointer"></i>
                                 ) : (
                                   <i className="fas fa-eye cursor-pointer	"></i>

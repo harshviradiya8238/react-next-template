@@ -8,10 +8,10 @@ import Notification from "../../components/utils/Notification";
 // Define the validation schema
 const validationSchema = Yup.object().shape({
   step1: Yup.object().shape({
-    pan: Yup.string().required("pan is required"),
-    loanType: Yup.string().required("LoanType is required"),
-    loanAmount: Yup.string().required("LoanAmount is required"),
-    loanTerm: Yup.string().required("LoanTenure is required"),
+    loanAmount: Yup.string().required("Loan Amount is required"),
+    loanTerm: Yup.string().required("Loan Tenure is required"),
+    loanType: Yup.string().required("Loan Type is required"),
+    State: Yup.string().required("State is required"),
   }),
   step3: Yup.object().shape({
     businessProof: Yup.string().required("Address is required"),
@@ -37,20 +37,34 @@ function LoanApplication() {
   });
 
   const [loanTypeOption, setLoanTypeOption] = useState([]);
-  const [countryStateOption, SetCountryStateOption] = useState("");
+  const [countryStateOption, SetCountryStateOption] = useState([]);
   const [countryState, SetCountryState] = useState("");
   const [selectOption, setSelectOption] = useState("");
   const [bankOption, setBankOption] = useState([]);
   const [documentOption, setDocumentOption] = useState([]);
   const [loanApplicationId, setLoanAppliactionId] = useState("");
   const [loanApplicationNumber, setLoanAppliactionNumber] = useState("");
+  const [errorLoanType, setErrorLoanType] = useState("");
+  const [errorStateType, setErrorStateType] = useState("");
+  const [loanAmount, setLoanAmount] = useState("");
+  const [otherDocumentId, setOtherDocumentId] = useState("");
+
+  const [loanAmountError, setLoanAmountError] = useState("");
 
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
+    setErrorLoanType("");
+
     // setSelectOptionName(target.name);
   };
   const handleSelectStateoption = ({ target }) => {
     SetCountryState(target.value);
+    setErrorStateType("");
+    // setSelectOptionName(target.name);
+  };
+  const handleChnageLoanAmount = ({ target }) => {
+    setLoanAmount(target.value);
+    setLoanAmountError("");
     // setSelectOptionName(target.name);
   };
 
@@ -85,14 +99,19 @@ function LoanApplication() {
 
         // setEligiblity(true);
       } else {
-        setFieldValue("activeStep", 2);
+        setFieldValue("activeStep", 1);
         setBankOption([]);
         // setSatate({ ...state, activeStep: 2 });
       }
       if (data?.value?.document?.length > 0) {
         const inputArray = data.value.document;
-        setDocumentOption(inputArray);
+        const filteredData = data?.value?.document.filter(
+          (item) => item.name !== "Other"
+        );
+
+        setDocumentOption(filteredData);
       }
+      setOtherDocumentId(data?.value?.otherDocumentId);
     } catch (error) {
       console.log(error);
       Notification("error", error?.response?.data[0]?.errorMessage);
@@ -153,6 +172,19 @@ function LoanApplication() {
   };
 
   const handleCreateApplication = async (value, setFieldValue) => {
+    if (!selectOption) {
+      setErrorLoanType("Please Select Loan Type.");
+    }
+    if (!countryState) {
+      setErrorStateType("Please Select State");
+    }
+    if (!loanAmount) {
+      setLoanAmountError("Please Enter Loan Amount");
+    }
+    if (!loanAmount || !countryState || !countryState) {
+      return;
+    }
+
     const token = localStorage.getItem("logintoken");
 
     try {
@@ -160,7 +192,7 @@ function LoanApplication() {
         "https://loancrmtrn.azurewebsites.net/api/LoanApplication/Create",
         {
           loanTypeId: selectOption,
-          amount: value.step1.loanAmount,
+          amount: loanAmount,
           tenure: Number(value.step1.loanTerm),
           stateId: Number(countryState),
         },
@@ -175,7 +207,7 @@ function LoanApplication() {
       await Notification("success", data?.value?.message);
       GetBankAndDocumetByLoanTypeId(
         selectOption,
-        value.step1.loanAmount,
+        loanAmount,
         value.step1.loanTerm,
         setFieldValue
       );
@@ -183,7 +215,7 @@ function LoanApplication() {
       setLoanAppliactionNumber(data?.value?.applicationNumber);
     } catch (error) {
       console.log(error);
-      Notification("error", "Please Enter All Field");
+      // Notification("error", "Please Enter All Field");
 
       // Notification("error", error?.response?.data[0]?.errorMessage);
     }
@@ -195,14 +227,7 @@ function LoanApplication() {
     { title: "Application confirmation" },
   ];
 
-  const [eligiblity, setEligiblity] = useState(false);
-  const [selectedOption, setSelectedOption] = useState("business");
-
   const aRef = useRef(null);
-
-  const handleCheckEligiblity = () => {
-    setEligiblity(true);
-  };
 
   const handleNext = (setFieldValue, values) => {
     console.log(values.activeStep);
@@ -217,31 +242,33 @@ function LoanApplication() {
     console.log(values);
   };
 
-  const handleOptionChange = (e) => {
-    setSelectedOption(e.target.value);
-  };
-
-  const [docFiles, setdocFiles] = useState({
-    itrFile: [],
-    bankStatements: [],
-    otherDocuments: [],
-  });
+  const [docFiles, setdocFiles] = useState([]);
+  const [selectedFilesArray, setSelectedFilesArray] = useState([]);
 
   const handleSubmitUploadDoc = async (setFieldValue) => {
     var newAraay = [];
-    // console.log("docFiles=-", docFiles);
+    var documentNull = false;
     Object?.keys(docFiles)?.forEach((key) => {
-      // console.log(docFiles[key], "-=-=-=");
       docFiles[key]?.forEach((item) => {
+        item["keyname"] = key;
         newAraay.push(item);
       });
     });
-    if (newAraay.length > 0) {
-      // newAraay
-      newAraay.forEach(async (element) => {
+    selectedFilesArray.forEach((element) => {
+      element.file["keyname"] = element.name;
+      element.file["documentTypeId"] = otherDocumentId;
+      newAraay.push(element.file);
+    });
+    if (newAraay?.length > 0) {
+      await newAraay.forEach(async (element) => {
         const formData = new FormData();
+        console.log(element.documentTypeId, "oioio");
         formData.append("LoanApplicationId", loanApplicationId);
         formData.append("DocumentTypeId", element.documentTypeId);
+        formData.append(
+          "OtherDocumentName",
+          element?.keyname ? element?.keyname : "Other"
+        );
         formData.append("Documents", element);
 
         const token = localStorage.getItem("logintoken");
@@ -258,17 +285,128 @@ function LoanApplication() {
           );
           // const { data } = response;
           Notification("success", "document Upload Successfully ");
-
-          setFieldValue("activeStep", 3);
+          setFieldValue("activeStep", 2);
         } catch (error) {
           console.log(error);
           Notification("error", error?.response?.data[0]?.errorMessage);
         }
       });
     } else {
+      Notification("error", "Please select atLeast one document ");
+    }
+
+    //====================================================================================old code==========================================
+    // Object?.keys(docFiles)?.forEach((key) => {
+    //   if (key === "otherDocuments") {
+    //     docFiles[key]?.forEach((item) => {
+    //       if (item?.files?.length > 0) {
+    //         item?.files?.forEach((element) => {
+    //           element["keyname"] = item?.label ? item?.label : "Other";
+    //           element["documentTypeId"] = otherDocumentId;
+    //           newAraay.push(element);
+    //         });
+    //       } else {
+    //         documentNull = true;
+    //         Notification("error", "Please select document Else remove field ");
+
+    //         return;
+    //       }
+    //     });
+    //   } else {
+    //     docFiles[key]?.forEach((item) => {
+    //       item["keyname"] = key;
+    //       newAraay.push(item);
+    //     });
+    //   }
+    // });
+    // if (documentNull) {
+    //   return;
+    // }
+    // if (!documentNull && newAraay?.length > 0) {
+    //   newAraay.forEach(async (element) => {
+    //     const formData = new FormData();
+    //     console.log(element.documentTypeId, "oioio");
+    //     formData.append("LoanApplicationId", loanApplicationId);
+    //     formData.append("DocumentTypeId", element.documentTypeId);
+    //     formData.append(
+    //       "OtherDocumentName",
+    //       element?.keyname ? element?.keyname : "Other"
+    //     );
+    //     formData.append("Documents", element);
+
+    //     const token = localStorage.getItem("logintoken");
+
+    //     try {
+    //       const response = await axios.post(
+    //         "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+    //         formData,
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${token}`,
+    //           },
+    //         }
+    //       );
+    //       // const { data } = response;
+    //       Notification("success", "document Upload Successfully ");
+    //       setFieldValue("activeStep", 2);
+    //     } catch (error) {
+    //       console.log(error);
+    //       Notification("error", error?.response?.data[0]?.errorMessage);
+    //     }
+    //   });
+    // } else {
+    //   Notification("error", "Please select atLeast one document ");
+    // }
+  };
+
+  const handlePanFileChange = (fieldType, event, id) => {
+    if (event.target.files.length) {
+      for (let index = 0; index < event.target.files.length; index++) {
+        event.target.files[index].documentTypeId = id;
+      }
+    } else {
+      event.target.files[0].documentTypeId = id;
+    }
+    var selectedFiles = [...event?.target?.files];
+
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: selectedFiles,
+    }));
+  };
+
+  const handleRemoveFile = (fieldType, index) => {
+    setdocFiles((prevState) => ({
+      ...prevState,
+      [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleOtherDocumentFileChange = (index, event) => {
+    console.log(event.target.files[index].type);
+    if (
+      event.target.files[index].type === "application/pdf" ||
+      event.target.files[index].type.includes("image")
+    ) {
+      const selectedFiles = [...event.target.files];
+
+      const updatedFiles = selectedFiles.slice(0, 3);
+      handleFieldChange(index, "files", updatedFiles);
+    } else {
+      return Notification("error", "only Accept PDF and image");
     }
   };
 
+  // const handleRemoveOtherDocumentFile = (index, fileIndex) => {
+  //   setdocFiles((prevState) => {
+  //     const otherDocuments = [...prevState.otherDocuments];
+  //     otherDocuments[index].files.splice(fileIndex, 1);
+  //     return {
+  //       ...prevState,
+  //       otherDocuments,
+  //     };
+  //   });
+  // };
   const handleFieldChange = (index, field, value) => {
     setdocFiles((prevState) => {
       const otherDocuments = [...prevState.otherDocuments];
@@ -290,39 +428,6 @@ function LoanApplication() {
         ],
       }));
     }
-  };
-
-  const handlePanFileChange = (fieldType, event) => {
-    const selectedFiles = [...event.target.files];
-    const updatedFiles = selectedFiles.slice(0, 3);
-    setdocFiles((prevState) => ({
-      ...prevState,
-      [fieldType]: updatedFiles,
-    }));
-  };
-
-  const handleRemoveFile = (fieldType, index) => {
-    setdocFiles((prevState) => ({
-      ...prevState,
-      [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
-    }));
-  };
-
-  const handleOtherDocumentFileChange = (index, event) => {
-    const selectedFiles = [...event.target.files];
-    const updatedFiles = selectedFiles.slice(0, 3);
-    handleFieldChange(index, "files", updatedFiles);
-  };
-
-  const handleRemoveOtherDocumentFile = (index, fileIndex) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments[index].files.splice(fileIndex, 1);
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
   };
 
   const handleToggleEdit = (index) => {
@@ -347,32 +452,96 @@ function LoanApplication() {
     });
   };
 
-  const PreviewComponent = ({ file }) => {
-    console.log(file.type);
-    if (file.type.includes("image")) {
-      return (
-        <img
-          src={URL.createObjectURL(file)}
-          alt="File Preview"
-          style={{ maxWidth: "100%", height: "100px" }}
-        />
-      );
-    } else if (file.type === "application/pdf") {
-      return (
-        <>
-          <embed
-            src={URL.createObjectURL(file)}
-            type="application/pdf"
-            width="100%"
-            height="100px"
-          />
-          {/* <h6>{URL.createObjectURL(file)}</h6> */}
-        </>
-      );
-    } else {
-      return <p>Preview not available for this file type.</p>;
+  const handlePreviewFile = (file) => {
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        if (file?.type === "application/pdf") {
+          const previewWindow = window.open("", "_blank");
+          const content = `<embed src="${reader.result}" type="application/pdf" width="100%" height="1000px" />`;
+          previewWindow.document.write(content);
+          previewWindow.document.close();
+        } else {
+          const previewWindow = window.open("", "_blank");
+          const content = `<img src="${reader.result}" alt="Preview" />`;
+          previewWindow.document.write(content);
+          previewWindow.document.close();
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
+
+  const [documentFileName, setDocumentFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [errorMessage, setErrorMessage] = useState("");
+  const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+
+    if (file) {
+      const fileType = "." + file.name.split(".").pop().toLowerCase();
+
+      if (allowedFileTypes.includes(fileType)) {
+        setSelectedFile(file);
+        setErrorMessage("");
+      } else {
+        setSelectedFile(null);
+        setErrorMessage("File type is not supported");
+      }
+    }
+  };
+
+  const handleRemoveOtherDocumentFile = (fileToRemove) => {
+    const updatedFiles = selectedFilesArray.filter(
+      (fileObj) => fileObj.file !== fileToRemove
+    );
+    setSelectedFilesArray(updatedFiles);
+  };
+
+  const handleUpload = () => {
+    if (selectedFile && documentFileName) {
+      setSelectedFilesArray((prevArray) => [
+        ...prevArray,
+        { name: documentFileName, file: selectedFile },
+      ]);
+      setSelectedFile(null);
+      setDocumentFileName("");
+      setErrorMessage("");
+    } else {
+      setErrorMessage(
+        "Please enter a document name and choose a supported file to upload"
+      );
+    }
+  };
+
+  // const PreviewComponent = ({ file }) => {
+  //   console.log(file.type);
+  //   if (file.type.includes("image")) {
+  //     return (
+  //       <img
+  //         src={URL.createObjectURL(file)}
+  //         alt="File Preview"
+  //         style={{ maxWidth: "100%", height: "100px" }}
+  //       />
+  //     );
+  //   } else if (file.type === "application/pdf") {
+  //     return (
+  //       <>
+  //         <embed
+  //           src={URL.createObjectURL(file)}
+  //           type="application/pdf"
+  //           width="100%"
+  //           height="100px"
+  //         />
+  //         {/* <h6>{URL.createObjectURL(file)}</h6> */}
+  //       </>
+  //     );
+  //   } else {
+  //     return <p>Preview not available for this file type.</p>;
+  //   }
+  // };
 
   // const handleFilePreview = (file) => {
   //   // return URL.createObjectURL(file.target.files[0]);
@@ -387,6 +556,38 @@ function LoanApplication() {
   //     reader.readAsDataURL(file);
   //   });
   // };
+
+  const handlePreviewClick = (selectedFile) => {
+    console.log(selectedFile);
+    if (selectedFile) {
+      const previewWindow = window.open("", "_blank");
+      const previewContent = getFilePreviewContent(selectedFile);
+
+      previewWindow.document.write(previewContent);
+    }
+  };
+
+  const getFilePreviewContent = (selectedFile) => {
+    if (selectedFile.type === "application/pdf") {
+      return (
+        <>
+          <embed
+            src={URL.createObjectURL(selectedFile)}
+            type="application/pdf"
+          />
+          {/* <h6>{URL.createObjectURL(file)}</h6> */}
+        </>
+      );
+    } else if (selectedFile.type.includes("image")) {
+      return <img src={URL.createObjectURL(selectedFile)} alt="File Preview" />;
+    }
+    return "";
+  };
+  const fileInputRef = useRef(null);
+
+  const handleButtonClick = () => {
+    fileInputRef.current.click();
+  };
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form ">
       <div className="overlay pt-120">
@@ -404,7 +605,7 @@ function LoanApplication() {
                 </div>
                 {/* Loan form  */}
 
-                <div style={{ marginTop: "100px" }}>
+                <div>
                   <Formik
                     initialValues={state}
                     validationSchema={validationSchema}
@@ -529,7 +730,7 @@ function LoanApplication() {
 
                                             await Notification(
                                               "success",
-                                              data?.messages[0]?.messageText
+                                              "Bank selection Submitted successfully"
                                             );
                                             // setEligiblity(true);
                                             // setFieldValue("activeStep", values.activeStep + 1);
@@ -558,9 +759,15 @@ function LoanApplication() {
                                         <label>Loan Amount (INR)</label>
                                         <Field
                                           type={"number"}
-                                          placeholder="enter loan amount"
-                                          name="step1.loanAmount"
+                                          placeholder="Enter loan amount"
+                                          value={loanAmount}
+                                          onChange={handleChnageLoanAmount}
                                         />
+                                        {loanAmountError && (
+                                          <p style={{ color: "red" }}>
+                                            {loanAmountError}
+                                          </p>
+                                        )}
                                       </div>
                                     </div>
 
@@ -596,6 +803,16 @@ function LoanApplication() {
                                               </select>
                                             )}
                                         </>
+                                        {errorLoanType && (
+                                          <p style={{ color: "red" }}>
+                                            {errorLoanType}
+                                          </p>
+                                        )}
+                                        {/* <ErrorMessage
+                                          name="step2verify.loanType"
+                                          component="div"
+                                          style={{ color: "red" }}
+                                        /> */}
                                       </div>
                                     </div>
                                   </div>
@@ -643,6 +860,11 @@ function LoanApplication() {
                                               </select>
                                             )}
                                         </>
+                                        {errorStateType && (
+                                          <p style={{ color: "red" }}>
+                                            {errorStateType}
+                                          </p>
+                                        )}
                                       </div>
                                     </div>
                                   </div>
@@ -689,6 +911,7 @@ function LoanApplication() {
                                                   <input
                                                     type="file"
                                                     multiple
+                                                    accept=".jpg, .jpeg, .png, .bmp, .pdf"
                                                     ref={aRef}
                                                     class="upload-box"
                                                     onChange={(e) =>
@@ -710,27 +933,63 @@ function LoanApplication() {
                                                       (file, index) => (
                                                         <div key={index}>
                                                           <div className="selectfile">
-                                                            <p>{file?.name}</p>
+                                                            <div className="delete_div">
+                                                              {file && (
+                                                                // <PreviewComponent
+                                                                //   file={file}
+                                                                // />
+                                                                <span
+                                                                  className="document_hyper_link"
+                                                                  onClick={
+                                                                    () =>
+                                                                      handlePreviewFile(
+                                                                        file
+                                                                      )
 
-                                                            <i
-                                                              class="fa-solid fa-xmark"
-                                                              onClick={() =>
-                                                                handleRemoveFile(
-                                                                  data?.name,
-                                                                  index
-                                                                )
-                                                              }
-                                                              style={{
-                                                                cursor:
-                                                                  "pointer",
-                                                              }}
-                                                            ></i>
+                                                                    // window.open(
+                                                                    //   previewUrl,
+                                                                    //   "_blank"
+                                                                    // )
+                                                                  }
+                                                                >
+                                                                  {file?.name}
+                                                                </span>
+                                                              )}
+
+                                                              <button
+                                                                class="delete_button"
+                                                                onClick={() =>
+                                                                  handleRemoveFile(
+                                                                    data?.name,
+                                                                    index
+                                                                  )
+                                                                }
+                                                                style={{
+                                                                  cursor:
+                                                                    "pointer",
+                                                                }}
+                                                              >
+                                                                Delete
+                                                              </button>
+                                                            </div>
                                                           </div>
-                                                          {file && (
-                                                            <PreviewComponent
-                                                              file={file}
-                                                            />
-                                                          )}
+                                                          {/* {file && (
+                                                            // <PreviewComponent
+                                                            //   file={file}
+                                                            // />
+                                                            <button
+                                                              onClick={
+                                                                handlePreviewFile
+
+                                                                // window.open(
+                                                                //   previewUrl,
+                                                                //   "_blank"
+                                                                // )
+                                                              }
+                                                            >
+                                                              Preview
+                                                            </button>
+                                                          )} */}
                                                           {/* {fileType.includes(
                                                           "image"
                                                         ) ? (
@@ -788,286 +1047,113 @@ function LoanApplication() {
                                         );
                                       })}
 
-                                    {/* <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4>Bank Statement</h4>
-                                    <div class="input-box ">
-                                      <input
-                                        type="file"
-                                        multiple
-                                        ref={aRef}
-                                        class="upload-box"
-                                        onChange={(e) =>
-                                          handlePanFileChange(
-                                            "bankStatements",
-                                            e
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                    {docFiles?.bankStatements?.length > 0 && (
-                                      <div>
-                                        <h4>Selected files:</h4>
-                                        {docFiles &&
-                                          docFiles?.bankStatements?.map(
-                                            (file, index) => (
-                                              <div key={index}>
-                                                <div className="selectfile">
-                                                  <p>{file?.name}</p>
-                                                  <i
-                                                    class="fa-solid fa-xmark"
-                                                    onClick={() =>
-                                                      handleRemoveFile(
-                                                        "bankStatements",
-                                                        index
-                                                      )
-                                                    }
-                                                    style={{
-                                                      cursor: "pointer",
-                                                    }}
-                                                  ></i>
-                                                </div>
-
-                                                <div
-                                                  key={index}
-                                                  class="progress"
-                                                  role="progressbar"
-                                                  aria-label="Basic example"
-                                                  aria-valuenow="100"
-                                                  aria-valuemin="0"
-                                                  aria-valuemax="100"
-                                                  style={{ height: "6px" }}
-                                                >
-                                                  <div
-                                                    class="progress-bar"
-                                                    style={{
-                                                      width: "100%",
-                                                    }}
-                                                  ></div>
-                                                </div>
-                                              </div>
-                                            )
-                                          )}
-                                      </div>
-                                    )}
-                                  </div>
-
-                                  <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                                    <h4>Other Document</h4>
-                                    <div class="input-box ">
-                                      <input
-                                        type="file"
-                                        multiple
-                                        ref={aRef}
-                                        class="upload-box"
-                                        onChange={(e) =>
-                                          handlePanFileChange(
-                                            "otherDocument",
-                                            e
-                                          )
-                                        }
-                                      />
-                                    </div>
-                                    {docFiles?.otherDocument?.length > 0 && (
-                                      <div>
-                                        <h4>Selected files:</h4>
-                                        {docFiles &&
-                                          docFiles?.otherDocument?.map(
-                                            (file, index) => (
-                                              <div key={index}>
-                                                <div className="selectfile">
-                                                  <p>{file?.name}</p>
-                                                  <i
-                                                    class="fa-solid fa-xmark"
-                                                    onClick={() =>
-                                                      handleRemoveFile(
-                                                        "otherDocument",
-                                                        index
-                                                      )
-                                                    }
-                                                    style={{
-                                                      cursor: "pointer",
-                                                    }}
-                                                  ></i>
-                                                </div>
-
-                                                <div
-                                                  key={index}
-                                                  class="progress"
-                                                  role="progressbar"
-                                                  aria-label="Basic example"
-                                                  aria-valuenow="100"
-                                                  aria-valuemin="0"
-                                                  aria-valuemax="100"
-                                                  style={{ height: "6px" }}
-                                                >
-                                                  <div
-                                                    class="progress-bar"
-                                                    style={{
-                                                      width: "100%",
-                                                    }}
-                                                  ></div>
-                                                </div>
-                                              </div>
-                                            )
-                                          )}
-                                      </div>
-                                    )}
-                                  </div> */}
-                                    {/* <div>
                                     <div class="row">
-                                      {docFiles.otherDocuments.map(
-                                        (field, fieldIndex) => (
-                                          <div  
-                                            key={fieldIndex}
-                                            class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                          >
-                                            <div>
-                                              {field.editable ? (
-                                                <input
-                                                  type="text"
-                                                  value={field.label}
-                                                  onChange={(e) =>
-                                                    handleFieldChange(
-                                                      fieldIndex,
-                                                      "label",
-                                                      e.target.value
-                                                    )
-                                                  }
-                                                  placeholder="Upload Document"
-                                                />
-                                              ) : (
-                                                <h4>{field.label}</h4>
-                                              )}
-                                              <div
-                                                style={{
-                                                  display: "flex",
-                                                  alignItems: "center",
-                                                }}
-                                              >
-                                                {field && field.editable ? (
-                                                  <button
-                                                    style={{
-                                                      margin: "10px",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleToggleEdit(
-                                                        fieldIndex
-                                                      )
-                                                    }
-                                                  >
-                                                    Save
-                                                  </button>
-                                                ) : (
-                                                  <button
-                                                    style={{
-                                                      width: "40px",
-                                                      border: "none",
-                                                    }}
-                                                    onClick={() =>
-                                                      handleToggleEdit(
-                                                        fieldIndex
-                                                      )
-                                                    }
-                                                  >
-                                                    <i
-                                                      class="fa-solid fa-pen-to-square"
-                                                      style={{
-                                                        color: "green",
-                                                        cursor: "pointer",
-                                                      }}
-                                                    />
-                                                  </button>
-                                                )}
-                                                <i
-                                                  style={{
-                                                    color: "red",
-                                                    cursor: "pointer",
-                                                    marginRight: "10px",
-                                                  }}
-                                                  class="fa-solid fa-trash"
-                                                  onClick={() =>
-                                                    handleDeleteField(
-                                                      fieldIndex
-                                                    )
-                                                  }
-                                                />
-                                              </div>
-                                              <div className="input-box">
-                                                <input
-                                                  type="file"
-                                                  multiple
-                                                  class="upload-box"
-                                                  onChange={(e) =>
-                                                    handleOtherDocumentFileChange(
-                                                      fieldIndex,
-                                                      e
-                                                    )
-                                                  }
-                                                />
-                                              </div>
-                                              {field?.files?.length > 0 && (
-                                                <div>
-                                                  <h4>Selected files:</h4>
-                                                  {field?.files?.map(
-                                                    (file, fileIndex) => (
-                                                      <div key={fileIndex}>
-                                                        <div className="selectfile">
-                                                          <p>{file?.name}</p>
-                                                          <i
-                                                            class="fa-solid fa-xmark"
-                                                            onClick={() =>
-                                                              handleRemoveOtherDocumentFile(
-                                                                fieldIndex,
-                                                                fileIndex
-                                                              )
-                                                            }
-                                                            style={{
-                                                              cursor: "pointer",
-                                                            }}
-                                                          ></i>
-                                                        </div>
-
-                                                        <div
-                                                          class="progress"
-                                                          role="progressbar"
-                                                          aria-label="Basic example"
-                                                          aria-valuenow="100"
-                                                          aria-valuemin="0"
-                                                          aria-valuemax="100"
-                                                          style={{
-                                                            height: "6px",
-                                                          }}
-                                                        >
-                                                          <div
-                                                            class="progress-bar"
-                                                            style={{
-                                                              width: "100%",
-                                                            }}
-                                                          ></div>
-                                                        </div>
-                                                      </div>
-                                                    )
-                                                  )}
-                                                </div>
-                                              )}
-                                            </div>
+                                      {/* {docFiles.otherDocuments.map(
+                                        (field, fieldIndex) => ( */}
+                                      <div
+                                        // key={fieldIndex}
+                                        class="my-4 col-lg-12 col-md-12 col-sm-12"
+                                      >
+                                        <h4 style={{ marginLeft: "0" }}>
+                                          Other Document
+                                        </h4>
+                                        <div
+                                          style={{
+                                            display: "flex",
+                                            alignItems: "center",
+                                          }}
+                                        >
+                                          <div>
+                                            <input
+                                              type="text"
+                                              placeholder="Enter document name"
+                                              value={documentFileName}
+                                              onChange={(event) =>
+                                                setDocumentFileName(
+                                                  event.target.value
+                                                )
+                                              }
+                                            />
                                           </div>
-                                        )
-                                      )}
+                                          <div className="input-box">
+                                            <input
+                                              type="file"
+                                              accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                                              class="upload-box"
+                                              multiple
+                                              onChange={handleFileChange}
+                                            />
+                                          </div>
+                                          <div
+                                            style={{
+                                              display: "flex",
+                                              // alignItems: "center",
+                                            }}
+                                          >
+                                            <button
+                                              style={{
+                                                margin: "10px",
+                                              }}
+                                              onClick={handleUpload}
+                                            >
+                                              Upload
+                                            </button>
+                                          </div>
+                                        </div>
+                                        <>
+                                          {errorMessage && (
+                                            <p className="error">
+                                              {errorMessage}
+                                            </p>
+                                          )}
+                                        </>
+                                        {selectedFilesArray.length > 0 && (
+                                          <div>
+                                            <p>Selected Files:</p>
+                                            <ul>
+                                              {selectedFilesArray.map(
+                                                (fileObj, index) => (
+                                                  <li key={index}>
+                                                    <div className="delete_div">
+                                                      <b>{fileObj.name}</b> -
+                                                      <span
+                                                        className="document_hyper_link"
+                                                        onClick={() =>
+                                                          handlePreviewFile(
+                                                            fileObj.file
+                                                          )
+                                                        }
+                                                      >
+                                                        {fileObj.file.name}
+                                                      </span>
+                                                      <button
+                                                        className="delete_button"
+                                                        onClick={() =>
+                                                          handleRemoveOtherDocumentFile(
+                                                            fileObj.file
+                                                          )
+                                                        }
+                                                      >
+                                                        Delete
+                                                      </button>
+                                                    </div>
+                                                  </li>
+                                                )
+                                              )}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </div>
+                                      {/* )
+                                      )} */}
                                     </div>
-
-                                    <div
-                                      class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                      }}
-                                    >
-                                      <button onClick={addOtherDocumentField}>
-                                        other
-                                      </button>
-                                    </div>
-                                  </div> */}
+                                    {/* <div className="row">
+                                      <div class="my-4 col-lg-6 col-md-6 col-sm-12 ml-4 ms-1">
+                                        <button onClick={addOtherDocumentField}>
+                                          other
+                                        </button>
+                                      </div>
+                                    </div> */}
                                   </div>
 
                                   <div
@@ -1093,16 +1179,6 @@ function LoanApplication() {
                                       onClick={() =>
                                         handleSubmitUploadDoc(setFieldValue)
                                       }
-                                      // onClick={() =>
-                                      //   handleNext(setFieldValue, values)
-                                      // }
-                                      // disabled={
-                                      //   !values.step2 ||
-                                      //   !values.step2.loanAmount ||
-                                      //   !values.step2.loanType ||
-                                      //   !values.step2.state ||
-                                      //   !values.step2.loanTerm
-                                      // }
                                     >
                                       Submit
                                     </button>
@@ -1432,7 +1508,8 @@ function LoanApplication() {
                                 </p>
                                 <div class="my-4">
                                   <span class="app-no">
-                                    Application No. <span>vfok65c9</span>{" "}
+                                    Application No.{" "}
+                                    <span>{loanApplicationNumber}</span>{" "}
                                   </span>
                                 </div>
                                 <p>
