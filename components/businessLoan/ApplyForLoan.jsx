@@ -185,7 +185,6 @@ const columns = [
   { dataField: "id", text: "ID" },
   { dataField: "name", text: "Bank Name" },
   { dataField: "intrest", text: "Rate of Intrest" },
-  { dataField: "amount", text: "EMI" },
 ];
 
 function ApplyForLoan() {
@@ -940,7 +939,6 @@ function ApplyForLoan() {
                                           <th scope="col">Select</th>
                                           <th scope="col">Bank Name</th>
                                           <th scope="col">Rate of interest</th>
-                                          <th scope="col">EMI</th>
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -985,7 +983,6 @@ function ApplyForLoan() {
                                                   </th>
                                                   <td>{elm?.name}</td>
                                                   <td>{elm?.interestRate}</td>
-                                                  <td>{elm?.tenure}</td>
                                                 </tr>
                                               </>
                                             );
