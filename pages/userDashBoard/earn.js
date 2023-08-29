@@ -1,8 +1,10 @@
 import React from "react";
+import Preloader from "../../components/preloader/Preloader";
 
 function Earn() {
   return (
     <div class="loan-content-body">
+      <Preloader />
       <div class="container">
         <div class="cashback-section"></div>
         <div class="invite-section">

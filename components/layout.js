@@ -53,7 +53,7 @@ const Layout = ({ children }) => {
         }
       >
         <NotificationContainer className="my-custom-notifications" />
-
+        <Preloader />
         {children}
       </div>
       {/* <Ready /> */}

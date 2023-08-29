@@ -518,7 +518,8 @@ button {
 
 
         .pagination {
-            display: inline-block;
+            // display: inline-block;
+            justify-content: end;
           }
           
           .pagination a {

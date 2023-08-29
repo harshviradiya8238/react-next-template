@@ -1,6 +1,7 @@
 import axios from "axios";
 import jwtDecode from "jwt-decode";
 import React, { useEffect, useState } from "react";
+import Preloader from "../../components/preloader/Preloader";
 
 function Cashback() {
   const [cashBack, setCashBack] = useState("");
@@ -34,6 +35,7 @@ function Cashback() {
   }, []);
   return (
     <div class="loan-content-body ">
+      <Preloader />
       <div class="container">
         <div class="loan-section-table">
           <h3 class="text-head">

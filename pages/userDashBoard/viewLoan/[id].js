@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
+import Preloader from "../../../components/preloader/Preloader";
 
 function ViewLoan() {
   const router = useRouter();
@@ -54,7 +55,7 @@ function ViewLoan() {
 
     GetLoanById(token);
     GetDocumentById(token);
-  }, []);
+  }, [id]);
 
   const [docFiles, setdocFiles] = useState([]);
 
@@ -108,6 +109,7 @@ function ViewLoan() {
 
   return (
     <div>
+      <Preloader />
       <div class="profile-page-section">
         <div>
           <div class="nav nav-tabs " id="nav-tab" role="tablist">
@@ -245,6 +247,46 @@ function ViewLoan() {
                     </div>
                   </div>
                 </div>
+                {loanData?.bankDetailForLoans?.length ? (
+                  <div class="row preferred_bank">
+                    <div className="col-lg-6 col-md-6 col-sm-12 m-basics ">
+                      <div class="table-section">
+                        <>
+                          <h5> Preferred bank</h5>
+                          <table class="table mt-4 preferred_bank_table">
+                            <thead>
+                              <tr>
+                                <th scope="col">Sr.No</th>
+
+                                <th scope="col">Bank Name</th>
+                                <th scope="col">Rate of interest</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {loanData &&
+                                loanData?.bankDetailForLoans?.length &&
+                                loanData?.bankDetailForLoans.map(
+                                  (elm, index) => {
+                                    return (
+                                      <>
+                                        <tr key={index}>
+                                          <td>{index + 1}</td>
+                                          <td>{elm?.bankName}</td>
+                                          <td>{elm?.interestRate}</td>
+                                        </tr>
+                                      </>
+                                    );
+                                  }
+                                )}
+                            </tbody>
+                          </table>
+                        </>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  ""
+                )}
                 <div class="loan-content-body">
                   <h5>Comment History</h5>
                   <div class="loan-section-table">

@@ -3,6 +3,7 @@ import React, { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import Preloader from "../preloader/Preloader";
 
 function Sidebar({ toggleSidebar, isOpen }) {
   //   const [activeItem, setActiveItem] = useState("dashboard");
@@ -13,8 +14,7 @@ function Sidebar({ toggleSidebar, isOpen }) {
   const router = useRouter();
 
   const { pathname } = router;
-  console.log(pathname);
-  console.log(isOpen);
+
   return (
     <>
       <div

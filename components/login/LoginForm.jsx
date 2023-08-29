@@ -55,8 +55,6 @@ const LoginForm = () => {
                     values,
                     { setErrors, setStatus, setSubmitting }
                   ) => {
-                    console.log(values);
-
                     axios
                       .post(
                         "https://loancrmtrn.azurewebsites.net/api/Auth/Login",
@@ -68,9 +66,8 @@ const LoginForm = () => {
                       )
                       .then((dataset) => {
                         const { data } = dataset;
-                        console.log(data);
+
                         if (data.success) {
-                          console.log(data);
                           // Redirect to a new page using the router
                           router.push("/userDashBoard");
 

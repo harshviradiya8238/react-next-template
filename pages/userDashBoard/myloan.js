@@ -2,8 +2,12 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import Link from "next/link";
 import React, { useEffect, useMemo, useState } from "react";
+import { Table, Pagination } from "react-bootstrap";
+
 import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
+import Preloader from "../../components/preloader/Preloader";
+import PaginationTable from "../../components/paginaton_table/PaginationTable";
 
 function Myloan() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -85,8 +89,18 @@ function Myloan() {
     loanApplication,
   ]);
 
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalItems = filteredList?.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = filteredList?.slice(startIndex, endIndex);
+
   return (
     <div class="loan-content-body">
+      <Preloader />
       <div class="container">
         <div class="loan-section-table">
           <h3 class="text-head">
@@ -128,7 +142,7 @@ function Myloan() {
             </div>
           </div>
           <div class="table-responsive">
-            <table class="table align-td-middle table-card">
+            <Table striped class="table align-td-middle table-card">
               <thead>
                 <tr>
                   <th>Sr No.</th>
@@ -141,8 +155,8 @@ function Myloan() {
                 </tr>
               </thead>
               <tbody>
-                {filteredList && filteredList.length
-                  ? filteredList.map((data, index) => {
+                {currentItems && currentItems.length
+                  ? currentItems.map((data, index) => {
                       return (
                         <tr key={index}>
                           <td>{index + 1}</td>
@@ -185,9 +199,25 @@ function Myloan() {
                                 background: "none",
                                 padding: "0",
                                 border: "none",
+                                marginRight: "10px",
                               }}
                             >
                               <i class="fa-regular fa-eye" />
+                            </Link>
+                            <Link
+                              href={`/userDashBoard/editLoan/${data?.id}`}
+                              className="cmn-btn"
+                              style={{
+                                background: "none",
+                                padding: "0",
+                                border: "none",
+                                marginRight: "10px",
+                              }}
+                            >
+                              <i
+                                class="fa-solid fa-pen-to-square"
+                                style={{ color: "red" }}
+                              />
                             </Link>
                           </td>
                         </tr>
@@ -195,31 +225,20 @@ function Myloan() {
                     })
                   : ""}
               </tbody>
-            </table>
+            </Table>
             <>
-              {!loanApplication?.length && (
+              {!currentItems?.length && (
                 <div style={{ textAlign: "center" }}>
                   <h4>No Data Found</h4>
                 </div>
               )}
             </>
           </div>
-          <div class="text-end">
-            {loanApplication?.length ? (
-              <div class="pagination">
-                <a href="#">&laquo;</a>
-                <a href="#" class="active">
-                  1
-                </a>
-                <a href="#">2</a>
-                <a href="#">3</a>
-                <a href="#">4</a>
-                <a href="#">&raquo;</a>
-              </div>
-            ) : (
-              ""
-            )}
-          </div>
+          <PaginationTable
+            currentPage={currentPage}
+            setCurrentPage={setCurrentPage}
+            totalPages={totalPages}
+          />
         </div>
       </div>
     </div>

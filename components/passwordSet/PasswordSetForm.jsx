@@ -79,9 +79,9 @@ const PasswordSetForm = () => {
                           confirmPassword: values.confirmPassword,
                         }
                       );
-                      console.log(response);
+
                       const { data } = response;
-                      console.log(data);
+
                       if (data?.success) {
                         Notification("success", data?.messages[0]?.messageText);
                         router.push("/login");

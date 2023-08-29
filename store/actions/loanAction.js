@@ -4,12 +4,11 @@ import { SUCCESS_LOAN_TYPE, ERROR_LOAN_TYPE } from "../constant";
 // import Notification from 'app/components/Notification';
 
 export const getALLLoanType = () => async (dispatch) => {
-  console.log("nklhlhlklk");
   try {
     const data = await axios.get(
       "https://loan-bazar-dev.azurewebsites.net/api/LoanType/GetAll"
     );
-    console.log(data, "=-=-=-");
+
     dispatch({
       type: SUCCESS_LOAN_TYPE,
       payload: data,

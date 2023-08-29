@@ -402,7 +402,7 @@ li {
 }
 
 .pt-120 {
-  padding-top: 100px;
+  padding-top: 120px;
 }
 .pt-60 {
   padding-top: 60px;
@@ -874,4 +874,16 @@ li {
   display: flex;
   align-items: center;
   text-align: center;
+}
+.preferred_bank{
+  margin-top: 90px ;
+}
+.preferred_bank_table thead tr th{
+  color: #1A4DBE;
+  font-size: 1.2rem
+}
+
+.preferred_bank_table tbody tr td{
+  font-size: small;
+  font-weight: 500;
 }

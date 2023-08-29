@@ -2,7 +2,6 @@ import { useRouter } from "next/router";
 
 const withAuth = (WrappedComponent) => {
   const Auth = (props) => {
-    console.log(props);
     const router = useRouter();
 
     // Check if user is authenticated

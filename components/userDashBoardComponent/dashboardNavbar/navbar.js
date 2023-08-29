@@ -32,7 +32,6 @@ function Navbar({ toggleSidebar }) {
       window.removeEventListener("popstate", handlePopstate);
     };
   }, [showLogout]);
-  console.log(userData);
   return (
     <div>
       <nav class="navbarDashBoard navbar-expand-md  sticky-top">

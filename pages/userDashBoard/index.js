@@ -2,6 +2,9 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import Preloader from "../../components/preloader/Preloader";
+import PaginationTable from "../../components/paginaton_table/PaginationTable";
+import { Table } from "react-bootstrap";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -34,8 +37,18 @@ export default function DashBoardDefault() {
     GetAllApplication(token);
   }, [0]);
 
+  const itemsPerPage = 5;
+  const [currentPage, setCurrentPage] = useState(1);
+  const totalItems = loanApplication?.length;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = loanApplication?.slice(startIndex, endIndex);
+
   return (
     <>
+      <Preloader />
       <div>
         <div class="loan-content-body">
           <div class="container">
@@ -94,7 +107,10 @@ export default function DashBoardDefault() {
                 <span> Loan Application status </span>
               </h3>
               <div class=" table-container">
-                <table class="table align-td-middle table-card custom-table">
+                <Table
+                  striped
+                  class="table align-td-middle table-card custom-table"
+                >
                   <thead>
                     <tr>
                       <th>No.</th>
@@ -108,8 +124,8 @@ export default function DashBoardDefault() {
                     </tr>
                   </thead>
                   <tbody>
-                    {loanApplication && loanApplication.length
-                      ? loanApplication.map((data, index) => {
+                    {currentItems && currentItems.length
+                      ? currentItems.map((data, index) => {
                           return (
                             <>
                               <tr key={index}>
@@ -181,122 +197,10 @@ export default function DashBoardDefault() {
                           );
                         })
                       : ""}
-                    {/* <tr>
-                      <td>1</td>
-                      <td>vfok65c8 </td>
-                      <td> SBI </td>
-                      <td>₹ 500000.00</td>
-                      <td>
-                        <span class="all-btn Pending-btn">Pending</span>
-                      </td>
-                      <td>
-                        <Link
-                          href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
-                          style={{
-                            background: "none",
-                            padding: "0",
-                            border: "none",
-                          }}
-                        >
-                          <i class="fa-regular fa-eye" />
-                        </Link>
-                      </td>
-                    </tr> */}
-
-                    {/* <tr>
-                      <td>2</td>
-                      <td>vfok65c9</td>
-                      <td>Bajaj</td>
-                      <td>₹ 400000.00</td>
-                      <td>
-                        <span class="all-btn Accepted-btn">Accepted</span>{" "}
-                      </td>
-                      <td>
-                        <Link
-                          href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
-                          style={{
-                            background: "none",
-                            padding: "0",
-                            border: "none",
-                          }}
-                        >
-                          <i class="fa-regular fa-eye" />
-                        </Link>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>3</td>
-                      <td>bcvsk45c7</td>
-                      <td>HDFC</td>
-                      <td>₹ 300000.00</td>
-                      <td>
-                        <span class="all-btn Process-btn"> In progress</span>{" "}
-                      </td>
-                      <td>
-                        <Link
-                          href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
-                          style={{
-                            background: "none",
-                            padding: "0",
-                            border: "none",
-                          }}
-                        >
-                          <i class="fa-regular fa-eye" />
-                        </Link>
-                      </td>
-                    </tr>
-
-                    <tr>
-                      <td>4</td>
-                      <td>bvvk4re4</td>
-                      <td>HDFC</td>
-                      <td>₹ 200000.00</td>
-                      <td>
-                        <span class="all-btn Approved-btn">Approved</span>{" "}
-                      </td>
-                      <td>
-                        <Link
-                          href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
-                          style={{
-                            background: "none",
-                            padding: "0",
-                            border: "none",
-                          }}
-                        >
-                          <i class="fa-regular fa-eye" />
-                        </Link>
-                      </td>
-                    </tr>
-                    <tr>
-                      <td>5</td>
-                      <td>bvvk4re4</td>
-                      <td>Bajaj</td>
-                      <td>₹ 100000.00</td>
-                      <td>
-                        <span class="all-btn Rejected-btn">Rejected </span>{" "}
-                      </td>
-                      <td>
-                        <Link
-                          href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
-                          style={{
-                            background: "none",
-                            padding: "0",
-                            border: "none",
-                          }}
-                        >
-                          <i class="fa-regular fa-eye" />
-                        </Link>
-                      </td>
-                    </tr> */}
                   </tbody>
-                </table>
+                </Table>
                 <>
-                  {!loanApplication.length && (
+                  {!currentItems.length && (
                     <div>
                       <h4>No Data Found</h4>
                     </div>
@@ -306,6 +210,11 @@ export default function DashBoardDefault() {
               {/* <div class="btn-section-dashbard">
                 <button class="view-btn-dashbard">View More</button>
               </div> */}
+              <PaginationTable
+                currentPage={currentPage}
+                setCurrentPage={setCurrentPage}
+                totalPages={totalPages}
+              />
             </div>
           </div>
         </div>

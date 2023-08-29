@@ -19,8 +19,6 @@ function ViewLoan() {
   const [documentOption, setDocumentOption] = useState([]);
   const [otherDocumentId, setOtherDocumentId] = useState("");
 
-  console.log(documentOption, selectOption, "=-====-");
-
   const validationSchema = Yup.object().shape({
     loanAmount: Yup.string().required("loan Amount is required"),
     loanTenure: Yup.string().required("loan Tenure is required"),
@@ -287,7 +285,7 @@ function ViewLoan() {
     if (newAraay?.length > 0) {
       await newAraay.forEach(async (element) => {
         const formData = new FormData();
-        console.log(element.documentTypeId, "oioio");
+
         formData.append("LoanApplicationId", id);
         formData.append("DocumentTypeId", element.documentTypeId);
         formData.append(

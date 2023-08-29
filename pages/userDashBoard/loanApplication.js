@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import Stepper from "react-stepper-horizontal";
 import axios from "axios";
 import Notification from "../../components/utils/Notification";
+import Preloader from "../../components/preloader/Preloader";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -230,7 +231,6 @@ function LoanApplication() {
   const aRef = useRef(null);
 
   const handleNext = (setFieldValue, values) => {
-    console.log(values.activeStep);
     setFieldValue("activeStep", values.activeStep + 1);
   };
 
@@ -262,7 +262,6 @@ function LoanApplication() {
     if (newAraay?.length > 0) {
       await newAraay.forEach(async (element) => {
         const formData = new FormData();
-        console.log(element.documentTypeId, "oioio");
         formData.append("LoanApplicationId", loanApplicationId);
         formData.append("DocumentTypeId", element.documentTypeId);
         formData.append(
@@ -383,7 +382,6 @@ function LoanApplication() {
   };
 
   const handleOtherDocumentFileChange = (index, event) => {
-    console.log(event.target.files[index].type);
     if (
       event.target.files[index].type === "application/pdf" ||
       event.target.files[index].type.includes("image")
@@ -558,7 +556,6 @@ function LoanApplication() {
   // };
 
   const handlePreviewClick = (selectedFile) => {
-    console.log(selectedFile);
     if (selectedFile) {
       const previewWindow = window.open("", "_blank");
       const previewContent = getFilePreviewContent(selectedFile);
@@ -590,6 +587,7 @@ function LoanApplication() {
   };
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form ">
+      <Preloader />
       <div className="overlay pt-120">
         <div className="container wow fadeInUp">
           <div className="row justify-content-center"></div>
@@ -627,6 +625,7 @@ function LoanApplication() {
                               {bankOption && bankOption.length > 0 ? (
                                 <>
                                   <div class="table-section">
+                                    <h3> Preferred bank</h3>
                                     <table class="table">
                                       <thead>
                                         <tr>
@@ -759,6 +758,15 @@ function LoanApplication() {
                                         <label>Loan Amount (INR)</label>
                                         <Field
                                           type={"number"}
+                                          onKeyPress={(event) => {
+                                            if (
+                                              loanAmount.length === 0 &&
+                                              event.key === "0"
+                                            ) {
+                                              // Prevent the default behavior (inserting "0")
+                                              event.preventDefault();
+                                            }
+                                          }}
                                           placeholder="Enter loan amount"
                                           value={loanAmount}
                                           onChange={handleChnageLoanAmount}

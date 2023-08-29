@@ -16,6 +16,7 @@ import Tab from "react-bootstrap/Tab";
 import Tabs from "react-bootstrap/Tabs";
 import Notification from "../../components/utils/Notification";
 import Link from "next/link";
+import Preloader from "../../components/preloader/Preloader";
 
 function Profile() {
   const aRef = useRef(null);
@@ -23,7 +24,6 @@ function Profile() {
   const [activeTab, setActiveTab] = useState("basic"); // 'basic' for Basic Details, 'kyc' for KYC Details
 
   const handleTabChange = (tabKey) => {
-    console.log(tabKey);
     setActiveTab(tabKey);
   };
 
@@ -178,7 +178,6 @@ function Profile() {
   });
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    console.log(values);
     const token = localStorage.getItem("logintoken");
     try {
       const userData = jwtDecode(token);
@@ -246,7 +245,7 @@ function Profile() {
       // Notification("error", "Please Enter All Field");
       // Notification("error", error?.response?.data[0]?.errorMessage);
     }
-    console.log(values);
+
     setTimeout(() => {
       // alert(JSON.stringify(values, null, 2));
       setSubmitting(false);
@@ -293,6 +292,7 @@ function Profile() {
 
   return (
     <div class="profile-page-section">
+      <Preloader />
       <Tabs
         id="fill-tab-example"
         activeKey={key}

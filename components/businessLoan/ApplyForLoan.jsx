@@ -296,7 +296,6 @@ function ApplyForLoan() {
   const aRef = useRef(null);
 
   const handleSendOtp = async (data, value) => {
-    console.log(value);
     if (
       value.step1.firstName &&
       value.step1.lastName &&
@@ -506,7 +505,7 @@ function ApplyForLoan() {
     if (newAraay?.length > 0) {
       await newAraay.forEach(async (element) => {
         const formData = new FormData();
-        console.log(element.documentTypeId, "oioio");
+
         formData.append("LoanApplicationId", loanApplicationId);
         formData.append("DocumentTypeId", element.documentTypeId);
         formData.append(
@@ -1126,6 +1125,15 @@ function ApplyForLoan() {
                                             <label>Loan Amount (INR)</label>
                                             <Field
                                               type={"number"}
+                                              onKeyPress={(event) => {
+                                                if (
+                                                  loanAmount.length === 0 &&
+                                                  event.key === "0"
+                                                ) {
+                                                  // Prevent the default behavior (inserting "0")
+                                                  event.preventDefault();
+                                                }
+                                              }}
                                               placeholder="Enter loan amount"
                                               value={loanAmount}
                                               onChange={handleChnageLoanAmount}
