@@ -291,7 +291,7 @@ function LoanApplication() {
         }
       });
     } else {
-      Notification("error", "Please select atLeast one document ");
+      Notification("error", "Please select atleast one document ");
     }
 
     //====================================================================================old code==========================================
@@ -354,7 +354,7 @@ function LoanApplication() {
     //     }
     //   });
     // } else {
-    //   Notification("error", "Please select atLeast one document ");
+    //   Notification("error", "Please select atleast one document ");
     // }
   };
 
@@ -595,7 +595,7 @@ function LoanApplication() {
             <div className="col-lg-10">
               <div className="form-content">
                 <div className="section-header text-center">
-                  <h2 className="title">Apply for a loan</h2>
+                  <h2 className="title">Apply for Loan</h2>
                   <p>
                     Please fill the form below. We will get in touch with you
                     within 1-2 business days, to request all necessary details

@@ -65,7 +65,7 @@ import UploadDoc from "../common/UploadDoc";
 //             {/* <div className="col-lg-8">
 //               <div className="section-header text-center">
 //                 <h2 className="title">
-//                   Apply for a loan today.
+//                   Apply for  Loan today.
 //                 </h2>
 //                 <p>
 //                   Get business loans approved within days with transparent
@@ -78,7 +78,7 @@ import UploadDoc from "../common/UploadDoc";
 //             <div className="col-lg-10">
 //               <div className="form-content">
 //                 <div className="section-header text-center">
-//                   <h2 className="title">Apply for a loan</h2>
+//                   <h2 className="title">Apply for  Loan</h2>
 //                   <p>
 //                     Please fill the form below. We will get in touch with you
 //                     within 1-2 business days, to request all necessary details
@@ -159,7 +159,7 @@ const validationSchema = Yup.object().shape({
 
   step2: Yup.object().shape({
     loanAmount: Yup.string().required("Loan Amount is required"),
-    loanTerm: Yup.string().required("Loan Tenure is required"),
+    loanTerm: Yup.number().lessThan(20, "Value must be less than 20"),
     loanType: Yup.string().required("LoanType is required"),
     State: Yup.string().required("State is required"),
   }),
@@ -243,6 +243,12 @@ function ApplyForLoan() {
   const [loanAmount, setLoanAmount] = useState("");
   const [otherDocumentId, setOtherDocumentId] = useState("");
   const [loanAmountError, setLoanAmountError] = useState("");
+  const [loanTerm, setLoanTerm] = useState("");
+  const [errorLoanTerm, setErrorLoanTerm] = useState("");
+  const [pincode, setPincode] = useState('');
+  const [city, setCity] = useState('');
+  
+  
 
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
@@ -255,11 +261,50 @@ function ApplyForLoan() {
     // setSelectOptionName(target.name);
   };
   const handleChnageLoanAmount = ({ target }) => {
-    setLoanAmount(target.value);
+    if (/^\d*\.?\d*$/.test(target.value) || target.value === "") {
+      setLoanAmount(target.value);
+    }
     setLoanAmountError("");
     // setSelectOptionName(target.name);
   };
+  const handlehangeLoanTerm = ({ target }) => {
+    const inputValue = target.value;
+    if (
+      inputValue === "" ||
+      (0 <= parseInt(inputValue) && parseInt(inputValue) <= 20)
+    ) {
+      setLoanTerm(inputValue);
+      setErrorLoanTerm("");
+    } else {
+      setErrorLoanTerm("please enter loan tenure between 0 to 20");
+      setLoanTerm(inputValue);
+    }
+    // setErrorLoanTerm("");
+    // setSelectOptionName(target.name);
+  };
+  const handlePincodeChange = async (event) => {
+    const newPincode = event.target.value;
+    setPincode(newPincode);
 
+    if (newPincode.length === 6) {
+      try {
+        const response = await axios.get(`http://api.zippopotam.us/in/${newPincode}`);
+        const { places, state, country } = response.data.places[0];
+        setCity(places[0]['place name']);
+       
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        setCity('');
+      
+      }
+    } else {
+      setCity('');
+    
+    }
+  }
+  const handleCityChange = (event) => {
+    setCity(event.target.value);
+  };
   const GetAll = async (tokenD) => {
     // const token = localStorage.getItem("logintoken");
     try {
@@ -296,6 +341,7 @@ function ApplyForLoan() {
   const aRef = useRef(null);
 
   const handleSendOtp = async (data, value) => {
+    console.log(value.step1.phone.length);
     if (
       value.step1.firstName &&
       value.step1.lastName &&
@@ -341,6 +387,9 @@ function ApplyForLoan() {
     if (!loanAmount) {
       setLoanAmountError("Please Enter Loan Amount");
     }
+    // if (!loanTerm) {
+    //   setLoanAmountError("Please Enter Loan Tenure");
+    // }
     if (!loanAmount || !countryState || !countryState) {
       return;
     }
@@ -535,7 +584,7 @@ function ApplyForLoan() {
         }
       });
     } else {
-      Notification("error", "Please select atLeast one document ");
+      Notification("error", "Please select atleast one document ");
     }
   };
   const handleFieldChange = (index, field, value) => {
@@ -692,7 +741,7 @@ function ApplyForLoan() {
             <div className="col-lg-10">
               <div className="form-content">
                 <div className="section-header text-center">
-                  <h2 className="title">Apply for a loan</h2>
+                  <h2 className="title">Apply for Loan</h2>
                   <p>
                     Please fill the form below. We will get in touch with you
                     within 1-2 business days, to request all necessary details
@@ -773,7 +822,7 @@ function ApplyForLoan() {
                                         alignItems: "center",
                                       }}
                                     >
-                                      <button
+                                      {/* <button
                                         type="button"
                                         className="cmn-btn"
                                         onClick={() => setVerifyOtp(false)}
@@ -782,7 +831,7 @@ function ApplyForLoan() {
                                         }}
                                       >
                                         Previous
-                                      </button>
+                                      </button> */}
                                       <button
                                         type="button"
                                         onClick={async () => {
@@ -954,14 +1003,26 @@ function ApplyForLoan() {
                                   <div>
                                     <button
                                       className="cmn-btn"
-                                      disabled={buttonDisabled}
+                                      style={{
+                                        backgroundColor:
+                                          values.step1.firstName &&
+                                          values.step1.lastName &&
+                                          values.step1.email &&
+                                          values.step1.phone
+                                            ? "#1a4dbe"
+                                            : "gray",
+                                      }}
+                                      disabled={
+                                        !values.step1.firstName ||
+                                        !values.step1.lastName ||
+                                        !values.step1.email ||
+                                        !values.step1.phone
+                                      }
                                       onClick={() => {
                                         handleSendOtp(setFieldValue, values);
                                       }}
                                     >
-                                      {buttonDisabled
-                                        ? "Processing..."
-                                        : "Next"}
+                                      Next
                                     </button>
                                   </div>
                                 </>
@@ -1124,7 +1185,7 @@ function ApplyForLoan() {
                                           <div className="single-input">
                                             <label>Loan Amount (INR)</label>
                                             <Field
-                                              type={"number"}
+                                              type={"text"}
                                               onKeyPress={(event) => {
                                                 if (
                                                   loanAmount.length === 0 &&
@@ -1204,8 +1265,23 @@ function ApplyForLoan() {
 
                                             <Field
                                               type="number"
-                                              name="step2.loanTerm"
+                                              name="loanTerm"
+                                              value={loanTerm}
                                               placeholder="1 Year"
+                                              onChange={handlehangeLoanTerm}
+                                              onKeyPress={(event) => {
+                                                var charCode = event.which
+                                                  ? event.which
+                                                  : event.keyCode;
+                                                if (
+                                                  String.fromCharCode(
+                                                    charCode
+                                                  ).match(/[^0-9]/g) ||
+                                                  event.target.value.length > 1
+                                                ) {
+                                                  event.preventDefault();
+                                                }
+                                              }}
                                               // onKeyPress={(event) => {
                                               //   if (
                                               //     event.target.value.length > 1
@@ -1215,8 +1291,13 @@ function ApplyForLoan() {
                                               //   // handleKeyPress(event);
                                               // }}
                                             />
+                                            {errorLoanTerm && (
+                                              <p style={{ color: "red" }}>
+                                                {errorLoanTerm}
+                                              </p>
+                                            )}
                                             {/* <ErrorMessage
-                                              name="step2verify.loanTerm"
+                                              name="step2.loanTerm"
                                               component="div"
                                               style={{ color: "red" }}
                                             /> */}
@@ -1262,6 +1343,41 @@ function ApplyForLoan() {
                                                 {errorStateType}
                                               </p>
                                             )}
+                                          </div>
+                                        </div>
+                                      </div>
+                                      <div className="row">
+                                      <div className="col-6">
+                                          <div className="single-input">
+                                            <label>City</label>
+                                            <Field
+                                              type={"text"}
+                                
+                                              placeholder="Enter City"
+                                              value={city}
+                                               onChange={handleCityChange}
+                                            />
+                                            {/* {loanAmountError && (
+                                              <p style={{ color: "red" }}>
+                                                {loanAmountError}
+                                              </p>
+                                            )} */}
+                                          </div>
+                                          <div className="single-input">
+                                            <label>Pincode</label>
+                                            <Field
+                                              type={"text"}
+                                              value={pincode} 
+                                              onChange={handlePincodeChange}
+                                              placeholder="Enter Pincode"
+                                              // value={loanAmount}
+                                              // onChange={handleChnageLoanAmount}
+                                            />
+                                            {/* {loanAmountError && (
+                                              <p style={{ color: "red" }}>
+                                                {loanAmountError}
+                                              </p>
+                                            )} */}
                                           </div>
                                         </div>
                                       </div>

@@ -20,7 +20,7 @@ const Personalized = () => {
                 </p>
               </div>
               <Link href="/register" className="cmn-btn">
-                Apply for a loan
+                Apply for loan
               </Link>
             </div>
           </div>

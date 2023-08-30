@@ -315,7 +315,7 @@ function ViewLoan() {
         }
       });
     } else {
-      Notification("error", "Please select atLeast one document ");
+      Notification("error", "Please select atleast one document ");
     }
 
     //====================================================================================old code==========================================
@@ -378,7 +378,7 @@ function ViewLoan() {
     //     }
     //   });
     // } else {
-    //   Notification("error", "Please select atLeast one document ");
+    //   Notification("error", "Please select atleast one document ");
     // }
   };
   return (

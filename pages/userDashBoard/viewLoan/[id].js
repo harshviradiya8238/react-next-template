@@ -8,6 +8,7 @@ function ViewLoan() {
   const { id } = router.query;
   const [loanData, setLoanData] = useState("");
   const [documentData, setDocumentData] = useState("");
+  const [commentData, setCommentData] = useState("");
 
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
@@ -52,9 +53,30 @@ function ViewLoan() {
         // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
+    const GetCommentById = async (token) => {
+      // const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.get(
+          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetLoanApplicationHistory?loanApplicationId=${id}`,
+
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+
+        setCommentData(data.value);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
 
     GetLoanById(token);
     GetDocumentById(token);
+    GetCommentById(token);
   }, [id]);
 
   const [docFiles, setdocFiles] = useState([]);

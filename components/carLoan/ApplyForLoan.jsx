@@ -9,7 +9,7 @@ const ApplyForLoan = () => {
             <div className="col-lg-8">
               <div className="section-header text-center">
                 <h2 className="title">
-                  Apply for a loan today. Your new car is waiting for you
+                  Apply for loan today. Your new car is waiting for you
                 </h2>
                 <p>
                   Don’t just dream, get your dream car.Bankio offers a flexible
@@ -24,7 +24,7 @@ const ApplyForLoan = () => {
             <div className="col-lg-10">
               <div className="form-content">
                 <div className="section-header text-center">
-                  <h2 className="title">Apply for a loan</h2>
+                  <h2 className="title">Apply for loan</h2>
                   <p>
                     Please fill the form below. We will get in touch with you
                     within 1-2 business days, to request all necessary details

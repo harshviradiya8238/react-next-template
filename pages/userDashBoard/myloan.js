@@ -204,21 +204,24 @@ function Myloan() {
                             >
                               <i class="fa-regular fa-eye" />
                             </Link>
-                            <Link
-                              href={`/userDashBoard/editLoan/${data?.id}`}
-                              className="cmn-btn"
-                              style={{
-                                background: "none",
-                                padding: "0",
-                                border: "none",
-                                marginRight: "10px",
-                              }}
-                            >
-                              <i
-                                class="fa-solid fa-pen-to-square"
-                                style={{ color: "red" }}
-                              />
-                            </Link>
+                            {data?.status === "Query" ||
+                              (data?.status === "Incomplete" && (
+                                <Link
+                                  href={`/userDashBoard/editLoan/${data?.id}`}
+                                  className="cmn-btn"
+                                  style={{
+                                    background: "none",
+                                    padding: "0",
+                                    border: "none",
+                                    marginRight: "10px",
+                                  }}
+                                >
+                                  <i
+                                    class="fa-solid fa-pen-to-square"
+                                    style={{ color: "red" }}
+                                  />
+                                </Link>
+                              ))}
                           </td>
                         </tr>
                       );

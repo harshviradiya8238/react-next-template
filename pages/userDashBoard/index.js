@@ -120,7 +120,7 @@ export default function DashBoardDefault() {
                       <th>Loan type </th>
 
                       <th>Status</th>
-                      <th>Action</th>
+                      {/* <th>Action</th> */}
                     </tr>
                   </thead>
                   <tbody>
@@ -161,7 +161,7 @@ export default function DashBoardDefault() {
                                     {data?.status}
                                   </span>
                                 </td>
-                                <td>
+                                {/* <td>
                                   <div>
                                     <Link
                                       href={`/userDashBoard/viewLoan/${data?.id}`}
@@ -191,7 +191,7 @@ export default function DashBoardDefault() {
                                       />
                                     </Link>
                                   </div>
-                                </td>
+                                </td> */}
                               </tr>
                             </>
                           );
@@ -210,11 +210,20 @@ export default function DashBoardDefault() {
               {/* <div class="btn-section-dashbard">
                 <button class="view-btn-dashbard">View More</button>
               </div> */}
-              <PaginationTable
+              {currentItems.length && (
+                <div className="text-end mb-2 ">
+                  <Link href="/userDashBoard/myloan">
+                    <button className="fs-5">View More</button>
+                  </Link>
+                </div>
+              )}
+              {/* <button>
+              </button> */}
+              {/* <PaginationTable
                 currentPage={currentPage}
                 setCurrentPage={setCurrentPage}
                 totalPages={totalPages}
-              />
+              /> */}
             </div>
           </div>
         </div>
