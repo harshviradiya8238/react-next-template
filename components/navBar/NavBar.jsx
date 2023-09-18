@@ -6,8 +6,45 @@ import { navData } from "./navData";
 import Logo from "/public/images/logo.png";
 // import { Button } from "bootstrap";
 
-const NavBar = () => {
+const NavBar = ({ userLoginData }) => {
   const [windowHeight, setWindowHeight] = useState(0);
+  // const [userLoginData, setUserLoginData] = useState("");
+
+  const [newData, setNewData] = useState();
+
+  useEffect(() => {
+    // You can also set state in a useEffect block
+    console.log(userLoginData, "999999999999999999999");
+    if (!userLoginData) {
+      if (typeof window !== "undefined") {
+        if (localStorage.getItem("user")) {
+          var stroge = localStorage.getItem("user");
+          if (stroge) {
+            var data = JSON.parse(stroge);
+            console.log(data, "-=-=-dddddddddddddddddddddddd");
+            setNewData(data);
+          }
+        }
+      }
+    } else {
+      setNewData(userLoginData);
+    }
+  }, [userLoginData]);
+  console.log(newData);
+  // useEffect(() => {
+  //   if (newData == "undefined") {
+  //     if (typeof window !== "undefined") {
+  //       if (localStorage.getItem("user")) {
+  //         var stroge = localStorage.getItem("user");
+  //         if (stroge) {
+  //           var data = JSON.parse(stroge);
+  //           console.log(data, "-=-=-dddddddddddddddddddddddd");
+  //           setNewData(data);
+  //         }
+  //       }
+  //     }
+  //   }
+  // }, []);
   const menus = useRef();
 
   const hidenMenu = () => {
@@ -27,6 +64,37 @@ const NavBar = () => {
       window.removeEventListener("scroll", navBarTop);
     };
   }, []);
+
+  // useEffect(() => {
+  //   if (typeof window !== "undefined") {
+  //     const handleStroageChange = (event) => {
+  //       if (event.key === "user") {
+  //         console.log("data2323333333333333333333333333baaar");
+
+  //         console.log("fjdkfd", event.newValue);
+  //         if (event.newValue) {
+  //           var data = JSON.parse(event.newValue);
+  //           console.log("data2323333333333333333333333333", data);
+  //           setUserLoginData(data);
+  //         } else {
+  //           setUserLoginData("");
+  //         }
+  //       }
+  //     };
+  //     window.addEventListener("storage", handleStroageChange);
+  //     if (localStorage.getItem("user")) {
+  //       var stroge = localStorage.getItem("user");
+  //       if (stroge) {
+  //         var data = JSON.parse(stroge);
+  //         setUserLoginData(data);
+  //       }
+  //     }
+
+  //     return () => {
+  //       window.removeEventListener("storage", handleStroageChange);
+  //     };
+  //   }
+  // }, []);
 
   return (
     <header
@@ -123,21 +191,38 @@ const NavBar = () => {
                     );
                   })}
                 </ul>
-                <div className="right-area header-action d-flex align-items-center">
-                  <Link
-                    href="/login"
-                    className="cmn-btn me-3"
-                    onClick={hidenMenu}
-                  >
-                    Login
-                  </Link>
-                  <Link
-                    href="/loanapplication"
-                    className="cmn-btn "
-                    onClick={hidenMenu}
-                  >
-                    Sign Up
-                  </Link>
+                <div className="right-area header-action d-flex align-items-center m-0">
+                  {newData ? (
+                    <>
+                      <ul className="navbar-nav mr-auto mb-2 mb-lg-0 me-5">
+                        <li className="nav-item">
+                          <Link href="/userDashBoard" className="nav-link">
+                            Dashboard
+                          </Link>
+                        </li>
+                      </ul>
+                      <div className="login_Name">
+                        {newData.firstName} {newData.lastName}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        className="cmn-btn me-3"
+                        onClick={hidenMenu}
+                      >
+                        Login
+                      </Link>
+                      <Link
+                        href="/registerApplication"
+                        className="cmn-btn "
+                        onClick={hidenMenu}
+                      >
+                        Sign Up
+                      </Link>
+                    </>
+                  )}
                 </div>
               </div>
             </nav>

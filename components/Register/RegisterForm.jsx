@@ -44,7 +44,7 @@ const RegisterForm = () => {
                   <div className="row">
                     <div className="col-12">
                       <div className="single-input">
-                        <label htmlFor="email">Enter Your Email ID</label>
+                        <label htmlFor="email">Email ID</label>
                         <input
                           type="text"
                           id="email"

@@ -8,6 +8,7 @@ import Notification from "../utils/Notification";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useState } from "react";
+import API from "../../helper/API";
 
 const validationSchema = Yup.object({
   otp: Yup.string().required("OTP is required"),
@@ -71,8 +72,8 @@ const PasswordSetForm = () => {
                     { setErrors, setStatus, setSubmitting }
                   ) => {
                     try {
-                      const response = await axios.post(
-                        "https://loancrmtrn.azurewebsites.net/api/User/ResetPasswordWithOTP",
+                      const response = await API.post(
+                        "/User/ResetPasswordWithOTP",
                         {
                           otp: values.otp.toString(),
                           newPassword: values.newPassword,
@@ -122,13 +123,13 @@ const PasswordSetForm = () => {
                                   }
                                 }}
                                 required
-                                placeholder="Enter Your OTP"
+                                placeholder="OTP"
                               />
                             </div>
                             <ErrorMessage
                               name="otp"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                           </div>
                         </div>
@@ -143,7 +144,7 @@ const PasswordSetForm = () => {
                                 id="choosePass"
                                 required
                                 autocomplete="off"
-                                placeholder="Enter Your Password"
+                                placeholder="Password"
                               />
                               <span onClick={togglePasswordVisibility}>
                                 {!showNewPassword ? (
@@ -156,7 +157,7 @@ const PasswordSetForm = () => {
                             <ErrorMessage
                               name="newPassword"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                           </div>
                         </div>
@@ -173,7 +174,7 @@ const PasswordSetForm = () => {
                                 name="confirmPassword"
                                 id="confirmPass"
                                 autocomplete="off"
-                                placeholder="Enter Your Password"
+                                placeholder="Password"
                               />
                               <span onClick={toggleConfirmPasswordVisibility}>
                                 {!showConfirmPassword ? (
@@ -186,7 +187,7 @@ const PasswordSetForm = () => {
                             <ErrorMessage
                               name="confirmPassword"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                           </div>
                         </div>

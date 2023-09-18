@@ -8,7 +8,7 @@ const CalculateLoanForm = () => {
             <input
               type="text"
               id="collegeName"
-              placeholder="Enter your college name"
+              placeholder="college name"
               required
             />
           </div>

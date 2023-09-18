@@ -137,6 +137,9 @@ import { sendOTP } from "../../store/actions/userAction";
 
 import axios from "axios";
 import Notification from "../utils/Notification";
+import Link from "next/link";
+import NavBar from "../navBar/NavBar";
+import API from "../../helper/API";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -205,6 +208,26 @@ function ApplyForLoan() {
     },
     activeStep: 0,
   });
+
+  // useEffect(() => {
+  //   const isFirstStepCompleted = localStorage.getItem("isFirstStepCompleted");
+
+  //   if (isFirstStepCompleted === "true") {
+  //     // User has completed the first step, so hide it
+  //     stepsmain.shift(); // Remove the first step from the array
+  //   }
+  // }, []);
+
+  // useEffect(() => {
+  //   // Check if a user object exists in local storage
+  //   const userObject = localStorage.getItem("user");
+  //   console.log(userObject);
+  //   if (userObject) {
+  //     // If the user object exists, update the active step in Formik's initialValues
+  //     // to set the initial active step to 2
+  //     setSatate({ ...state, activeStep: 1 });
+  //   }
+  // }, []);
   const selectRow = {
     // mode: "checkbox",
     clickToSelect: true,
@@ -245,10 +268,55 @@ function ApplyForLoan() {
   const [loanAmountError, setLoanAmountError] = useState("");
   const [loanTerm, setLoanTerm] = useState("");
   const [errorLoanTerm, setErrorLoanTerm] = useState("");
-  const [pincode, setPincode] = useState('');
-  const [city, setCity] = useState('');
-  
-  
+  const [pincode, setPincode] = useState("");
+  const [city, setCity] = useState("");
+  const [cityError, setCityError] = useState("");
+  const [pincodeError, setPincodeError] = useState("");
+  const [isLoanCreat, setIsLoanCreat] = useState(false);
+  const [userLoginData, setUserLoginData] = useState("");
+
+  useEffect(() => {
+    const CurrentStep = Number(localStorage.getItem("currentStep")) || 0;
+    console.log(CurrentStep, "-------------");
+    setSatate((oldState) => {
+      return { ...oldState, activeStep: CurrentStep };
+    });
+
+    const GetAll = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.get(
+          "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+
+        setLoanTypeOption(data?.value?.gridRecords);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
+    const GetAllState = async () => {
+      try {
+        const response = await API.get("/State/GetAll");
+        const { data } = response;
+        SetCountryStateOption(data.value);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    GetAll();
+    GetAllState();
+  }, []);
+
+  // const handleFunctionSave = (value) => {
+  //   setUserLoginData(value);
+  // };
 
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
@@ -288,34 +356,32 @@ function ApplyForLoan() {
 
     if (newPincode.length === 6) {
       try {
-        const response = await axios.get(`http://api.zippopotam.us/in/${newPincode}`);
-        const { places, state, country } = response.data.places[0];
-        setCity(places[0]['place name']);
-       
+        const response = await axios.get(
+          `https://dev.yowza.international/location/details/${newPincode}`
+        );
+        const { places, state, country, City } = response.data.data;
+        // setCity(places[0]["place name"]);
+        setCity(City);
+        setPincodeError("");
       } catch (error) {
-        console.error('Error fetching data:', error);
-        setCity('');
-      
+        Notification("error", "invalid Pincode");
+        console.error("Error fetching data:", error);
+        setCity("");
       }
     } else {
-      setCity('');
-    
+      setCity("");
     }
-  }
+  };
   const handleCityChange = (event) => {
     setCity(event.target.value);
+    if (event.target.value.length) {
+      setCityError("");
+    }
   };
   const GetAll = async (tokenD) => {
     // const token = localStorage.getItem("logintoken");
     try {
-      const response = await axios.get(
-        "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
-        {
-          headers: {
-            Authorization: `Bearer ${tokenD}`,
-          },
-        }
-      );
+      const response = await API.get("/LoanType/GetAll");
       const { data } = response;
 
       setLoanTypeOption(data.value);
@@ -326,9 +392,7 @@ function ApplyForLoan() {
   };
   const GetAllState = async () => {
     try {
-      const response = await axios.get(
-        "https://loancrmtrn.azurewebsites.net/api/State/GetAll"
-      );
+      const response = await API.get("/State/GetAll");
       const { data } = response;
       SetCountryStateOption(data.value);
     } catch (error) {
@@ -346,7 +410,8 @@ function ApplyForLoan() {
       value.step1.firstName &&
       value.step1.lastName &&
       value.step1.email &&
-      value.step1.phone
+      value.step1.phone &&
+      value.step1.phone.toString().length === 10
     ) {
       setButtonDisabled(true);
 
@@ -377,6 +442,7 @@ function ApplyForLoan() {
   };
 
   const handleCreateApplication = async (e, value, setFieldValue) => {
+    console.log("sfsfsfs");
     e.preventDefault();
     if (!selectOption) {
       setErrorLoanType("Please Select Loan Type.");
@@ -387,37 +453,32 @@ function ApplyForLoan() {
     if (!loanAmount) {
       setLoanAmountError("Please Enter Loan Amount");
     }
-    // if (!loanTerm) {
-    //   setLoanAmountError("Please Enter Loan Tenure");
-    // }
-    if (!loanAmount || !countryState || !countryState) {
+    if (!city) {
+      setCityError("Please Enter city");
+    }
+    if (!pincode) {
+      setPincodeError("Please Enter pincode");
+    }
+    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
       return;
     }
 
-    const token = localStorage.getItem("logintoken");
-
     try {
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/LoanApplication/Create",
-        {
-          loanTypeId: selectOption,
-          amount: loanAmount,
-          tenure: Number(value.step2.loanTerm),
-          stateId: Number(countryState),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await API.post("/LoanApplication/Create", {
+        loanTypeId: selectOption,
+        amount: loanAmount,
+        tenure: Number(loanTerm),
+        stateId: Number(countryState),
+        city: city,
+        postalCode: pincode,
+      });
       const { data } = response;
 
       await Notification("success", data?.value?.message);
       GetBankAndDocumetByLoanTypeId(
         selectOption,
         loanAmount,
-        value.step2.loanTerm,
+        loanTerm,
         setFieldValue
       );
 
@@ -431,8 +492,63 @@ function ApplyForLoan() {
     }
   };
 
+  const updateLoanApplication = async (value, setFieldValue) => {
+    if (!selectOption) {
+      setErrorLoanType("Please Select Loan Type.");
+    }
+    if (!countryState) {
+      setErrorStateType("Please Select State");
+    }
+    if (!loanAmount) {
+      setLoanAmountError("Please Enter Loan Amount");
+    }
+    if (!city) {
+      setCityError("Please Enter City");
+    }
+    if (!pincode) {
+      setPincodeError("Please Enter pincode");
+    }
+    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+      return;
+    }
+
+    try {
+      const response = await API.post(
+        "/LoanApplication/UpdateLoanApplication",
+        {
+          loanApplicationId: loanApplicationId,
+          bankIds: selectedRowData,
+          loanTypeId: selectOption,
+          amount: Number(loanAmount),
+          tenure: Number(loanTerm),
+          stateId: Number(countryState),
+          city: city,
+          postalCode: pincode,
+          isActive: true,
+        }
+      );
+      const { data } = response;
+
+      await Notification("success", data?.value?.message);
+      GetBankAndDocumetByLoanTypeId(
+        selectOption,
+        loanAmount,
+        loanTerm,
+        setFieldValue
+      );
+      setIsLoanCreat(true);
+    } catch (error) {
+      console.log(error);
+      // Notification("error", "Please Enter All Field");
+
+      // Notification("error", error?.response?.data[0]?.errorMessage);
+    }
+  };
+
   const [selectedRowData, setSelectedRowData] = useState([]);
   const [docFiles, setdocFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
 
   const handleCheckboxChange = (event, rowData) => {
@@ -454,19 +570,13 @@ function ApplyForLoan() {
     tenure,
     setFieldValue
   ) => {
-    const token = localStorage.getItem("logintoken");
     try {
-      const response = await axios.post(
-        `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetBankAndDocumetByLoanTypeId`,
+      const response = await API.post(
+        `/LoanApplication/GetBankAndDocumetByLoanTypeId`,
         {
           loanTypeId: id,
           tenure: Number(tenure),
           amount: Loanamount,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
       );
       const { data } = response;
@@ -518,6 +628,7 @@ function ApplyForLoan() {
     // Handle form submission
   };
   const handlePreviewFile = (file) => {
+    console.log(file, "============");
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -538,53 +649,16 @@ function ApplyForLoan() {
   };
 
   const handleSubmitUploadDoc = async (setFieldValue) => {
-    var newAraay = [];
-    var documentNull = false;
-    Object?.keys(docFiles)?.forEach((key) => {
-      docFiles[key]?.forEach((item) => {
-        item["keyname"] = key;
-        newAraay.push(item);
-      });
-    });
-    selectedFilesArray.forEach((element) => {
-      element.file["keyname"] = element.name;
-      element.file["documentTypeId"] = otherDocumentId;
-      newAraay.push(element.file);
-    });
-    if (newAraay?.length > 0) {
-      await newAraay.forEach(async (element) => {
-        const formData = new FormData();
+    const allUploadEmpty = Object.values(uploadedFiles).every(
+      (array) => array.length === 0
+    );
 
-        formData.append("LoanApplicationId", loanApplicationId);
-        formData.append("DocumentTypeId", element.documentTypeId);
-        formData.append(
-          "OtherDocumentName",
-          element?.keyname ? element?.keyname : "Other"
-        );
-        formData.append("Documents", element);
-
-        const token = localStorage.getItem("logintoken");
-
-        try {
-          const response = await axios.post(
-            "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          // const { data } = response;
-          Notification("success", "document Upload Successfully ");
-          setFieldValue("activeStep", 3);
-        } catch (error) {
-          console.log(error);
-          Notification("error", error?.response?.data[0]?.errorMessage);
-        }
-      });
+    if (allUploadEmpty && uploadedOtherDocuemnt.length == 0) {
+      console.log("if");
+      Notification("error", "Please Upload atleast one document ");
+      return;
     } else {
-      Notification("error", "Please select atleast one document ");
+      setFieldValue("activeStep", 3);
     }
   };
   const handleFieldChange = (index, field, value) => {
@@ -691,21 +765,29 @@ function ApplyForLoan() {
   const [documentFileName, setDocumentFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
-  const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
+  const allowedFileTypes = [".jpg", ".jpeg", ".png", ".pdf"];
+  const maxFileSize = 10 * 1024 * 1024;
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-
-    if (file) {
+    if (file && documentFileName) {
       const fileType = "." + file.name.split(".").pop().toLowerCase();
-
-      if (allowedFileTypes.includes(fileType)) {
-        setSelectedFile(file);
+      if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
+        setSelectedFilesArray((prevArray) => [
+          ...prevArray,
+          { name: documentFileName, file },
+        ]);
+        // setDocumentFileName("");
         setErrorMessage("");
       } else {
-        setSelectedFile(null);
-        setErrorMessage("only accept .jpg, .jpeg, .png, .bmp, .pdf files");
+        if (!allowedFileTypes.includes(fileType)) {
+          setErrorMessage("File type is not supported");
+        } else if (file.size > maxFileSize) {
+          setErrorMessage("File size exceeds the limit of 10 MB");
+        }
       }
+    } else {
+      setErrorMessage("Please enter a document name before selecting a file");
     }
   };
 
@@ -732,8 +814,115 @@ function ApplyForLoan() {
     }
   };
 
+  const handleUploadForField = async (id, name) => {
+    console.log("sdasdasd", docFiles[name]);
+    const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
+    console.log(files);
+
+    const formData = new FormData();
+    files &&
+      files.forEach(async (element, index) => {
+        // Here 'files' is the FormData key. It may vary based on your backend requirement.
+
+        formData.append("DocumentTypeId", element.documentTypeId);
+        formData.append("Documents", element);
+        formData.append("LoanApplicationId", loanApplicationId);
+      });
+
+    if (files || files.length) {
+      const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.post(
+          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Notification("success", "document Upload Successfully ");
+        const newDocFiles = { ...docFiles };
+        newDocFiles[name] = [];
+
+        setdocFiles(newDocFiles);
+        // setFieldValue("activeStep", 2);
+        setUploadedFiles((prevState) => ({
+          ...prevState,
+          [name]: [...(prevState[name] || []), ...files],
+        }));
+      } catch (error) {
+        console.log(error);
+        Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    } else {
+      Notification("error", "select At least one doc");
+    }
+  };
+
+  const handleUploadForOtherDocument = async () => {
+    console.log(
+      selectedFilesArray,
+      otherDocumentId,
+      documentFileName,
+      "============================================"
+    );
+    if (
+      !otherDocumentId ||
+      selectedFilesArray.length === 0 ||
+      !documentFileName
+    ) {
+      setErrorMessage(
+        "Please select a document option, a file, and enter a document name."
+      );
+      return;
+    }
+
+    for (const { name, file } of selectedFilesArray) {
+      const formData = new FormData();
+      formData.append("LoanApplicationId", loanApplicationId);
+      formData.append("DocumentTypeId", otherDocumentId);
+      formData.append("Documents", file);
+      formData.append("OtherDocumentName", name);
+
+      // Add the ID here
+
+      try {
+        const token = localStorage.getItem("logintoken");
+        const response = await axios.post(
+          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        // const { data } = response;
+        Notification("success", "document Upload Successfully ");
+        // setSelectedFilesArray([]);
+        setSelectedFilesArray([]);
+        setDocumentFileName("");
+        const newUploadedDocs = [
+          ...uploadedOtherDocuemnt,
+          ...selectedFilesArray,
+        ];
+        setuploadedOtherDocuemnt(newUploadedDocs);
+        // setFieldValue("activeStep", 2);
+      } catch (error) {
+        console.log(error);
+        Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    }
+  };
+
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form">
+      <NavBar
+        userLoginData={userLoginData}
+        // setUserLoginData={handleFunctionSave()}
+      />
       <div className="overlay pt-120">
         <div className="container wow fadeInUp">
           <div className="row justify-content-center"></div>
@@ -754,6 +943,7 @@ function ApplyForLoan() {
                     initialValues={state}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
+                    enableReinitialize
                   >
                     {({ isSubmitting, values, setFieldValue }) => (
                       <Form>
@@ -762,6 +952,7 @@ function ApplyForLoan() {
                           activeStep={values.activeStep}
                         />
                         <div className="stepper-field-form">
+                          {console.log(values.activeStep, "=-===-=-")}
                           {values.activeStep === 0 && (
                             <div>
                               {sendOtp ? (
@@ -770,7 +961,13 @@ function ApplyForLoan() {
                                   <div className="row">
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Mobile OTP:</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Mobile OTP:
+                                        </label>
                                         <Field
                                           name="stepVerify.mobileotp"
                                           placeholder="Enter Mobile OTP "
@@ -787,13 +984,19 @@ function ApplyForLoan() {
                                         <ErrorMessage
                                           name="stepVerify.mobileotp"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         />
                                       </div>
                                     </div>
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Email OTP:</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Email OTP:
+                                        </label>
                                         <Field
                                           name="stepVerify.emailotp"
                                           type={"number"}
@@ -810,7 +1013,7 @@ function ApplyForLoan() {
                                         <ErrorMessage
                                           name="stepVerify.emailotp"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         />
                                       </div>
                                     </div>
@@ -822,18 +1025,8 @@ function ApplyForLoan() {
                                         alignItems: "center",
                                       }}
                                     >
-                                      {/* <button
-                                        type="button"
-                                        className="cmn-btn"
-                                        onClick={() => setVerifyOtp(false)}
-                                        style={{
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        Previous
-                                      </button> */}
                                       <button
-                                        type="button"
+                                        type="submit"
                                         onClick={async () => {
                                           {
                                             try {
@@ -856,17 +1049,28 @@ function ApplyForLoan() {
                                               if (data?.success) {
                                                 const tokenData =
                                                   data?.value?.token;
-                                                await localStorage.setItem(
+                                                await window.localStorage.setItem(
                                                   "logintoken",
                                                   tokenData
                                                 );
+                                                await window.localStorage.setItem(
+                                                  "user",
+                                                  JSON.stringify(data?.value)
+                                                );
+                                                await localStorage.setItem(
+                                                  "currentStep",
+                                                  1
+                                                );
+
+                                                setUserLoginData(data?.value);
                                                 await setVerifyOtp(true);
                                                 await Notification(
                                                   "success",
                                                   "OTP Verify SuccessFully and Password Send on Your Email"
                                                 );
-                                                await GetAllState();
-                                                await GetAll(tokenData);
+                                                // await GetAllState();
+                                                // await GetAll(tokenData);
+                                                await window.location.reload();
                                                 await handleNext(
                                                   setFieldValue,
                                                   values
@@ -903,60 +1107,83 @@ function ApplyForLoan() {
                                   <div className="row">
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>First Name:</label>
+                                        <label>
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          First Name:
+                                        </label>
                                         <Field
                                           type="text"
                                           name="step1.firstName"
-                                          placeholder="Enter Your First Name "
+                                          placeholder="First Name "
                                         />
                                         <ErrorMessage
                                           name="step1.firstName"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         />
                                       </div>
                                     </div>
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Last Name:</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Last Name:{" "}
+                                        </label>
                                         <Field
                                           type="text"
                                           name="step1.lastName"
-                                          placeholder="Enter Your Last Name"
+                                          placeholder="Last Name"
                                         />
                                         <ErrorMessage
                                           name="step1.lastName"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         />
                                       </div>
                                     </div>
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Email:</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Email:
+                                        </label>
                                         <Field
                                           type="email"
                                           name="step1.email"
-                                          placeholder="Enter Your Email"
+                                          placeholder="Email"
                                         />
                                         <ErrorMessage
                                           name="step1.email"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         />
                                       </div>
                                     </div>
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Contact No:</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Contact No:
+                                        </label>
                                         <div className="mobile-number-input">
-                                          <img
+                                          {/* <img
                                             src="/images/india_2.png"
                                             className="indiaFlag"
                                           />
                                           <span className="country-code">
                                             +91
-                                          </span>
+                                          </span> */}
                                           <Field
                                             type={"number"}
                                             onKeyPress={(event) => {
@@ -968,7 +1195,7 @@ function ApplyForLoan() {
                                             }}
                                             name="step1.phone"
                                             // className="indian-flag"
-                                            placeholder="Enter Your Contact Number"
+                                            placeholder="Contact Number"
                                           />
                                         </div>
 
@@ -995,7 +1222,7 @@ function ApplyForLoan() {
                                         {/* <ErrorMessage
                                         name="step1.phone"
                                         component="input"
-                                        style={{ color: "red" }}
+                                        className="all_error"
                                       /> */}
                                       </div>
                                     </div>
@@ -1003,20 +1230,26 @@ function ApplyForLoan() {
                                   <div>
                                     <button
                                       className="cmn-btn"
-                                      style={{
-                                        backgroundColor:
-                                          values.step1.firstName &&
-                                          values.step1.lastName &&
-                                          values.step1.email &&
-                                          values.step1.phone
-                                            ? "#1a4dbe"
-                                            : "gray",
-                                      }}
+                                      // style={{
+                                      //   backgroundColor:
+                                      //     values.step1.firstName &&
+                                      //     values.step1.lastName &&
+                                      //     values.step1.email &&
+                                      //     values.step1.phone &&
+                                      //     values.step1.phone.toString()
+                                      //       .length === 10
+                                      //       ? "#1a4dbe"
+                                      //       : "gray",
+                                      // }}
                                       disabled={
                                         !values.step1.firstName ||
                                         !values.step1.lastName ||
                                         !values.step1.email ||
-                                        !values.step1.phone
+                                        !values.step1.phone ||
+                                        (values.step1.phone &&
+                                          values.step1.phone.toString()
+                                            .length !== 10) ||
+                                        buttonDisabled
                                       }
                                       onClick={() => {
                                         handleSendOtp(setFieldValue, values);
@@ -1048,12 +1281,13 @@ function ApplyForLoan() {
                               {bankOption && bankOption.length > 0 ? (
                                 <>
                                   <div class="table-section">
+                                    <h4> Choose your Preference</h4>
                                     <table class="table">
                                       <thead>
                                         <tr>
-                                          <th scope="col">Select</th>
+                                          <th scope="col"></th>
                                           <th scope="col">Bank Name</th>
-                                          <th scope="col">Rate of interest</th>
+                                          {/* <th scope="col">Rate of interest</th> */}
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -1097,7 +1331,7 @@ function ApplyForLoan() {
                                                     </label>
                                                   </th>
                                                   <td>{elm?.name}</td>
-                                                  <td>{elm?.interestRate}</td>
+                                                  {/* <td>{elm?.interestRate}</td> */}
                                                 </tr>
                                               </>
                                             );
@@ -1112,7 +1346,7 @@ function ApplyForLoan() {
                                       alignItems: "center",
                                     }}
                                   >
-                                    {/* <button
+                                    <button
                                       type="button"
                                       className="cmn-btn"
                                       style={{ marginRight: "10px" }}
@@ -1120,52 +1354,46 @@ function ApplyForLoan() {
                                         // handlePrevious(setFieldValue, values);
                                         // setFieldValue("activeStep", 1);
                                         setBankOption([]);
-                                        setEligiblity(false);
+                                        // setEligiblity(false);
                                       }}
                                     >
                                       Previous
-                                    </button> */}
+                                    </button>
                                     <button
                                       type="button"
                                       className="cmn-btn"
                                       onClick={async () => {
-                                        const token =
-                                          localStorage.getItem("logintoken");
-                                        // if (selectedRowData.length > 0) {
-                                        try {
-                                          const response = await axios.post(
-                                            `https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateLoanApplication`,
-                                            {
-                                              loanApplicationId:
-                                                loanApplicationId,
-                                              bankIds: selectedRowData,
-                                              loanTypeId: selectOption,
-                                            },
-                                            {
-                                              headers: {
-                                                Authorization: `Bearer ${token}`,
-                                              },
-                                            }
-                                          );
-                                          const { data } = response;
+                                        handleNext(setFieldValue, values);
+                                        if (selectedRowData.length > 0) {
+                                          try {
+                                            const response = await API.post(
+                                              `/LoanApplication/UpdateLoanApplication`,
+                                              {
+                                                isActive: true,
+                                                loanApplicationId:
+                                                  loanApplicationId,
+                                                bankIds: selectedRowData,
+                                                loanTypeId: selectOption,
+                                                amount: loanAmount,
+                                                stateId: Number(countryState),
+                                                city: city,
+                                              }
+                                            );
+                                            const { data } = response;
 
-                                          await Notification(
-                                            "success",
-                                            "Bank selection Submitted successfully"
-                                          );
-                                          // setEligiblity(true);
-                                          // setFieldValue("activeStep", values.activeStep + 1);
+                                            await Notification(
+                                              "success",
+                                              "Bank selection Submitted successfully"
+                                            );
+                                            // setEligiblity(true);
+                                            // setFieldValue("activeStep", values.activeStep + 1);
+                                          } catch (error) {
+                                            console.log(error);
+                                            Notification("error", "error");
+                                          }
+                                        } else {
                                           handleNext(setFieldValue, values);
-                                        } catch (error) {
-                                          console.log(error);
-                                          Notification("error", "error");
                                         }
-                                        // } else {
-                                        //   Notification(
-                                        //     "error",
-                                        //     "Please Select Bank "
-                                        //   );
-                                        // }
                                       }}
                                     >
                                       Next
@@ -1183,7 +1411,13 @@ function ApplyForLoan() {
                                       <div className="row">
                                         <div className="col-6">
                                           <div className="single-input">
-                                            <label>Loan Amount (INR)</label>
+                                            <label>
+                                              {" "}
+                                              <span className="astrisk_mark">
+                                                *
+                                              </span>
+                                              Loan Amount (INR)
+                                            </label>
                                             <Field
                                               type={"text"}
                                               onKeyPress={(event) => {
@@ -1200,7 +1434,7 @@ function ApplyForLoan() {
                                               onChange={handleChnageLoanAmount}
                                             />
                                             {loanAmountError && (
-                                              <p style={{ color: "red" }}>
+                                              <p className="all_error">
                                                 {loanAmountError}
                                               </p>
                                             )}
@@ -1209,7 +1443,13 @@ function ApplyForLoan() {
 
                                         <div className="col-6">
                                           <div className="single-input">
-                                            <label>Loan Type</label>
+                                            <label>
+                                              {" "}
+                                              <span className="astrisk_mark">
+                                                *
+                                              </span>
+                                              Loan Type
+                                            </label>
 
                                             <>
                                               {loanTypeOption &&
@@ -1247,11 +1487,11 @@ function ApplyForLoan() {
                                               {/* <ErrorMessage
                                                 name="step2verify.loanType"
                                                 component="div"
-                                                style={{ color: "red" }}
+                                                className="all_error"
                                               /> */}
                                             </>
                                             {errorLoanType && (
-                                              <p style={{ color: "red" }}>
+                                              <p className="all_error">
                                                 {errorLoanType}
                                               </p>
                                             )}
@@ -1292,20 +1532,25 @@ function ApplyForLoan() {
                                               // }}
                                             />
                                             {errorLoanTerm && (
-                                              <p style={{ color: "red" }}>
+                                              <p className="all_error">
                                                 {errorLoanTerm}
                                               </p>
                                             )}
                                             {/* <ErrorMessage
                                               name="step2.loanTerm"
                                               component="div"
-                                              style={{ color: "red" }}
+                                              className="all_error"
                                             /> */}
                                           </div>
                                         </div>
                                         <div className="col-6">
                                           <div className="single-input">
-                                            <label>State</label>
+                                            <label>
+                                              <span className="astrisk_mark">
+                                                *
+                                              </span>
+                                              State
+                                            </label>
 
                                             <>
                                               {countryStateOption &&
@@ -1339,7 +1584,7 @@ function ApplyForLoan() {
                                                 )}
                                             </>
                                             {errorStateType && (
-                                              <p style={{ color: "red" }}>
+                                              <p className="all_error">
                                                 {errorStateType}
                                               </p>
                                             )}
@@ -1347,37 +1592,55 @@ function ApplyForLoan() {
                                         </div>
                                       </div>
                                       <div className="row">
-                                      <div className="col-6">
+                                        <div className="col-6">
                                           <div className="single-input">
-                                            <label>City</label>
+                                            <label>
+                                              {" "}
+                                              <span className="astrisk_mark">
+                                                *
+                                              </span>
+                                              Pincode
+                                            </label>
                                             <Field
                                               type={"text"}
-                                
-                                              placeholder="Enter City"
-                                              value={city}
-                                               onChange={handleCityChange}
-                                            />
-                                            {/* {loanAmountError && (
-                                              <p style={{ color: "red" }}>
-                                                {loanAmountError}
-                                              </p>
-                                            )} */}
-                                          </div>
-                                          <div className="single-input">
-                                            <label>Pincode</label>
-                                            <Field
-                                              type={"text"}
-                                              value={pincode} 
+                                              value={pincode}
                                               onChange={handlePincodeChange}
                                               placeholder="Enter Pincode"
                                               // value={loanAmount}
                                               // onChange={handleChnageLoanAmount}
                                             />
                                             {/* {loanAmountError && (
-                                              <p style={{ color: "red" }}>
-                                                {loanAmountError}
+    <p className="all_error">
+      {loanAmountError}
+    </p>
+  )} */}
+                                            {pincodeError && (
+                                              <p className="all_error">
+                                                {pincodeError}
                                               </p>
-                                            )} */}
+                                            )}
+                                          </div>
+                                        </div>
+                                        <div className="col-6">
+                                          <div className="single-input">
+                                            <label>
+                                              {" "}
+                                              <span className="astrisk_mark">
+                                                *
+                                              </span>
+                                              City
+                                            </label>
+                                            <Field
+                                              type={"text"}
+                                              placeholder="Enter City"
+                                              value={city}
+                                              onChange={handleCityChange}
+                                            />
+                                            {cityError && (
+                                              <p className="all_error">
+                                                {cityError}
+                                              </p>
+                                            )}
                                           </div>
                                         </div>
                                       </div>
@@ -1404,11 +1667,16 @@ function ApplyForLoan() {
 
                                         <button
                                           onClick={async (e) => {
-                                            await handleCreateApplication(
-                                              e,
-                                              values,
-                                              setFieldValue
-                                            );
+                                            !isLoanCreat
+                                              ? await handleCreateApplication(
+                                                  e,
+                                                  values,
+                                                  setFieldValue
+                                                )
+                                              : updateLoanApplication(
+                                                  values,
+                                                  setFieldValue
+                                                );
                                           }}
                                           className="cmn-btn"
                                         >
@@ -1436,14 +1704,19 @@ function ApplyForLoan() {
                                           <>
                                             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                                               <div key={index}>
-                                                <h4>{data?.name}</h4>
-                                                <div class="input-box ">
+                                                <label>
+                                                  <span className="astrisk_mark">
+                                                    *
+                                                  </span>
+                                                  {data?.name}
+                                                </label>
+                                                <div class="input-box-userDashboard ">
                                                   <input
                                                     type="file"
                                                     multiple
                                                     accept=".jpg, .jpeg, .png, .bmp, .pdf"
                                                     ref={aRef}
-                                                    class="upload-box"
+                                                    class="upload-box-userDashboard"
                                                     onChange={(e) =>
                                                       handlePanFileChange(
                                                         data?.name,
@@ -1452,6 +1725,20 @@ function ApplyForLoan() {
                                                       )
                                                     }
                                                   />
+                                                  <button
+                                                    style={{
+                                                      margin: "10px",
+                                                      fontSize: "larger",
+                                                    }}
+                                                    onClick={() =>
+                                                      handleUploadForField(
+                                                        data?.id,
+                                                        data?.name
+                                                      )
+                                                    }
+                                                  >
+                                                    <i class="fa-solid fa-upload"></i>
+                                                  </button>
                                                 </div>
                                               </div>
                                               {docFiles[data?.name]?.length >
@@ -1463,42 +1750,82 @@ function ApplyForLoan() {
                                                       (file, index) => (
                                                         <div key={index}>
                                                           <div className="delete_div">
-                                                            <span
-                                                              className="document_hyper_link"
-                                                              onClick={() =>
-                                                                handlePreviewFile(
-                                                                  file
-                                                                )
-                                                              }
-                                                            >
-                                                              {file?.name}
-                                                            </span>
+                                                            {file && (
+                                                              // <PreviewComponent
+                                                              //   file={file}
+                                                              // />
+                                                              <span
+                                                                className="document_hyper_link"
+                                                                onClick={
+                                                                  () =>
+                                                                    handlePreviewFile(
+                                                                      file
+                                                                    )
 
-                                                            <button
-                                                              class="delete_button"
-                                                              onClick={() =>
-                                                                handleRemoveFile(
-                                                                  data?.name,
-                                                                  index
-                                                                )
-                                                              }
-                                                              style={{
-                                                                cursor:
-                                                                  "pointer",
-                                                              }}
-                                                            >
-                                                              Delete
-                                                            </button>
+                                                                  // window.open(
+                                                                  //   previewUrl,
+                                                                  //   "_blank"
+                                                                  // )
+                                                                }
+                                                              >
+                                                                {file?.name}
+                                                              </span>
+                                                            )}
+                                                            <div>
+                                                              <i
+                                                                class="delete_button fa-solid fa-xmark"
+                                                                onClick={() =>
+                                                                  handleRemoveFile(
+                                                                    data?.name,
+                                                                    index
+                                                                  )
+                                                                }
+                                                                style={{
+                                                                  cursor:
+                                                                    "pointer",
+                                                                }}
+                                                              ></i>
+                                                            </div>
                                                           </div>
                                                         </div>
                                                       )
                                                     )}
                                                 </div>
                                               )}
+
+                                              {uploadedFiles[data?.name]
+                                                ?.length > 0 && (
+                                                <div>
+                                                  <h4>Uploaded files:</h4>
+                                                  {uploadedFiles[
+                                                    data?.name
+                                                  ]?.map((file, index) => (
+                                                    <div key={index}>
+                                                      <span
+                                                        className="document_hyper_link"
+                                                        onClick={
+                                                          () =>
+                                                            handlePreviewFile(
+                                                              file?.file
+                                                            )
+
+                                                          // window.open(
+                                                          //   previewUrl,
+                                                          //   "_blank"
+                                                          // )
+                                                        }
+                                                      >
+                                                        {file?.name}
+                                                      </span>
+                                                    </div>
+                                                  ))}
+                                                </div>
+                                              )}
                                             </div>
                                           </>
                                         );
                                       })}
+
                                     <div>
                                       <div class="row">
                                         {/* {docFiles.otherDocuments.map(
@@ -1546,10 +1873,13 @@ function ApplyForLoan() {
                                               <button
                                                 style={{
                                                   margin: "10px",
+                                                  fontSize: "larger",
                                                 }}
-                                                onClick={handleUpload}
+                                                onClick={
+                                                  handleUploadForOtherDocument
+                                                }
                                               >
-                                                Upload
+                                                <i class="fa-solid fa-upload"></i>
                                               </button>
                                             </div>
                                           </div>
@@ -1567,7 +1897,7 @@ function ApplyForLoan() {
                                                 {selectedFilesArray.map(
                                                   (fileObj, index) => (
                                                     <li key={index}>
-                                                      <div>
+                                                      <div className="delete_div">
                                                         <b>{fileObj.name}</b> -
                                                         <span
                                                           className="document_hyper_link"
@@ -1579,16 +1909,14 @@ function ApplyForLoan() {
                                                         >
                                                           {fileObj.file.name}
                                                         </span>
-                                                        <button
-                                                          class="delete_button"
+                                                        <i
+                                                          class="delete_button fa-solid fa-xmark"
                                                           onClick={() =>
                                                             handleRemoveOtherDocumentFile(
                                                               fileObj.file
                                                             )
                                                           }
-                                                        >
-                                                          Delete
-                                                        </button>
+                                                        ></i>
                                                       </div>
                                                     </li>
                                                   )
@@ -1596,34 +1924,39 @@ function ApplyForLoan() {
                                               </ul>
                                             </div>
                                           )}
+
+                                          {uploadedOtherDocuemnt?.length >
+                                            0 && (
+                                            <div>
+                                              <h4>Uploaded files:</h4>
+                                              {uploadedOtherDocuemnt?.map(
+                                                (file, index) => (
+                                                  <div key={index}>
+                                                    <span
+                                                      className="document_hyper_link"
+                                                      onClick={
+                                                        () =>
+                                                          handlePreviewFile(
+                                                            file?.file
+                                                          )
+
+                                                        // window.open(
+                                                        //   previewUrl,
+                                                        //   "_blank"
+                                                        // )
+                                                      }
+                                                    >
+                                                      {file?.name}
+                                                    </span>
+                                                  </div>
+                                                )
+                                              )}
+                                            </div>
+                                          )}
                                         </div>
-
-                                        {/* <div
-                                          class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                          style={{
-                                            display: "flex",
-                                            justifyContent: "flex-start",
-                                          }}
-                                        >
-                                          <button
-                                            onClick={addOtherDocumentField}
-                                          >
-                                            other
-                                          </button>
-                                        </div> */}
+                                        {/* )
+                                      )} */}
                                       </div>
-
-                                      {/* <div
-                                        class="my-4 col-lg-6 col-md-6 col-sm-12"
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "flex-start",
-                                        }}
-                                      >
-                                        <button onClick={addOtherDocumentField}>
-                                          other
-                                        </button>
-                                      </div> */}
                                     </div>
                                   </div>
 
@@ -1634,6 +1967,16 @@ function ApplyForLoan() {
                                       alignItems: "center",
                                     }}
                                   >
+                                    <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      style={{ marginRight: "10px" }}
+                                      onClick={() =>
+                                        handlePrevious(setFieldValue, values)
+                                      }
+                                    >
+                                      Previous
+                                    </button>
                                     <button
                                       type="button"
                                       className="cmn-btn"
@@ -1654,6 +1997,10 @@ function ApplyForLoan() {
                                       Submit
                                     </button>
                                   </div>
+
+                                  <span className="valid_formate">
+                                    * Valid File Formats JPG, JPEG, PNG, PDF
+                                  </span>
                                 </div>
                               </>
                             </>
@@ -1666,6 +2013,19 @@ function ApplyForLoan() {
                                   <img src="/images/t.jpg" alt="" />
                                 </div>
                                 {/* <h3 class="thank-you-head">THANK YOU</h3> */}
+                                {/* <div className="thankYou_button"> */}
+                                <Link
+                                  href="/userDashBoard"
+                                  className="go_to_dashbaord"
+                                  style={{
+                                    color: "blue",
+                                    borderBottom: "1px solid",
+                                    marginBottom: "10px",
+                                  }}
+                                >
+                                  Go to My Dashboard
+                                </Link>
+                                {/* </div> */}
                                 <p>
                                   We have recevied your{" "}
                                   <b>
@@ -1679,7 +2039,9 @@ function ApplyForLoan() {
                                 <div class="my-4">
                                   <span class="app-no">
                                     Application No.{" "}
-                                    <span>{loanApplicationNumber}</span>{" "}
+                                    <span>
+                                      {loanApplicationNumber?.toUpperCase()}
+                                    </span>{" "}
                                   </span>
                                 </div>
                                 <p>

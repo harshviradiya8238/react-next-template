@@ -5,6 +5,8 @@ import Stepper from "react-stepper-horizontal";
 import axios from "axios";
 import Notification from "../../components/utils/Notification";
 import Preloader from "../../components/preloader/Preloader";
+import Link from "next/link";
+import API from "../../helper/API";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -49,14 +51,18 @@ function LoanApplication() {
   const [errorStateType, setErrorStateType] = useState("");
   const [loanAmount, setLoanAmount] = useState("");
   const [otherDocumentId, setOtherDocumentId] = useState("");
-
   const [loanAmountError, setLoanAmountError] = useState("");
+  const [pincode, setPincode] = useState("");
+  const [city, setCity] = useState("");
+  const [selectOptionName, setSelectOptionName] = useState("");
+  const [cityError, setCityError] = useState("");
+  const [pincodeError, setPincodeError] = useState("");
+  const [isLoanCreat, setIsLoanCreat] = useState(false);
 
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
+    setSelectOptionName(target.name);
     setErrorLoanType("");
-
-    // setSelectOptionName(target.name);
   };
   const handleSelectStateoption = ({ target }) => {
     SetCountryState(target.value);
@@ -77,8 +83,8 @@ function LoanApplication() {
   ) => {
     const token = localStorage.getItem("logintoken");
     try {
-      const response = await axios.post(
-        `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetBankAndDocumetByLoanTypeId`,
+      const response = await API.post(
+        `/LoanApplication/GetBankAndDocumetByLoanTypeId`,
         {
           loanTypeId: id,
           tenure: Number(tenure),
@@ -118,6 +124,34 @@ function LoanApplication() {
       Notification("error", error?.response?.data[0]?.errorMessage);
     }
   };
+  const handlePincodeChange = async (event) => {
+    const newPincode = event.target.value;
+    setPincode(newPincode);
+
+    if (newPincode.length === 6) {
+      try {
+        const response = await axios.get(
+          `https://dev.yowza.international/location/details/${newPincode}`
+        );
+        const { places, state, country, City } = response.data.data;
+        // setCity(places[0]["place name"]);
+        setCity(City);
+        setPincodeError("");
+      } catch (error) {
+        Notification("error", "invalid Pincode");
+        console.error("Error fetching data:", error);
+        setCity("");
+      }
+    } else {
+      setCity("");
+    }
+  };
+  const handleCityChange = (event) => {
+    if (event.target.value.length) {
+      setCityError("");
+    }
+    setCity(event.target.value);
+  };
 
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
@@ -127,6 +161,7 @@ function LoanApplication() {
       try {
         const response = await axios.get(
           "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
+
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -134,8 +169,7 @@ function LoanApplication() {
           }
         );
         const { data } = response;
-
-        setLoanTypeOption(data.value);
+        setLoanTypeOption(data?.value?.gridRecords);
       } catch (error) {
         console.log(error);
         // Notification("error", error?.response?.data[0]?.errorMessage);
@@ -143,9 +177,7 @@ function LoanApplication() {
     };
     const GetAllState = async () => {
       try {
-        const response = await axios.get(
-          "https://loancrmtrn.azurewebsites.net/api/State/GetAll"
-        );
+        const response = await API.get("/State/GetAll");
         const { data } = response;
         SetCountryStateOption(data.value);
       } catch (error) {
@@ -182,26 +214,96 @@ function LoanApplication() {
     if (!loanAmount) {
       setLoanAmountError("Please Enter Loan Amount");
     }
-    if (!loanAmount || !countryState || !countryState) {
+    if (!city) {
+      setCityError("Please Enter City");
+    }
+    if (!pincode) {
+      setPincodeError("Please Enter pincode");
+    }
+    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
       return;
     }
 
     const token = localStorage.getItem("logintoken");
 
     try {
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/LoanApplication/Create",
+      const response = await API.post(
+        "/LoanApplication/Create",
         {
           loanTypeId: selectOption,
           amount: loanAmount,
           tenure: Number(value.step1.loanTerm),
           stateId: Number(countryState),
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          city: city,
+          postalCode: pincode,
         }
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // }
+      );
+      const { data } = response;
+
+      await Notification("success", data?.value?.message);
+      setIsLoanCreat(true);
+      GetBankAndDocumetByLoanTypeId(
+        selectOption,
+        loanAmount,
+        value.step1.loanTerm,
+        setFieldValue
+      );
+      setLoanAppliactionId(data?.value?.id);
+      setLoanAppliactionNumber(data?.value?.applicationNumber);
+    } catch (error) {
+      console.log(error);
+      // Notification("error", "Please Enter All Field");
+
+      // Notification("error", error?.response?.data[0]?.errorMessage);
+    }
+  };
+
+  const updateLoanApplication = async (value, setFieldValue) => {
+    if (!selectOption) {
+      setErrorLoanType("Please Select Loan Type.");
+    }
+    if (!countryState) {
+      setErrorStateType("Please Select State");
+    }
+    if (!loanAmount) {
+      setLoanAmountError("Please Enter Loan Amount");
+    }
+    if (!city) {
+      setCityError("Please Enter City");
+    }
+    if (!pincode) {
+      setPincodeError("Please Enter pincode");
+    }
+    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+      return;
+    }
+
+    const token = localStorage.getItem("logintoken");
+
+    try {
+      const response = await API.post(
+        "/LoanApplication/UpdateLoanApplication",
+        {
+          loanApplicationId: loanApplicationId,
+          bankIds: selectedRowData,
+          loanTypeId: selectOption,
+          amount: Number(loanAmount),
+          tenure: Number(value.step1.loanTerm),
+          stateId: Number(countryState),
+          city: city,
+          postalCode: pincode,
+          isActive: true,
+        }
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // }
       );
       const { data } = response;
 
@@ -212,8 +314,7 @@ function LoanApplication() {
         value.step1.loanTerm,
         setFieldValue
       );
-      setLoanAppliactionId(data?.value?.id);
-      setLoanAppliactionNumber(data?.value?.applicationNumber);
+      setIsLoanCreat(true);
     } catch (error) {
       console.log(error);
       // Notification("error", "Please Enter All Field");
@@ -243,56 +344,68 @@ function LoanApplication() {
   };
 
   const [docFiles, setdocFiles] = useState([]);
+  const [uploadedFiles, setUploadedFiles] = useState({});
+  const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
 
   const handleSubmitUploadDoc = async (setFieldValue) => {
-    var newAraay = [];
-    var documentNull = false;
-    Object?.keys(docFiles)?.forEach((key) => {
-      docFiles[key]?.forEach((item) => {
-        item["keyname"] = key;
-        newAraay.push(item);
-      });
-    });
-    selectedFilesArray.forEach((element) => {
-      element.file["keyname"] = element.name;
-      element.file["documentTypeId"] = otherDocumentId;
-      newAraay.push(element.file);
-    });
-    if (newAraay?.length > 0) {
-      await newAraay.forEach(async (element) => {
-        const formData = new FormData();
-        formData.append("LoanApplicationId", loanApplicationId);
-        formData.append("DocumentTypeId", element.documentTypeId);
-        formData.append(
-          "OtherDocumentName",
-          element?.keyname ? element?.keyname : "Other"
-        );
-        formData.append("Documents", element);
+    const allUploadEmpty = Object.values(uploadedFiles).every(
+      (array) => array.length === 0
+    );
 
-        const token = localStorage.getItem("logintoken");
-
-        try {
-          const response = await axios.post(
-            "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
-            formData,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
-          );
-          // const { data } = response;
-          Notification("success", "document Upload Successfully ");
-          setFieldValue("activeStep", 2);
-        } catch (error) {
-          console.log(error);
-          Notification("error", error?.response?.data[0]?.errorMessage);
-        }
-      });
+    if (allUploadEmpty && uploadedOtherDocuemnt.length == 0) {
+      Notification("error", "Please Upload atleast one document ");
+      return;
     } else {
-      Notification("error", "Please select atleast one document ");
+      setFieldValue("activeStep", 2);
     }
+    // var newAraay = [];
+    // var documentNull = false;
+    // Object?.keys(docFiles)?.forEach((key) => {
+    //   docFiles[key]?.forEach((item) => {
+    //     item["keyname"] = key;
+    //     newAraay.push(item);
+    //   });
+    // });
+    // selectedFilesArray.forEach((element) => {
+    //   element.file["keyname"] = element.name;
+    //   element.file["documentTypeId"] = otherDocumentId;
+    //   newAraay.push(element.file);
+    // });
+    // if (newAraay?.length > 0) {
+    //   await newAraay.forEach(async (element) => {
+    //     const formData = new FormData();
+    //     formData.append("LoanApplicationId", loanApplicationId);
+    //     formData.append("DocumentTypeId", element.documentTypeId);
+    //     formData.append(
+    //       "OtherDocumentName",
+    //       element?.keyname ? element?.keyname : "Other"
+    //     );
+    //     formData.append("Documents", element);
+
+    //     const token = localStorage.getItem("logintoken");
+
+    //     try {
+    //       const response = await axios.post(
+    //         "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+    //         formData,
+    //         {
+    //           headers: {
+    //             Authorization: `Bearer ${token}`,
+    //           },
+    //         }
+    //       );
+    //       // const { data } = response;
+    //       Notification("success", "document Upload Successfully ");
+    //       setFieldValue("activeStep", 2);
+    //     } catch (error) {
+    //       console.log(error);
+    //       Notification("error", error?.response?.data[0]?.errorMessage);
+    //     }
+    //   });
+    // } else {
+    //   Notification("error", "Please select atleast one document ");
+    // }
 
     //====================================================================================old code==========================================
     // Object?.keys(docFiles)?.forEach((key) => {
@@ -416,40 +529,6 @@ function LoanApplication() {
     });
   };
 
-  const addOtherDocumentField = () => {
-    if (docFiles.otherDocuments.length < 5) {
-      setdocFiles((prevState) => ({
-        ...prevState,
-        otherDocuments: [
-          ...prevState.otherDocuments,
-          { label: "", files: [], editable: true },
-        ],
-      }));
-    }
-  };
-
-  const handleToggleEdit = (index) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments[index].editable = !otherDocuments[index].editable;
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
-  };
-
-  const handleDeleteField = (index) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments.splice(index, 1);
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
-  };
-
   const handlePreviewFile = (file) => {
     if (file) {
       const reader = new FileReader();
@@ -474,20 +553,28 @@ function LoanApplication() {
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
+  const maxFileSize = 10 * 1024 * 1024;
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
-
-    if (file) {
+    if (file && documentFileName) {
       const fileType = "." + file.name.split(".").pop().toLowerCase();
-
-      if (allowedFileTypes.includes(fileType)) {
-        setSelectedFile(file);
+      if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
+        setSelectedFilesArray((prevArray) => [
+          ...prevArray,
+          { name: documentFileName, file },
+        ]);
+        // setDocumentFileName("");
         setErrorMessage("");
       } else {
-        setSelectedFile(null);
-        setErrorMessage("File type is not supported");
+        if (!allowedFileTypes.includes(fileType)) {
+          setErrorMessage("File type is not supported");
+        } else if (file.size > maxFileSize) {
+          setErrorMessage("File size exceeds the limit of 10 MB");
+        }
       }
+    } else {
+      setErrorMessage("Please enter a document name before selecting a file");
     }
   };
 
@@ -585,9 +672,114 @@ function LoanApplication() {
   const handleButtonClick = () => {
     fileInputRef.current.click();
   };
+
+  const handleUploadForField = async (id, name) => {
+    console.log("sdasdasd", docFiles[name]);
+    const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
+    console.log(files);
+
+    const formData = new FormData();
+    files &&
+      files.forEach(async (element, index) => {
+        // Here 'files' is the FormData key. It may vary based on your backend requirement.
+
+        formData.append("DocumentTypeId", element.documentTypeId);
+        formData.append("Documents", element);
+        formData.append("LoanApplicationId", loanApplicationId);
+      });
+
+    if (files || files.length) {
+      const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.post(
+          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        Notification("success", "document Upload Successfully ");
+        const newDocFiles = { ...docFiles };
+        newDocFiles[name] = [];
+
+        setdocFiles(newDocFiles);
+        // setFieldValue("activeStep", 2);
+        setUploadedFiles((prevState) => ({
+          ...prevState,
+          [name]: [...(prevState[name] || []), ...files],
+        }));
+      } catch (error) {
+        console.log(error);
+        Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    } else {
+      Notification("error", "select At least one doc");
+    }
+  };
+
+  const handleUploadForOtherDocument = async () => {
+    console.log(
+      selectedFilesArray,
+      otherDocumentId,
+      documentFileName,
+      "============================================"
+    );
+    if (
+      !otherDocumentId ||
+      selectedFilesArray.length === 0 ||
+      !documentFileName
+    ) {
+      setErrorMessage(
+        "Please select a document option, a file, and enter a document name."
+      );
+      return;
+    }
+
+    for (const { name, file } of selectedFilesArray) {
+      const formData = new FormData();
+      formData.append("LoanApplicationId", loanApplicationId);
+      formData.append("DocumentTypeId", otherDocumentId);
+      formData.append("Documents", file);
+      formData.append("OtherDocumentName", name);
+
+      // Add the ID here
+
+      try {
+        const token = localStorage.getItem("logintoken");
+        const response = await axios.post(
+          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        // const { data } = response;
+        Notification("success", "document Upload Successfully ");
+        // setSelectedFilesArray([]);
+        setSelectedFilesArray([]);
+        setDocumentFileName("");
+        const newUploadedDocs = [
+          ...uploadedOtherDocuemnt,
+          ...selectedFilesArray,
+        ];
+        setuploadedOtherDocuemnt(newUploadedDocs);
+        // setFieldValue("activeStep", 2);
+      } catch (error) {
+        console.log(error);
+        Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    }
+  };
+
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form ">
       <Preloader />
+
       <div className="overlay pt-120">
         <div className="container wow fadeInUp">
           <div className="row justify-content-center"></div>
@@ -625,13 +817,16 @@ function LoanApplication() {
                               {bankOption && bankOption.length > 0 ? (
                                 <>
                                   <div class="table-section">
-                                    <h3> Preferred bank</h3>
+                                    <h4 class="text-head">
+                                      Choose your Preference
+                                    </h4>
+                                    {/* <h4> Choose your Preference</h4> */}
                                     <table class="table">
                                       <thead>
                                         <tr>
-                                          <th scope="col">Select</th>
+                                          <th scope="col"></th>
                                           <th scope="col">Bank Name</th>
-                                          <th scope="col">Rate of interest</th>
+                                          {/* <th scope="col">Rate of interest</th> */}
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -675,7 +870,7 @@ function LoanApplication() {
                                                     </label>
                                                   </th>
                                                   <td>{elm?.name}</td>
-                                                  <td>{elm?.interestRate}</td>
+                                                  {/* <td>{elm?.interestRate}</td> */}
                                                 </tr>
                                               </>
                                             );
@@ -690,19 +885,19 @@ function LoanApplication() {
                                       alignItems: "center",
                                     }}
                                   >
-                                    {/* <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() => {
-                                      // handlePrevious(setFieldValue, values);
-                                      // setFieldValue("activeStep", 1);
-                                      setBankOption([]);
-                                      setEligiblity(false);
-                                    }}
-                                  >
-                                    Previous
-                                  </button> */}
+                                    <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      style={{ marginRight: "10px" }}
+                                      onClick={() => {
+                                        // handlePrevious(setFieldValue, values);
+                                        // setFieldValue("activeStep", 1);
+                                        setBankOption([]);
+                                        // setEligiblity(false);
+                                      }}
+                                    >
+                                      Previous
+                                    </button>
                                     <button
                                       type="button"
                                       className="cmn-btn"
@@ -711,19 +906,23 @@ function LoanApplication() {
                                           localStorage.getItem("logintoken");
                                         if (selectedRowData.length > 0) {
                                           try {
-                                            const response = await axios.post(
-                                              `https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateLoanApplication`,
+                                            const response = await API.post(
+                                              `/LoanApplication/UpdateLoanApplication`,
                                               {
+                                                isActive: true,
                                                 loanApplicationId:
                                                   loanApplicationId,
                                                 bankIds: selectedRowData,
                                                 loanTypeId: selectOption,
-                                              },
-                                              {
-                                                headers: {
-                                                  Authorization: `Bearer ${token}`,
-                                                },
+                                                amount: loanAmount,
+                                                stateId: Number(countryState),
+                                                city: city,
                                               }
+                                              // {
+                                              //   headers: {
+                                              //     Authorization: `Bearer ${token}`,
+                                              //   },
+                                              // }
                                             );
                                             const { data } = response;
 
@@ -736,13 +935,11 @@ function LoanApplication() {
                                             handleNext(setFieldValue, values);
                                           } catch (error) {
                                             console.log(error);
-                                            Notification("error", "catch erro");
+                                            handleNext(setFieldValue, values);
+                                            // Notification("error", "catch erro");
                                           }
                                         } else {
-                                          Notification(
-                                            "error",
-                                            "Please Select Bank "
-                                          );
+                                          handleNext(setFieldValue, values);
                                         }
                                       }}
                                     >
@@ -755,7 +952,13 @@ function LoanApplication() {
                                   <div className="row">
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Loan Amount (INR)</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Loan Amount (INR)
+                                        </label>
                                         <Field
                                           type={"number"}
                                           onKeyPress={(event) => {
@@ -772,7 +975,7 @@ function LoanApplication() {
                                           onChange={handleChnageLoanAmount}
                                         />
                                         {loanAmountError && (
-                                          <p style={{ color: "red" }}>
+                                          <p className="all_error">
                                             {loanAmountError}
                                           </p>
                                         )}
@@ -781,7 +984,13 @@ function LoanApplication() {
 
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>Loan Type</label>
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Loan Type
+                                        </label>
                                         <>
                                           {loanTypeOption &&
                                             loanTypeOption.length > 0 && (
@@ -812,14 +1021,14 @@ function LoanApplication() {
                                             )}
                                         </>
                                         {errorLoanType && (
-                                          <p style={{ color: "red" }}>
+                                          <p className="all_error">
                                             {errorLoanType}
                                           </p>
                                         )}
                                         {/* <ErrorMessage
                                           name="step2verify.loanType"
                                           component="div"
-                                          style={{ color: "red" }}
+                                          className="all_error"
                                         /> */}
                                       </div>
                                     </div>
@@ -838,7 +1047,12 @@ function LoanApplication() {
                                     </div>
                                     <div className="col-6">
                                       <div className="single-input">
-                                        <label>State</label>
+                                        <label>
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          State
+                                        </label>
                                         <>
                                           {countryStateOption &&
                                             countryStateOption.length > 0 && (
@@ -869,8 +1083,60 @@ function LoanApplication() {
                                             )}
                                         </>
                                         {errorStateType && (
-                                          <p style={{ color: "red" }}>
+                                          <p className="all_error">
                                             {errorStateType}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                  <div className="row">
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>
+                                          {" "}
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          Pincode
+                                        </label>
+                                        <Field
+                                          type={"text"}
+                                          value={pincode}
+                                          onChange={handlePincodeChange}
+                                          placeholder="Enter Pincode"
+                                          // value={loanAmount}
+                                          // onChange={handleChnageLoanAmount}
+                                        />
+                                        {/* {loanAmountError && (
+    <p className="all_error">
+      {loanAmountError}
+    </p>
+  )} */}
+                                        {pincodeError && (
+                                          <p className="all_error">
+                                            {pincodeError}
+                                          </p>
+                                        )}
+                                      </div>
+                                    </div>
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>
+                                          <span className="astrisk_mark">
+                                            *
+                                          </span>
+                                          City
+                                        </label>
+                                        <Field
+                                          type={"text"}
+                                          placeholder="Enter City"
+                                          value={city}
+                                          onChange={handleCityChange}
+                                        />
+                                        {cityError && (
+                                          <p className="all_error">
+                                            {cityError}
                                           </p>
                                         )}
                                       </div>
@@ -885,10 +1151,15 @@ function LoanApplication() {
                                   >
                                     <button
                                       onClick={async () => {
-                                        await handleCreateApplication(
-                                          values,
-                                          setFieldValue
-                                        );
+                                        !isLoanCreat
+                                          ? await handleCreateApplication(
+                                              values,
+                                              setFieldValue
+                                            )
+                                          : updateLoanApplication(
+                                              values,
+                                              setFieldValue
+                                            );
                                       }}
                                       className="cmn-btn"
                                     >
@@ -914,14 +1185,19 @@ function LoanApplication() {
                                           <>
                                             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                                               <div key={index}>
-                                                <h4>{data?.name}</h4>
-                                                <div class="input-box ">
+                                                <label>
+                                                  <span className="astrisk_mark">
+                                                    *
+                                                  </span>
+                                                  {data?.name}
+                                                </label>
+                                                <div class="input-box-userDashboard ">
                                                   <input
                                                     type="file"
                                                     multiple
                                                     accept=".jpg, .jpeg, .png, .bmp, .pdf"
                                                     ref={aRef}
-                                                    class="upload-box"
+                                                    class="upload-box-userDashboard"
                                                     onChange={(e) =>
                                                       handlePanFileChange(
                                                         data?.name,
@@ -930,6 +1206,20 @@ function LoanApplication() {
                                                       )
                                                     }
                                                   />
+                                                  <button
+                                                    style={{
+                                                      margin: "10px",
+                                                      fontSize: "larger",
+                                                    }}
+                                                    onClick={() =>
+                                                      handleUploadForField(
+                                                        data?.id,
+                                                        data?.name
+                                                      )
+                                                    }
+                                                  >
+                                                    <i class="fa-solid fa-upload"></i>
+                                                  </button>
                                                 </div>
                                               </div>
                                               {docFiles[data?.name]?.length >
@@ -940,32 +1230,31 @@ function LoanApplication() {
                                                     docFiles[data?.name]?.map(
                                                       (file, index) => (
                                                         <div key={index}>
-                                                          <div className="selectfile">
-                                                            <div className="delete_div">
-                                                              {file && (
-                                                                // <PreviewComponent
-                                                                //   file={file}
-                                                                // />
-                                                                <span
-                                                                  className="document_hyper_link"
-                                                                  onClick={
-                                                                    () =>
-                                                                      handlePreviewFile(
-                                                                        file
-                                                                      )
+                                                          <div className="delete_div">
+                                                            {file && (
+                                                              // <PreviewComponent
+                                                              //   file={file}
+                                                              // />
+                                                              <span
+                                                                className="document_hyper_link"
+                                                                onClick={
+                                                                  () =>
+                                                                    handlePreviewFile(
+                                                                      file
+                                                                    )
 
-                                                                    // window.open(
-                                                                    //   previewUrl,
-                                                                    //   "_blank"
-                                                                    // )
-                                                                  }
-                                                                >
-                                                                  {file?.name}
-                                                                </span>
-                                                              )}
-
-                                                              <button
-                                                                class="delete_button"
+                                                                  // window.open(
+                                                                  //   previewUrl,
+                                                                  //   "_blank"
+                                                                  // )
+                                                                }
+                                                              >
+                                                                {file?.name}
+                                                              </span>
+                                                            )}
+                                                            <div>
+                                                              <i
+                                                                class="delete_button fa-solid fa-xmark"
                                                                 onClick={() =>
                                                                   handleRemoveFile(
                                                                     data?.name,
@@ -976,78 +1265,41 @@ function LoanApplication() {
                                                                   cursor:
                                                                     "pointer",
                                                                 }}
-                                                              >
-                                                                Delete
-                                                              </button>
+                                                              ></i>
                                                             </div>
                                                           </div>
-                                                          {/* {file && (
-                                                            // <PreviewComponent
-                                                            //   file={file}
-                                                            // />
-                                                            <button
-                                                              onClick={
-                                                                handlePreviewFile
-
-                                                                // window.open(
-                                                                //   previewUrl,
-                                                                //   "_blank"
-                                                                // )
-                                                              }
-                                                            >
-                                                              Preview
-                                                            </button>
-                                                          )} */}
-                                                          {/* {fileType.includes(
-                                                          "image"
-                                                        ) ? (
-                                                          <img
-                                                            src={previewURL}
-                                                            alt="File Preview"
-                                                            style={{
-                                                              maxWidth: "100%",
-                                                            }}
-                                                          />
-                                                        ) : (
-                                                            title="File Preview"
-                                                            src={previewURL}
-                                                            style={{
-                                                              width: "100%",
-                                                              height: "100px",
-                                                            }}
-                                                          />
-                                                        )} */}
-                                                          {/* <img
-                                                          src={await handleFilePreview(
-                                                            file
-                                                          )}
-                                                          // alt={`Preview ${file.name}`}
-                                                          style={{
-                                                            maxWidth: "100px",
-                                                          }}
-                                                        /> */}
-
-                                                          {/* <div
-                                                          class="progress"
-                                                          role="progressbar"
-                                                          aria-label="Basic example"
-                                                          aria-valuenow="100"
-                                                          aria-valuemin="0"
-                                                          aria-valuemax="100"
-                                                          style={{
-                                                            height: "6px",
-                                                          }}
-                                                        >
-                                                          <div
-                                                            class="progress-bar"
-                                                            style={{
-                                                              width: "100%",
-                                                            }}
-                                                          ></div>
-                                                        </div> */}
                                                         </div>
                                                       )
                                                     )}
+                                                </div>
+                                              )}
+
+                                              {uploadedFiles[data?.name]
+                                                ?.length > 0 && (
+                                                <div>
+                                                  <h4>Uploaded files:</h4>
+                                                  {uploadedFiles[
+                                                    data?.name
+                                                  ]?.map((file, index) => (
+                                                    <div key={index}>
+                                                      <span
+                                                        className="document_hyper_link"
+                                                        onClick={
+                                                          () =>
+                                                            handlePreviewFile(
+                                                              file?.file
+                                                            )
+
+                                                          // window.open(
+                                                          //   previewUrl,
+                                                          //   "_blank"
+                                                          // )
+                                                        }
+                                                      >
+                                                        {file?.name}
+                                                      </span>
+                                                    </div>
+                                                  ))}
                                                 </div>
                                               )}
                                             </div>
@@ -1101,10 +1353,13 @@ function LoanApplication() {
                                             <button
                                               style={{
                                                 margin: "10px",
+                                                fontSize: "larger",
                                               }}
-                                              onClick={handleUpload}
+                                              onClick={
+                                                handleUploadForOtherDocument
+                                              }
                                             >
-                                              Upload
+                                              <i class="fa-solid fa-upload"></i>
                                             </button>
                                           </div>
                                         </div>
@@ -1134,21 +1389,47 @@ function LoanApplication() {
                                                       >
                                                         {fileObj.file.name}
                                                       </span>
-                                                      <button
-                                                        className="delete_button"
+                                                      <i
+                                                        class="delete_button fa-solid fa-xmark"
                                                         onClick={() =>
                                                           handleRemoveOtherDocumentFile(
                                                             fileObj.file
                                                           )
                                                         }
-                                                      >
-                                                        Delete
-                                                      </button>
+                                                      ></i>
                                                     </div>
                                                   </li>
                                                 )
                                               )}
                                             </ul>
+                                          </div>
+                                        )}
+
+                                        {uploadedOtherDocuemnt?.length > 0 && (
+                                          <div>
+                                            <h4>Uploaded files:</h4>
+                                            {uploadedOtherDocuemnt?.map(
+                                              (file, index) => (
+                                                <div key={index}>
+                                                  <span
+                                                    className="document_hyper_link"
+                                                    onClick={
+                                                      () =>
+                                                        handlePreviewFile(
+                                                          file?.file
+                                                        )
+
+                                                      // window.open(
+                                                      //   previewUrl,
+                                                      //   "_blank"
+                                                      // )
+                                                    }
+                                                  >
+                                                    {file?.name}
+                                                  </span>
+                                                </div>
+                                              )
+                                            )}
                                           </div>
                                         )}
                                       </div>
@@ -1171,16 +1452,16 @@ function LoanApplication() {
                                       alignItems: "center",
                                     }}
                                   >
-                                    {/* <button
-                                    type="button"
-                                    className="cmn-btn"
-                                    style={{ marginRight: "10px" }}
-                                    onClick={() =>
-                                      handlePrevious(setFieldValue, values)
-                                    }
-                                  >
-                                    Previous
-                                  </button> */}
+                                    <button
+                                      type="button"
+                                      className="cmn-btn"
+                                      style={{ marginRight: "10px" }}
+                                      onClick={() =>
+                                        handlePrevious(setFieldValue, values)
+                                      }
+                                    >
+                                      Previous
+                                    </button>
                                     <button
                                       type="button"
                                       className="cmn-btn"
@@ -1191,6 +1472,9 @@ function LoanApplication() {
                                       Submit
                                     </button>
                                   </div>
+                                  <span className="valid_formate">
+                                    * Valid File Formats JPG, JPEG, PNG, PDF
+                                  </span>
                                 </div>
                               </>
                             </>
@@ -1510,14 +1794,34 @@ function LoanApplication() {
                                   <img src="/images/t.jpg" alt="" />
                                 </div>
                                 {/* <h3 class="thank-you-head">THANK YOU</h3> */}
+                                <Link
+                                  href="/userDashBoard"
+                                  className="go_to_dashbaord"
+                                  style={{
+                                    color: "blue",
+                                    borderBottom: "1px solid",
+                                    marginBottom: "10px",
+                                  }}
+                                >
+                                  Go to My Dashboard
+                                </Link>
                                 <p>
-                                  We have recevied your <b> Home Loan </b>{" "}
+                                  We have recevied your{" "}
+                                  <b>
+                                    {" "}
+                                    {selectOptionName
+                                      ? selectOptionName
+                                      : ""}{" "}
+                                  </b>{" "}
                                   application
                                 </p>
+
                                 <div class="my-4">
                                   <span class="app-no">
                                     Application No.{" "}
-                                    <span>{loanApplicationNumber}</span>{" "}
+                                    <span>
+                                      {loanApplicationNumber?.toUpperCase()}
+                                    </span>{" "}
                                   </span>
                                 </div>
                                 <p>

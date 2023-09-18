@@ -2,6 +2,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
+import API from "../../helper/API";
 
 function Cashback() {
   const [cashBack, setCashBack] = useState("");
@@ -12,8 +13,8 @@ function Cashback() {
       try {
         if (token) {
           const userData = jwtDecode(token);
-          const response = await axios.get(
-            `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetLoanApplicationCashBackByUserId?userId=${userData?.UserDetails?.Id}`,
+          const response = await API.get(
+            `/LoanApplication/GetLoanApplicationCashBackByUserId?userId=${userData?.UserDetails?.Id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -64,11 +65,11 @@ function Cashback() {
               <thead>
                 <tr>
                   <th>Sr No.</th>
-                  <th>Application Number</th>
-                  <th>Bank/NBFC</th>
-                  <th>Application Date </th>
-                  <th>Loan Amount (₹)</th>
-                  <th>Cashback Amount (₹)</th>
+                  <th>Loan Application Number</th>
+                  <th>Loan Type</th>
+                  <th>Loan Amount (INR)</th>
+                  <th>CashBack Amount (₹)</th>
+                  <th>Transaction Date</th>
                 </tr>
               </thead>
               <tbody>
@@ -79,10 +80,10 @@ function Cashback() {
                           <tr>
                             <td>{index + 1}</td>
                             <td>{elem?.applicationNumbr}</td>
-                            <td>Bajaj</td>
-                            <td>{elem?.createdon}</td>
+                            <td>Personal loan</td>
                             <td>₹ {elem?.loanAmount}</td>
                             <td>₹ 1200.00</td>
+                            <td>{elem?.createdon}</td>
                           </tr>
                         </>
                       );

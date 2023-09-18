@@ -8,6 +8,7 @@ import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Preloader from "../../components/preloader/Preloader";
 import PaginationTable from "../../components/paginaton_table/PaginationTable";
+import API from "../../helper/API.js";
 
 function Myloan() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -28,9 +29,9 @@ function Myloan() {
           }
         );
         const { data } = response;
-        const sortedEntries = Array.from(data.value).reverse();
+        // const sortedEntries = Array.from(data.value).reverse();
 
-        setLoanApplication(sortedEntries);
+        setLoanApplication(data.value);
       } catch (error) {
         console.log(error);
         // Notification("error", error?.response?.data[0]?.errorMessage);
@@ -89,7 +90,7 @@ function Myloan() {
     loanApplication,
   ]);
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
   const totalItems = filteredList?.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -114,7 +115,7 @@ function Myloan() {
                 value={status}
                 onChange={handleChange}
               >
-                <option disabled={true}>Open this select menu</option>
+                <option disabled={true}>Select Status</option>
                 <option value="">All</option>
                 <option value="Incomplete">Incomplete</option>
                 <option value="Pending">Pending</option>
@@ -147,9 +148,9 @@ function Myloan() {
                 <tr>
                   <th>Sr No.</th>
                   <th>Application Number</th>
+                  <th>Loan Amount (INR)</th>
+                  <th>Loan Tenure(Year)</th>
                   <th>Loan Type</th>
-
-                  <th>Amount (₹)</th>
                   <th>Status</th>
                   <th>View</th>
                 </tr>
@@ -160,16 +161,20 @@ function Myloan() {
                       return (
                         <tr key={index}>
                           <td>{index + 1}</td>
-                          <td>{data?.applicationNumber}</td>
-
                           <td>
-                            {data?.loanTypeName
-                              ? data?.loanTypeName.charAt(0).toUpperCase() +
-                                data?.loanTypeName.slice(1).toLowerCase()
-                              : "Home Loan"}
+                            {data?.applicationNumberForLoan
+                              ? data?.applicationNumberForLoan?.toUpperCase()
+                              : data?.applicationNumber}
                           </td>
 
                           <td>{data?.amount}</td>
+                          <td>{data.tenure ? data.tenure : 0}</td>
+                          <td>
+                            {data?.loanTypeName
+                              ? data?.loanTypeName.charAt(0)?.toUpperCase() +
+                                data?.loanTypeName.slice(1)?.toLowerCase()
+                              : "Home Loan"}
+                          </td>
                           <td>
                             {" "}
                             <span
@@ -204,24 +209,26 @@ function Myloan() {
                             >
                               <i class="fa-regular fa-eye" />
                             </Link>
-                            {data?.status === "Query" ||
-                              (data?.status === "Incomplete" && (
-                                <Link
-                                  href={`/userDashBoard/editLoan/${data?.id}`}
-                                  className="cmn-btn"
-                                  style={{
-                                    background: "none",
-                                    padding: "0",
-                                    border: "none",
-                                    marginRight: "10px",
-                                  }}
-                                >
-                                  <i
-                                    class="fa-solid fa-pen-to-square"
-                                    style={{ color: "red" }}
-                                  />
-                                </Link>
-                              ))}
+                            {data?.status_Key == 3 || data?.status_Key == 1 ? (
+                              <Link
+                                href={`/userDashBoard/editLoan/${data?.id}`}
+                                className="cmn-btn"
+                                style={{
+                                  background: "none",
+                                  padding: "0",
+                                  border: "none",
+                                  marginRight: "10px",
+                                }}
+                              >
+                                <i
+                                  class="fa-solid fa-pen-to-square"
+                                  style={{ color: "red" }}
+                                  // className="all_error"
+                                />
+                              </Link>
+                            ) : (
+                              ""
+                            )}
                           </td>
                         </tr>
                       );

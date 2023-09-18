@@ -17,6 +17,7 @@ html {
 .form-select{
   border: 1px solid  #cfcfcf !important;
   color: black !important;
+  font-size: 16px !important;
 }
 
 body {
@@ -51,7 +52,11 @@ h6 {
 
 .error {
   color: red;
-  font-size: medium;
+  font-size: small;
+}
+.all_error{
+  color: red;
+  font-size: small;
 }
 
 h1,
@@ -130,12 +135,12 @@ button {
 
 input,
 textarea {
-  padding: 0px 20px;
+  padding: 0px 12px;
   // color: #1e266d;
   width: 100%;
-  font-size: small !important;
+  font-size: 16px !important;
   // font-family: var(--body-font) !important;
-  height: 50px;
+  height: 40px;
   // background: #f5faff;
   border: 1px solid #cfcfcf;
   border-radius: 5px;
@@ -318,7 +323,7 @@ a {
   display: inline-block;
   color: var(--body-color);
   font-weight: 400;
-  font-size: 18px;
+  font-size: 15px;
   line-height: 30px;
 }
 
@@ -326,9 +331,9 @@ p,
 span,
 li {
   margin: 0;
-  padding: 5px;
+  // padding: 5px;
   // font-family: var(--body-font) !important;
-  font-size: 18px;
+  font-size: 15px;
   font-weight: 400;
   // color: var(--para-color);
   line-height: 30px;
@@ -350,12 +355,13 @@ li {
 .title {
   font-weight: 700;
   margin-bottom: 16px;
+  font-size: 36px;
 }
 .stepper-main{
   margin-top: -40px;
 }
 .stepper-field-form{
- padding:3% 12.5% 3% 12.5%;
+ padding:1% 2% 1% 2%;
 }
 
 .head-icon {
@@ -685,11 +691,11 @@ li {
 }
 // notification notification-error notification-enter-done"
 .selectDrop{
-  padding: 10px 20px;
+  padding: 3px 20px !important;
   color: #1e266d;
   width: 100%;
   // font-family: var(--body-font) !important;
-  height: 50px;
+  height: 40px;
 
   // background: #f5faff;
   border: 1px solid #eef1ff;
@@ -700,7 +706,7 @@ li {
           margin: 50px 0;
       }
       h4{
-          margin-left: 15px;
+          // margin-left: 15px;
           font-size: 1.3rem;
       }
       .input-box{
@@ -709,7 +715,7 @@ li {
           align-items: center;
           border: 1px solid var(--light-gray);
           border-radius: 50px;
-        
+        max-width: 141px;
           background-color: white;
           // box-shadow: 0 12px 24px rgba(47,65,129,.1);
           padding: 5px;
@@ -735,6 +741,8 @@ li {
       .upload-box{
           font-size: 14px;
         padding: 10px ;
+        // max-width: 132px;
+       
   cursor: pointer;
 
           color: #1e266d;
@@ -828,10 +836,11 @@ li {
   padding: 10px;
 }
 .document_hyper_link{
-  color: #1a4dbe;
+  color: black;
   cursor: pointer;
+  width: auto;
   margin-right: 10px;
-  margin-left: 10px;
+  // margin-left: 10px;
   // margin-top: 10px;
   font-size: 15px;
   border-bottom: 1px solid;
@@ -861,19 +870,24 @@ li {
 }
 .error_phone{
   color: red !important;
-  margin-left: 70px;
+  // margin-left: 70px;
+  font-size: small;
 }
 .delete_button{
 
   color: red !important;
-    height: 26px;
-    width: 52px;
-    font-size: small;
+    // height: 26px;
+    // width: 52px;
+    font-size: medium;
+    cursor: pointer;
 }
 .delete_div{
   display: flex;
   align-items: center;
   text-align: center;
+  b{
+    margin-right: 10px;
+  }
 }
 .preferred_bank{
   margin-top: 90px ;
@@ -886,4 +900,103 @@ li {
 .preferred_bank_table tbody tr td{
   font-size: small;
   font-weight: 500;
+}
+button:disabled,
+.button[disabled]{
+  border: 1px solid #999999 !important;
+  background-color: #cccccc !important;
+  color: #666666 !important;
+}
+.astrisk_mark{
+  color: red;
+}
+
+
+.thankYou_register span{
+  color: #1A4DBE;
+  font-size:30px;
+  margin-bottom  :10px ;
+  margin-top: 10px;
+  margin-left: 0px;
+}
+.thankYou_button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+.thankYou_button button{
+  width: auto;
+}
+.valid_formate{
+  color: red;
+  margin-top: 10px;
+}
+// .remark_td{
+//   width: 30px !important;
+// }
+.remark_doc{
+  // width: 100%;
+                            // border: 1px solid lightgray !important;
+                            // border-radius: 3px !important;
+                            // padding: 8px 10px;
+                            border: none !important;
+                            box-shadow: none !important;
+                            margin-left: 5px !important;
+                            // &:focus {
+                            //     // box-shadow: 7px 00px 10px rgba(26,77,190,.2);
+                            //     box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+                            //     outline: 1px solid var(--theam-color);
+                            // }
+  width:50% !important;
+}
+.thankYou_button .go_to_dashbaord{
+  color: "blue" !important;
+                                    border-bottom: "1px solid" !important;
+                                    margin-bottom: "10px" !important;
+}
+.login_Name{
+  color: #1a4dbe;
+  font-weight: 600;
+}
+.query_row_remark{
+  
+  display: flex;
+  justify-content: center;
+  text-align: left;
+
+}
+.input-box-userDashboard{
+  display: flex ;
+  align-items: baseline !important;
+}
+.upload-box-userDashboard{
+  cursor: pointer;
+  color: #1e266d;
+  width: 100%;
+  max-width: 122px !important;
+  background: none !important;
+  border: none !important;
+  // border-radius: 5px;
+  box-shadow: none !important;
+  outline: none !important;
+  &::-webkit-file-upload-button{
+    // padding: 10px;
+    color: white;
+    // background-color: var(--theam-color);
+    // border-radius: 50px ;
+  
+    background-color: gray !important;
+    // box-shadow: 1px 0 1px 1px #6b4559;
+    outline: none !important;
+    border: none !important;
+}
+&:focus{
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+}
+.input-box{
+  max-width: 141px;
 }

@@ -42,9 +42,11 @@ function PaginationTable({ currentPage, setCurrentPage, totalPages }) {
 
           {currentPage < totalPages - 4 && <Pagination.Ellipsis disabled />}
 
-          <Pagination.Item onClick={() => setCurrentPage(totalPages)}>
-            {totalPages}
-          </Pagination.Item>
+          {totalPages >= 2 && (
+            <Pagination.Item onClick={() => setCurrentPage(totalPages)}>
+              {totalPages}
+            </Pagination.Item>
+          )}
 
           <Pagination.Next
             disabled={currentPage === totalPages}

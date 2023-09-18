@@ -440,7 +440,7 @@ button {
 .profile-page-section .form {
   width: min(100% - 20px, 80%);
   margin-inline: auto;
-  box-shadow: 0 8px 30px -7px #c9dff0;
+  /* box-shadow: 0 8px 30px -7px #c9dff0; */
   border-radius: 10px;
   padding: 2rem 5rem;
 }
@@ -552,7 +552,7 @@ button {
   .profile-page-section .form {
     width: min(100% - 20px, 80%);
     margin-inline: auto;
-    box-shadow: 0 8px 30px -7px #c9dff0;
+    /* box-shadow: 0 8px 30px -7px #c9dff0; */
     border-radius: 10px;
     padding: 2rem;
   }

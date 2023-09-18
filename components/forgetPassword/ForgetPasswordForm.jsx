@@ -8,6 +8,7 @@ import Notification from "../utils/Notification";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useState } from "react";
+import API from "../../helper/API";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -47,13 +48,10 @@ const ForgetPasswordForm = () => {
                     { setErrors, setStatus, setSubmitting }
                   ) => {
                     try {
-                      const response = await axios.post(
-                        "https://loancrmtrn.azurewebsites.net/api/User/ForgotPassword",
-                        {
-                          userEmail: values.email,
-                          userPassword: "string",
-                        }
-                      );
+                      const response = await API.post("/User/ForgotPassword", {
+                        userEmail: values.email,
+                        userPassword: "string",
+                      });
                       const { data } = response;
 
                       if (data?.success) {
@@ -99,7 +97,7 @@ const ForgetPasswordForm = () => {
                             <ErrorMessage
                               name="email"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                           </div>
                         </div>

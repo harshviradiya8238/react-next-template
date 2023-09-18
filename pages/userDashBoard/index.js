@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
 import PaginationTable from "../../components/paginaton_table/PaginationTable";
 import { Table } from "react-bootstrap";
+import API from "../../helper/API";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -25,9 +26,9 @@ export default function DashBoardDefault() {
           }
         );
         const { data } = response;
-        const sortedEntries = Array.from(data.value).reverse();
+        // const sortedEntries = Array.from(data.value).reverse();
 
-        setLoanApplication(sortedEntries);
+        setLoanApplication(data.value);
       } catch (error) {
         console.log(error);
         // Notification("error", error?.response?.data[0]?.errorMessage);
@@ -37,7 +38,7 @@ export default function DashBoardDefault() {
     GetAllApplication(token);
   }, [0]);
 
-  const itemsPerPage = 5;
+  const itemsPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
   const totalItems = loanApplication?.length;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
@@ -104,7 +105,7 @@ export default function DashBoardDefault() {
 
             <div class="loan-section-table">
               <h3 class="text-head">
-                <span> Loan Application status </span>
+                <span> Latest Loan Request </span>
               </h3>
               <div class=" table-container">
                 <Table
@@ -115,9 +116,9 @@ export default function DashBoardDefault() {
                     <tr>
                       <th>No.</th>
                       <th>Application Number</th>
-                      <th>Amount (₹) </th>
-                      <th>Loan tenure(year) </th>
-                      <th>Loan type </th>
+                      <th>Loan Amount (INR) </th>
+                      <th>Loan Tenure(Year) </th>
+                      <th>Loan Type </th>
 
                       <th>Status</th>
                       {/* <th>Action</th> */}
@@ -130,7 +131,11 @@ export default function DashBoardDefault() {
                             <>
                               <tr key={index}>
                                 <td>{index + 1}</td>
-                                <td>{data?.applicationNumber}</td>
+                                <td>
+                                  {data?.applicationNumberForLoan
+                                    ? data?.applicationNumberForLoan?.toUpperCase()
+                                    : data?.applicationNumber}
+                                </td>
                                 <td>{data?.amount}</td>
 
                                 <td>{data?.tenure ? data?.tenure : 2}</td>
@@ -187,7 +192,7 @@ export default function DashBoardDefault() {
                                     >
                                       <i
                                         class="fa-solid fa-pen-to-square"
-                                        style={{ color: "red" }}
+                                        className="all_error"
                                       />
                                     </Link>
                                   </div>

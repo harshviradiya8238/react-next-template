@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const baseUrl = process.env.REACT_APP_BASE_URL;
+const baseUrl = "https://loancrmtrn.azurewebsites.net/api";
 // const baseUrl = `http://localhost:4000`;
 const events = [
   "load",
@@ -11,21 +11,24 @@ const events = [
   "keypress",
 ];
 
-console.log(baseUrl);
+// console.log(localStorage.getItem("logintoken"));
+
+const token =
+  typeof window !== "undefined" ? localStorage.getItem("logintoken") : "";
+
+console.log(token, "======================-----------dddddddddddddddd");
 export default axios.create({
   baseURL: baseUrl,
   timeout: 30000, // 30 secs
   headers: {
     "Content-Type": "application/json",
     "Access-Control-Allow-Origin": "*",
-    Authorization:
-      typeof window !== "undefined"
-        ? `Bearer ${localStorage.getItem("token")}`
-        : "",
+    Authorization: token ? `Bearer ${token}` : "",
   },
 
   validateStatus: (status) => {
     if (status === 401) {
+      console.log(status, "------------------------");
       window.location.reload();
       window.location.href = "/";
       localStorage.clear();

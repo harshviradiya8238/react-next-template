@@ -8,6 +8,7 @@ import Notification from "../utils/Notification";
 import { useRouter } from "next/router";
 
 import axios from "axios";
+import API from "../../helper/API";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()
@@ -55,35 +56,39 @@ const LoginForm = () => {
                     values,
                     { setErrors, setStatus, setSubmitting }
                   ) => {
-                    axios
-                      .post(
-                        "https://loancrmtrn.azurewebsites.net/api/Auth/Login",
-                        {
-                          userName: "asd",
-                          userEmail: values.email,
-                          userPassword: values.password,
-                        }
-                      )
-                      .then((dataset) => {
+                    API.post("/Auth/Login", {
+                      userName: "asd",
+                      userEmail: values.email,
+                      userPassword: values.password,
+                    })
+                      .then(async (dataset) => {
                         const { data } = dataset;
-
+                        console.log(data);
                         if (data.success) {
                           // Redirect to a new page using the router
-                          router.push("/userDashBoard");
 
-                          Notification("success", "Login SuccessFully");
-                          localStorage.setItem("logintoken", data.value.token);
-                          localStorage.setItem(
+                          await Notification("success", "Login SuccessFully");
+                          await localStorage.setItem(
+                            "logintoken",
+                            data.value.token
+                          );
+                          await localStorage.setItem(
                             "user",
                             JSON.stringify(data?.value)
                           );
+                          await router.push("/userDashBoard");
+                          await window.location.reload();
                         } else {
-                          Notification("error", "error");
+                          Notification("error", data[0].errorMessage);
                         }
                       })
                       .catch((err) => {
+                        console.log(err);
                         // Notification("error", err);
-                        Notification("error", "invalid credential");
+                        Notification(
+                          "error",
+                          err?.response?.data[0].errorMessage
+                        );
                         console.log("error", err);
                       });
                   }}
@@ -113,7 +118,7 @@ const LoginForm = () => {
                                 }
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                placeholder="Enter Your Email Id or phone number"
+                                placeholder="Email Id or phone number"
                                 required
                               />
 
@@ -124,7 +129,7 @@ const LoginForm = () => {
                             <ErrorMessage
                               name="email"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                           </div>
                         </div>
@@ -136,7 +141,7 @@ const LoginForm = () => {
                                 type={showPassword ? "text" : "password"}
                                 name="password"
                                 id="confirmPass"
-                                placeholder="Enter Your Password"
+                                placeholder="Password"
                                 onBlur={handleBlur}
                                 className="passInput"
                                 onChange={handleChange}
@@ -154,7 +159,7 @@ const LoginForm = () => {
                             <ErrorMessage
                               name="password"
                               component="div"
-                              style={{ color: "red" }}
+                              className="all_error"
                             />
                             <div className="forgot-area text-end">
                               <Link

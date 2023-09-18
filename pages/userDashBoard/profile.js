@@ -17,6 +17,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Notification from "../../components/utils/Notification";
 import Link from "next/link";
 import Preloader from "../../components/preloader/Preloader";
+import API from "../../helper/API";
 
 function Profile() {
   const aRef = useRef(null);
@@ -52,7 +53,7 @@ function Profile() {
   });
   const [key, setKey] = useState("home");
   const [countryStateOption, SetCountryStateOption] = useState("");
-  const [countryState, SetCountryState] = useState("");
+  // const [countryState, SetCountryState] = useState("");
   const [errorStateType, setErrorStateType] = useState("");
 
   useEffect(() => {
@@ -61,19 +62,22 @@ function Profile() {
       try {
         if (token) {
           const userData = jwtDecode(token);
-          const response = await axios.get(
-            `https://loancrmtrn.azurewebsites.net/api/User/GetById?userId=${userData?.UserDetails?.Id}`,
-            {
-              headers: {
-                Authorization: `Bearer ${token}`,
-              },
-            }
+          const response = await API.get(
+            `/User/GetById?userId=${userData?.UserDetails?.Id}`
+            // {
+            //   headers: {
+            //     Authorization: `Bearer ${token}`,
+            //   },
+            // }
           );
           const { data } = response;
           if (data?.success) {
-            setProfileState(data.value);
+            setProfileState({
+              ...data.value,
+              countryState: data?.value?.stateId,
+            });
             setAccountState(data.value);
-            SetCountryState(data?.value?.stateId);
+            // SetCountryState(data?.value?.stateId);
           }
           return response;
         }
@@ -83,9 +87,7 @@ function Profile() {
     };
     const GetAllState = async () => {
       try {
-        const response = await axios.get(
-          "https://loancrmtrn.azurewebsites.net/api/State/GetAll"
-        );
+        const response = await API.get("/State/GetAll");
         const { data } = response;
         SetCountryStateOption(data.value);
       } catch (error) {
@@ -144,7 +146,7 @@ function Profile() {
     addressLine1: profileState?.addressLine1,
     addressLine2: profileState?.addressLine2,
     city: profileState?.city,
-    state: countryState,
+    state: profileState?.countryState,
     zipCode: profileState?.zipCode,
   };
   const initialValuesAccount = {
@@ -156,13 +158,14 @@ function Profile() {
   const validationSchema = Yup.object().shape({
     firstName: Yup.string().required("First Name is required"),
     lastName: Yup.string().required("Last Name is required"),
-    email: Yup.string().email("Invalid email").required("Email is required"),
-    phoneNumber: Yup.string()
-      .matches(/^\d{10}$/, "Please enter 10 digits")
-      .required("Phone Number is required"),
+    // email: Yup.string().email("Invalid email").required("Email is required"),
+    // phoneNumber: Yup.string()
+    //   .matches(/^\d{10}$/, "Please enter 10 digits")
+    //   .required("Phone Number is required"),
     addressLine1: Yup.string().required("Address Line 1 is required"),
+    addressLine2: Yup.string().required("Address Line 2 is required"),
     city: Yup.string().required("City is required"),
-    zipCode: Yup.string().required("Zip Code is required"),
+    zipCode: Yup.string().required("Pincode is required"),
   });
 
   const validationSchemaAccount = Yup.object().shape({
@@ -177,23 +180,25 @@ function Profile() {
     ifscCode: Yup.string().required("IFSC is required"),
   });
 
-  const handleSubmit = async (values, { setSubmitting }) => {
+  const handleSubmit = async (values, setSubmitting) => {
+    // e.target.preventDefault();
+    console.log(values, "-=-");
     const token = localStorage.getItem("logintoken");
     try {
       const userData = jwtDecode(token);
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/User/UpdateUserBasicDetail",
+
+      const response = await API.post(
+        "/User/UpdateUserBasicDetail",
         {
           id: userData?.UserDetails?.Id,
           firstName: values?.firstName,
           lastName: values?.lastName,
-          email: values?.email,
-          phoneNumber: Number(values?.phoneNumber),
           addressLine1: values?.addressLine1,
           addressLine2: values?.addressLine2,
           city: values?.city,
-          stateId: Number(countryState),
+          stateId: Number(values?.state),
           zipCode: values?.zipCode,
+          isActive: true,
         },
         {
           headers: {
@@ -204,7 +209,7 @@ function Profile() {
       const { data } = response;
 
       await setKey("profile");
-      setSubmitting(false);
+      // setSubmitting(false);
       Notification("success", "Profile Updated SuccessFully");
     } catch (error) {
       console.log(error);
@@ -222,19 +227,19 @@ function Profile() {
     const token = localStorage.getItem("logintoken");
     try {
       const userData = jwtDecode(token);
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/User/UpdateUserKYCDetail",
+      const response = await API.post(
+        "/User/UpdateUserKYCDetail",
         {
           id: userData?.UserDetails?.Id,
           bankName: values?.bankName,
           accountNumber: values?.accountNumber,
           ifscCode: values?.ifscCode,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
         }
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // }
       );
       const { data } = response;
       await setKey("home");
@@ -253,8 +258,10 @@ function Profile() {
   };
 
   const handleSelectStateoption = ({ target }) => {
-    SetCountryState(target.value);
-    setErrorStateType("");
+    setProfileState((oldState) => {
+      return { ...oldState, countryState: target.value };
+    });
+    // SetCountryState(target.value);
   };
 
   const handlePreviewFile = (file) => {
@@ -289,6 +296,20 @@ function Profile() {
       event.preventDefault();
     }
   };
+  const getCityByPincode = async (pincode) => {
+    try {
+      const response = await axios.get(
+        `https://dev.yowza.international/location/details/${pincode}`
+      );
+      // Assuming the response object has a field `city` that contains the city name
+      const { places, state, country, City } = response.data.data;
+      return City;
+    } catch (error) {
+      Notification("error", "Invalid Pincode");
+      console.error("An error occurred while fetching data: ", error);
+      return null;
+    }
+  };
 
   return (
     <div class="profile-page-section">
@@ -306,18 +327,27 @@ function Profile() {
             onSubmit={handleSubmit}
             enableReinitialize
           >
-            {({ isSubmitting }) => (
+            {({
+              isSubmitting,
+              values,
+              handleChange,
+              errors,
+              setFieldValue,
+            }) => (
               <Form class="form">
-                <div class="col-1 mx-auto mb-2">
+                {console.log(values, errors)}
+                {/* <div class="col-1 mx-auto mb-2">
                   <img src="/images/user.png" alt="" />
-                </div>
+                </div> */}
                 <div class="row">
+                  <h3 class="text-head">Basic Details</h3>
                   <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
                     <label for="first-name">First Name</label>
                     <Field
+                      id="firstName"
                       type="text"
                       name="firstName"
-                      disabled
+                      onChange={handleChange}
                       placeholder="Enter First Name"
                     />
                     <ErrorMessage
@@ -331,7 +361,7 @@ function Profile() {
                     <Field
                       type="text"
                       name="lastName"
-                      disabled
+                      onChange={handleChange}
                       placeholder="Enter Last Name"
                     />
                     <ErrorMessage
@@ -340,30 +370,17 @@ function Profile() {
                       className="error"
                     />
                   </div>
-                  <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
-                    <label for="email">E-mail</label>
 
-                    <Field
-                      type="email"
-                      name="email"
-                      disabled
-                      placeholder="Enter  Email"
-                    />
-                    <ErrorMessage
-                      name="email"
-                      component="div"
-                      className="error"
-                    />
-                  </div>
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                  <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
                     <label for="phone">Contact No</label>
 
                     <div className="mobile-number-input">
-                      <img src="/images/india_2.png" className="indiaFlag" />
-                      <span className="country-code">+91</span>
+                      {/* <img src="/images/india_2.png" className="indiaFlag" />
+                      <span className="country-code">+91</span> */}
                       <Field
                         type="text"
                         name="phoneNumber"
+                        // onChange={handleChange}
                         disabled
                         placeholder="Enter  Contact Number"
                       />
@@ -375,20 +392,25 @@ function Profile() {
                       className="error"
                     />
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                    <label for="phone">City:</label>
+                  <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
+                    <label for="email">E-mail</label>
 
                     <Field
-                      type="text"
-                      name="city"
-                      placeholder="Plese Enter  City"
+                      type="email"
+                      name="email"
+                      // onChange={handleChange}
+                      disabled
+                      placeholder="Enter  Email"
                     />
                     <ErrorMessage
-                      name="city"
+                      name="email"
                       component="div"
                       className="error"
                     />
                   </div>
+                </div>
+                <div class="row">
+                  <h3 class="text-head">Address</h3>
                   <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
                     <label for="address"> Address Line 1 :</label>
 
@@ -396,6 +418,7 @@ function Profile() {
                       type="text"
                       name="addressLine1"
                       placeholder="Address Line 1"
+                      onChange={handleChange}
                     />
                     <ErrorMessage
                       name="addressLine1"
@@ -409,19 +432,41 @@ function Profile() {
                       type="text"
                       name="addressLine2"
                       placeholder="Address Line 2"
+                      onChange={handleChange}
+                    />
+                    <ErrorMessage
+                      name="addressLine2"
+                      component="div"
+                      className="error"
+                    />
+                  </div>
+                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
+                    <label for="phone">City:</label>
+
+                    <Field
+                      type="text"
+                      name="city"
+                      onChange={handleChange}
+                      placeholder="Plese Enter  City"
+                    />
+                    <ErrorMessage
+                      name="city"
+                      component="div"
+                      className="error"
                     />
                   </div>
 
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
                     <label for="phone">State:</label>
                     <>
                       {countryStateOption && countryStateOption.length > 0 && (
                         <select
                           className="selectDrop form-select"
                           // aria-label="Default select example"
-                          value={countryState}
-                          // initialValues={countryState?.stateId}
-                          onChange={handleSelectStateoption}
+                          name="state"
+                          onChange={handleChange}
+                          initialValues={values?.state}
+                          // onChange={handleSelectStateoption}
                         >
                           <option disabled={true} value="">
                             Select State
@@ -434,17 +479,30 @@ function Profile() {
                         </select>
                       )}
                     </>
-                    {errorStateType && (
-                      <p style={{ color: "red" }}>{errorStateType}</p>
-                    )}
+                    {/* {errorStateType && (
+                      <p className="all_error">{errorStateType}</p>
+                    )} */}
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                    <label for="phone">Zip/Postal Code:</label>
+                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
+                    <label for="phone">Pincode:</label>
 
                     <Field
                       type="number"
                       name="zipCode"
-                      placeholder="Plese Enter zipCode"
+                      maxLength="6"
+                      placeholder="Plese Enter Pincode"
+                      onChange={async (e) => {
+                        handleChange(e);
+                        const pincode = e.target.value;
+
+                        // Assuming getCityByPincode is a function that fetches city based on pincode
+                        if (pincode.length === 6) {
+                          const city = await getCityByPincode(pincode);
+                          if (city) {
+                            setFieldValue("city", city);
+                          }
+                        }
+                      }}
                       onKeyPress={(event) => {
                         handleKeyPress(event);
                       }}
@@ -461,7 +519,7 @@ function Profile() {
                   <button
                     type="submit"
                     class="profile-btn me-3"
-                    disabled={isSubmitting}
+                    // disabled={isSubmitting}
                   >
                     Save
                   </button>
@@ -507,15 +565,13 @@ function Profile() {
                             >
                               {file?.name}
                             </span>
-                            <button
-                              class="delete_button"
+                            <i
+                              class="delete_button fa-solid fa-xmark"
                               onClick={() =>
                                 handleRemoveFile("aadharFront", index)
                               }
                               style={{ cursor: "pointer" }}
-                            >
-                              Delete
-                            </button>
+                            ></i>
                           </div>
                         </div>
                       ))}
@@ -554,15 +610,13 @@ function Profile() {
                             >
                               {file?.name}
                             </span>
-                            <button
-                              class="delete_button"
+                            <i
+                              class="delete_button fa-solid fa-xmark"
                               onClick={() =>
                                 handleRemoveFile("aadharBack", index)
                               }
                               style={{ cursor: "pointer" }}
-                            >
-                              Delete
-                            </button>
+                            ></i>
                           </div>
                         </div>
                       ))}
@@ -668,423 +722,6 @@ function Profile() {
         </Tab>
       </Tabs>
     </div>
-
-    // <div class="profile-page-section">
-    //   <Nav variant="tabs" defaultActiveKey="basic">
-    //     <Nav.Item>
-    //       <Nav.Link eventKey="basic" onSelect={() => handleTabChange("basic")}>
-    //         Basic Details
-    //       </Nav.Link>
-    //     </Nav.Item>
-    //     <Nav.Item>
-    //       <Nav.Link eventKey="kyc" onSelect={() => handleTabChange("kyc")}>
-    //         KYC Details
-    //       </Nav.Link>
-    //     </Nav.Item>
-    //   </Nav>
-
-    //   <Tab.Content style={{ display: "block" }}>
-    //     <Tab.Pane eventKey="basic">
-    //       {/* Render Basic Details Form */}
-
-    //       <Formik
-    //         initialValues={initialValues}
-    //         validationSchema={validationSchema}
-    //         onSubmit={handleSubmit}
-    //         enableReinitialize
-    //       >
-    //         {({ isSubmitting }) => (
-    //           <Form>
-    //             <div class="col-1 mx-auto mb-2">
-    //               <img src="/images/user.png" alt="" />
-    //             </div>
-    //             <div class="row">
-    //               <div
-    //                 class="col-lg
-    //           -4 col-md-6 col-sm-12 m-basics"
-    //               >
-    //                 <label for="first-name">First Name</label>
-    //                 {/* <input
-    //               type="text"
-    //               id="first-name"
-    //               name="firstName"
-    //               placeholder="John Test"
-    //               value={profileState.firstName}
-    //               onChange={handleChange}
-    //               required
-    //             /> */}
-    //                 <Field type="text" name="firstName" />
-    //                 <ErrorMessage
-    //                   name="firstName"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-    //               <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
-    //                 <label for="email">E-mail</label>
-    //                 {/* <input
-    //               type="email"
-    //               id="email"
-    //               placeholder="johntest@gmail.com"
-    //               name="email"
-    //               onChange={handleChange}
-    //               value={profileState?.email}
-    //               required
-    //             /> */}
-    //                 <Field type="email" name="email" />
-    //                 <ErrorMessage
-    //                   name="email"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-
-    //               <div class="col-lg-4 col-md-6 col-sm-12 m-basics">
-    //                 <label for="phone">Contact No</label>
-    //                 {/* <input
-    //               type={"number"}
-    //               id="number"
-    //               // placeholder=""
-    //               name="Phone"
-    //               onChange={handleChange}
-    //               value={profileState?.email}
-    //               required
-    //             /> */}
-    //                 {/* <PhoneInput
-    //               style={{
-    //                 borderLeft: "1px solid #eef1ff",
-    //                 borderTop: "1px solid #eef1ff",
-    //                 borderBottom: "1px solid #eef1ff",
-    //               }}
-    //               international
-    //               name="phoneNumber"
-    //               defaultCountry="IN"
-    //               placeholder="+91 9999999999"
-    //               value={profileState?.phoneNumber}
-    //               onChange={setPhoneValue}
-    //             /> */}
-    //                 <Field type="text" name="phoneNumber" />
-    //                 <ErrorMessage
-    //                   name="phoneNumber"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-    //             </div>
-    //             <div class="row">
-    //               <div class="col-lg-12 col-md-12 col-sm-12 m-basics">
-    //                 <label for="address"> Address Line 1 :</label>
-    //                 {/* <input
-    //               id="address"
-    //               placeholder="A-301 Santosa Heights"
-    //               name="address1"
-    //               rows="1"
-    //               value={profileState?.address1}
-    //               onChange={handleChange}
-    //             ></input> */}
-    //                 <Field type="text" name="addressLine1" />
-    //                 <ErrorMessage
-    //                   name="addressLine1"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-    //             </div>
-    //             <div className="row">
-    //               <div class="col-lg-12 col-md-12 col-sm-12 m-basics">
-    //                 <label for="address-2"> Address Line 2 :</label>
-    //                 {/* <input
-    //               id="address-2"
-    //               name="address2"
-    //               placeholder="near Royal Farm,satellite"
-    //               rows="1"
-    //               value={profileState?.address2}
-    //               onChange={handleChange}
-    //             ></input> */}
-    //                 <Field type="text" name="addressLine2" />
-    //               </div>
-    //             </div>
-
-    //             <div class="row">
-    //               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-    //                 <label for="phone">City:</label>
-    //                 {/* <input
-    //               type="text"
-    //               placeholder="Surat"
-    //               id="city"
-    //               value={profileState?.city}
-    //               name="city"
-    //               onChange={handleChange}
-    //               // value="9237781246"
-    //               required
-    //             /> */}
-    //                 <Field type="text" name="city" />
-    //                 <ErrorMessage
-    //                   name="city"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-    //               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-    //                 <label for="phone">State:</label>
-    //                 {/* <input
-    //               type="text"
-    //               value={profileState?.state}
-    //               id="state"
-    //               placeholder="Gujarat"
-    //               name="state"
-    //               onChange={handleChange}
-    //               // value="9237781246"
-    //               required
-    //             /> */}
-    //                 <Field type="text" name="state" />
-    //                 <ErrorMessage
-    //                   name="state"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-
-    //               <div class="col-lg-3 col-md-6 col-sm-12 m-basics">
-    //                 <label for="phone">Zip/Postal Code:</label>
-    //                 {/* <input
-    //               type="text"
-    //               id="zip"
-    //               placeholder="394101"
-    //               name="zipCode"
-    //               value={profileState?.zip}
-    //               onChange={handleChange}
-    //               // value="9237781246"
-    //               required
-    //             /> */}
-    //                 <Field type="text" name="zipCode" />
-    //                 <ErrorMessage
-    //                   name="zipCode"
-    //                   component="div"
-    //                   className="error"
-    //                 />
-    //               </div>
-    //             </div>
-
-    //             <div class="btn-section">
-    //               <button
-    //                 type="submit"
-    //                 class="profile-btn"
-    //                 disabled={isSubmitting}
-    //               >
-    //                 Save
-    //               </button>
-    //             </div>
-    //           </Form>
-    //         )}
-    //       </Formik>
-    //     </Tab.Pane>
-    //     <Tab.Pane eventKey="kyc">
-    //       {/* Render KYC Details Form */}
-    //       <div
-    //         // class="tab-pane fade kyc-details"
-    //         id="nav-kyc"
-    //         // role="tabpanel"
-    //         aria-labelledby="nav-kyc-tab"
-    //         tabindex="0"
-    //       >
-    //         <form action="" class="form ">
-    //           <div class="row">
-    //             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-    //               <h4>PAN Card</h4>
-    //               <div class="input-box ">
-    //                 <input
-    //                   type="file"
-    //                   multiple
-    //                   ref={aRef}
-    //                   class="upload-box"
-    //                   onChange={(e) => handlePanFileChange("panCard", e)}
-    //                 />
-    //               </div>
-    //               {docFiles?.panCard?.length > 0 && (
-    //                 <div>
-    //                   <h4>Selected files:</h4>
-    //                   {docFiles &&
-    //                     docFiles?.panCard?.map((file, index) => (
-    //                       <div key={index}>
-    //                         <div className="selectfile">
-    //                           <p>{file?.name}</p>
-    //                           <i
-    //                             class="fa-solid fa-xmark"
-    //                             onClick={() =>
-    //                               handleRemoveFile("panCard", index)
-    //                             }
-    //                             style={{ cursor: "pointer" }}
-    //                           ></i>
-    //                         </div>
-
-    //                         <div
-    //                           class="progress"
-    //                           role="progressbar"
-    //                           aria-label="Basic example"
-    //                           aria-valuenow="100"
-    //                           aria-valuemin="0"
-    //                           aria-valuemax="100"
-    //                           style={{ height: "6px" }}
-    //                         >
-    //                           <div
-    //                             class="progress-bar"
-    //                             style={{ width: "100%" }}
-    //                           ></div>
-    //                         </div>
-    //                       </div>
-    //                     ))}
-    //                 </div>
-    //               )}
-    //             </div>
-
-    //             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-    //               <h4>Aadhaar Upload- Front Side</h4>
-    //               <div class="input-box ">
-    //                 <input
-    //                   type="file"
-    //                   multiple
-    //                   ref={aRef}
-    //                   class="upload-box"
-    //                   onChange={(e) => handlePanFileChange("aadharFront", e)}
-    //                 />
-    //               </div>
-    //               {docFiles?.aadharFront?.length > 0 && (
-    //                 <div>
-    //                   <h4>Selected files:</h4>
-    //                   {docFiles &&
-    //                     docFiles?.aadharFront?.map((file, index) => (
-    //                       <div key={index}>
-    //                         <div className="selectfile">
-    //                           <p>{file?.name}</p>
-    //                           <i
-    //                             class="fa-solid fa-xmark"
-    //                             onClick={() =>
-    //                               handleRemoveFile("aadharFront", index)
-    //                             }
-    //                             style={{ cursor: "pointer" }}
-    //                           ></i>
-    //                         </div>
-
-    //                         <div
-    //                           class="progress"
-    //                           role="progressbar"
-    //                           aria-label="Basic example"
-    //                           aria-valuenow="100"
-    //                           aria-valuemin="0"
-    //                           aria-valuemax="100"
-    //                           style={{ height: "6px" }}
-    //                         >
-    //                           <div
-    //                             class="progress-bar"
-    //                             style={{ width: "100%" }}
-    //                           ></div>
-    //                         </div>
-    //                       </div>
-    //                     ))}
-    //                 </div>
-    //               )}
-    //             </div>
-
-    //             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-    //               <h4>Aadhaar Upload- Back Side</h4>
-    //               <div class="input-box ">
-    //                 <input
-    //                   type="file"
-    //                   multiple
-    //                   ref={aRef}
-    //                   class="upload-box"
-    //                   onChange={(e) => handlePanFileChange("aadharBack", e)}
-    //                 />
-    //               </div>
-    //               {docFiles?.aadharBack?.length > 0 && (
-    //                 <div>
-    //                   <h4>Selected files:</h4>
-    //                   {docFiles &&
-    //                     docFiles?.aadharBack?.map((file, index) => (
-    //                       <div key={index}>
-    //                         <div className="selectfile">
-    //                           <p>{file?.name}</p>
-    //                           <i
-    //                             class="fa-solid fa  -xmark"
-    //                             onClick={() =>
-    //                               handleRemoveFile("aadharBack", index)
-    //                             }
-    //                             style={{ cursor: "pointer" }}
-    //                           ></i>
-    //                         </div>
-
-    //                         <div
-    //                           class="progress"
-    //                           role="progressbar"
-    //                           aria-label="Basic example"
-    //                           aria-valuenow="100"
-    //                           aria-valuemin="0"
-    //                           aria-valuemax="100"
-    //                           style={{ height: "6px" }}
-    //                         >
-    //                           <div
-    //                             class="progress-bar"
-    //                             style={{ width: "100%" }}
-    //                           ></div>
-    //                         </div>
-    //                       </div>
-    //                     ))}
-    //                 </div>
-    //               )}
-    //             </div>
-    //           </div>
-    //           <div class="row">
-    //             <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-    //               <label for="bank-name">Bank Name</label>
-    //               <input
-    //                 type="text"
-    //                 id="bank-name"
-    //                 name="bank-name"
-    //                 onChange={handleKycOnchange}
-    //                 // value="HDFC Bank"
-    //                 required
-    //               />
-    //             </div>
-    //             <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-    //               <label for="ac-number">Account Number</label>
-    //               <input
-    //                 type="number"
-    //                 id="ac-number"
-    //                 name="ac-number"
-    //                 required
-    //                 onChange={handleKycOnchange}
-    //               />
-    //             </div>
-    //             <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-    //               <label for="ac-number">Confirm Account Number</label>
-    //               <input
-    //                 type="number"
-    //                 id="ac-number"
-    //                 name="ac-number"
-    //                 required
-    //                 onChange={handleKycOnchange}
-    //               />
-    //             </div>
-    //             <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-    //               <label for="IFSC">IFSC Code</label>
-    //               <input
-    //                 type="text"
-    //                 id="IFSC"
-    //                 name="IFSC"
-    //                 required
-    //                 onChange={handleKycOnchange}
-    //               />
-    //             </div>
-    //           </div>
-    //           <div class="btn-section">
-    //             <button class="profile-btn">Save</button>
-    //           </div>
-    //         </form>
-    //       </div>
-    //     </Tab.Pane>
-    //   </Tab.Content>
-    // </div>
   );
 }
 

@@ -9,6 +9,7 @@ import { NotificationContainer } from "react-notifications";
 import { wrapper } from "../store";
 
 function App({ Component, pageProps }) {
+  // useAutoLogout(25 * 60 * 1000);
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);

@@ -2,133 +2,103 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Preloader from "../../../components/preloader/Preloader";
+import API from "../../../helper/API";
 
 function ViewLoan() {
   const router = useRouter();
   const { id } = router.query;
   const [loanData, setLoanData] = useState("");
   const [documentData, setDocumentData] = useState("");
+  const [otherArray, setOtherArray] = useState("");
   const [commentData, setCommentData] = useState("");
 
+  console.log(commentData, "=--=");
   useEffect(() => {
-    const token = localStorage.getItem("logintoken");
+    const { id } = router.query;
+    try {
+      if (id) {
+        const token = localStorage.getItem("logintoken");
 
-    const GetLoanById = async (token) => {
-      // const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.get(
-          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetById?id=${id}`,
+        const GetLoanById = async (token) => {
+          // const token = localStorage.getItem("logintoken");
+          try {
+            const response = await API.get(
+              `/LoanApplication/GetById?id=${id}`
 
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+              // {
+              //   headers: {
+              //     Authorization: `Bearer ${token}`,
+              //   },
+              // }
+            );
+            const { data } = response;
+
+            setLoanData(data.value);
+          } catch (error) {
+            console.log(error);
+            // Notification("error", error?.response?.data[0]?.errorMessage);
           }
-        );
-        const { data } = response;
+        };
+        const GetDocumentById = async (token) => {
+          // const token = localStorage.getItem("logintoken");
+          try {
+            const response = await API.get(
+              `/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`
 
-        setLoanData(data.value);
-      } catch (error) {
-        console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
-      }
-    };
-    const GetDocumentById = async (token) => {
-      // const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.get(
-          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`,
+              // {
+              //   headers: {
+              //     Authorization: `Bearer ${token}`,
+              //   },
+              // }
+            );
+            const { data } = response;
+            const originalArray = data.value;
 
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            // let main_array = [];
+            // let other_array = [];
+            // originalArray.forEach((item) => {
+            //   if (item.documentType === "Other") {
+            //     other_array.push(item);
+            //   } else {
+            //     main_array.push(item);
+            //   }
+            // });
+
+            setDocumentData(originalArray);
+            // setOtherArray(other_array);
+          } catch (error) {
+            console.log(error);
+            // Notification("error", error?.response?.data[0]?.errorMessage);
           }
-        );
-        const { data } = response;
+        };
+        const GetCommentById = async (token) => {
+          // const token = localStorage.getItem("logintoken");
+          try {
+            const response = await API.get(
+              `/LoanApplication/GetQueryByLoanApplicationId?id=${id}`
+              // {
+              //   headers: {
+              //     Authorization: `Bearer ${token}`,
+              //   },
+              // }
+            );
+            const { data } = response;
 
-        setDocumentData(data.value);
-      } catch (error) {
-        console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
-      }
-    };
-    const GetCommentById = async (token) => {
-      // const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.get(
-          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetLoanApplicationHistory?loanApplicationId=${id}`,
-
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+            setCommentData(data.value);
+          } catch (error) {
+            console.log(error);
+            // Notification("error", error?.response?.data[0]?.errorMessage);
           }
-        );
-        const { data } = response;
+        };
 
-        setCommentData(data.value);
-      } catch (error) {
-        console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
+        GetLoanById(token);
+        GetDocumentById(token);
+        GetCommentById(token);
       }
-    };
-
-    GetLoanById(token);
-    GetDocumentById(token);
-    GetCommentById(token);
+    } catch (error) {
+      console.log(error);
+    }
   }, [id]);
-
-  const [docFiles, setdocFiles] = useState([]);
-
-  const aRef = useRef(null);
-  const handlePanFileChange = (event) => {
-    const files = event.target.files;
-    const fileArray = Array.from(files);
-    setdocFiles([...docFiles, ...fileArray]);
-  };
-
-  const handleRemoveFile = (index) => {
-    setdocFiles((prevFiles) => {
-      const updatedFiles = [...prevFiles];
-      if (updatedFiles.length === 1) aRef.current.value = null;
-      updatedFiles.splice(index, 1);
-      return updatedFiles;
-    });
-  };
-  const [documentFields, setDocumentFields] = useState([]);
-
-  const addDynamicField = () => {
-    setDocumentFields((prevFields) => [
-      ...prevFields,
-      { label: "", value: "", editLabel: true },
-    ]);
-  };
-
-  const handleLabelChange = (index, event) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].label = event.target.value;
-    setDocumentFields(updatedFields);
-  };
-
-  const handleValueChange = (index, event) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].value = event.target.value;
-    setDocumentFields(updatedFields);
-  };
-
-  const toggleEditLabel = (index) => {
-    const updatedFields = [...documentFields];
-    updatedFields[index].editLabel = !updatedFields[index].editLabel;
-    setDocumentFields(updatedFields);
-  };
-
-  const deleteField = (index) => {
-    const updatedFields = [...documentFields];
-    updatedFields.splice(index, 1);
-    setDocumentFields(updatedFields);
-  };
-
   return (
     <div>
       <Preloader />
@@ -207,10 +177,10 @@ function ViewLoan() {
                     />
                   </div>
                   <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
-                    <label for="phone">Contact No</label>
+                    <label for="phone">Contact No.</label>
                     <div className="mobile-number-input">
-                      <img src="/images/india_2.png" className="indiaFlag" />
-                      <span className="country-code">+91</span>
+                      {/* <img src="/images/india_2.png" className="indiaFlag" />
+                      <span className="country-code">+91</span> */}
                       <input
                         type="number"
                         id="phone"
@@ -221,7 +191,33 @@ function ViewLoan() {
                       />
                     </div>
                   </div>
-                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="state">Pincode</label>
+                      <input
+                        type="text"
+                        id="postalCode"
+                        placeholder="394101"
+                        value={loanData?.postalCode}
+                        required=""
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="state">City</label>
+                      <input
+                        type="text"
+                        id="city"
+                        placeholder="Gujarat"
+                        value={loanData?.city}
+                        required=""
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                     <div class="single-input">
                       <label for="state">State</label>
                       <input
@@ -234,7 +230,8 @@ function ViewLoan() {
                       />
                     </div>
                   </div>
-                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                     <label for="loan-status">Loan Status</label>
                     <input
                       type="loan-status"
@@ -245,8 +242,8 @@ function ViewLoan() {
                       disabled
                     />
                   </div>
-                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
-                    <label for="Loan-Amount">Loan Amount</label>
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
+                    <label for="Loan-Amount">Loan Amount (INR)</label>
                     <input
                       type="number"
                       id="Loan-Amount"
@@ -256,14 +253,14 @@ function ViewLoan() {
                     />
                   </div>
 
-                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                     <div class="single-input">
-                      <label for="term">Loan Tenure</label>
+                      <label for="term">Loan Tenure (Year)</label>
                       <input
                         type="text"
                         value={loanData?.tenure}
                         id="term"
-                        placeholder="1 Year"
+                        placeholder="0"
                         disabled
                       />
                     </div>
@@ -281,7 +278,6 @@ function ViewLoan() {
                                 <th scope="col">Sr.No</th>
 
                                 <th scope="col">Bank Name</th>
-                                <th scope="col">Rate of interest</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -294,7 +290,6 @@ function ViewLoan() {
                                         <tr key={index}>
                                           <td>{index + 1}</td>
                                           <td>{elm?.bankName}</td>
-                                          <td>{elm?.interestRate}</td>
                                         </tr>
                                       </>
                                     );
@@ -310,7 +305,7 @@ function ViewLoan() {
                   ""
                 )}
                 <div class="loan-content-body">
-                  <h5>Comment History</h5>
+                  <h5>Query History</h5>
                   <div class="loan-section-table">
                     <div class="table-responsive">
                       <table class="table ">
@@ -319,35 +314,86 @@ function ViewLoan() {
                             <th>Status</th>
                             <th>Comment</th>
                             <th>Remarks</th>
-                            <th>View</th>
                           </tr>
                         </thead>
                         <tbody>
-                          <tr>
-                            <td>
-                              <span class="all-btn Accepted-btn">New</span>
-                            </td>
-                            <td>Light Bill not found</td>
-                            <td>
-                              {/* {loanData?.status === "Incomplete" ||
+                          {commentData &&
+                            // commentData.length &&
+                            commentData.map((elm, index) => {
+                              return (
+                                <tr key={index}>
+                                  <td>
+                                    <span
+                                      class={`all-btn query_all_button ${
+                                        elm?.status === "Pending"
+                                          ? "Rejected-btn"
+                                          : elm?.status === "Query"
+                                          ? "qyery-btn"
+                                          : elm?.status === "Reject"
+                                          ? "Rejected-btn"
+                                          : elm?.status === "Submitted"
+                                          ? "Approved-btn"
+                                          : elm?.status === "Incomplete"
+                                          ? "Process-btn"
+                                          : ""
+                                      }`}
+                                    >
+                                      {elm?.status === "Query"
+                                        ? elm?.status === "Pending"
+                                        : elm?.status}
+                                    </span>
+                                  </td>
+                                  <td>{elm?.comment}</td>
+                                  <td>
+                                    {/* {loanData?.status === "Incomplete" ||
                               loanData?.status === "Query" ? (
                                 <input
                                   type="text"
                                   placeholder="Enter your comment "
                                 />
                               ) : ( */}
-                              <span className="remark">
-                                GST Certificate has been received
-                              </span>
-                              {/* )} */}
-                            </td>
-                            <td>
-                              {" "}
-                              <i class="fa-regular fa-eye" />
-                            </td>
-                          </tr>
+                                    <span className="remark">
+                                      {elm.remark ? elm.remark : ""}
+                                      {/* GST Certificate has been received */}
+                                    </span>
+                                    <div className="query_row_remark">
+                                      {elm.documentList.length ? (
+                                        <ul>
+                                          <h5 class="text-head">
+                                            Uploaded Document
+                                          </h5>
+                                          {elm.documentList.length > 0 &&
+                                            elm.documentList.map(
+                                              (detail, i) => (
+                                                <div key={i}>
+                                                  <a
+                                                    href={detail.documentURL}
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="document_hyper_link"
+                                                  >
+                                                    {detail.documentName}
+                                                  </a>
+                                                </div>
+                                                // <li key={i}>-{detail.documentName}</li>
+                                              )
+                                            )}
+                                        </ul>
+                                      ) : (
+                                        ""
+                                      )}
+                                    </div>
+                                    {/* )} */}
+                                  </td>
+                                  {/* <td>
+                                    {" "}
+                                    <i class="fa-regular fa-eye" />
+                                  </td> */}
+                                </tr>
+                              );
+                            })}
 
-                          <tr>
+                          {/* <tr>
                             <td>
                               <span class="all-btn Re-Active-btn">
                                 ReActivate
@@ -363,8 +409,8 @@ function ViewLoan() {
                               {" "}
                               <i class="fa-regular fa-eye" />
                             </td>
-                          </tr>
-                          <tr>
+                          </tr> */}
+                          {/* <tr>
                             <td>
                               <span class="all-btn Process-btn">Re-submit</span>
                             </td>
@@ -378,11 +424,11 @@ function ViewLoan() {
                               {" "}
                               <i class="fa-regular fa-eye" />
                             </td>
-                          </tr>
+                          </tr> */}
                         </tbody>
                       </table>
                     </div>
-                    <div class="text-end">
+                    {/* <div class="text-end">
                       <div class="pagination">
                         <a href="#">&laquo;</a>
                         <a href="#" class="active">
@@ -393,7 +439,7 @@ function ViewLoan() {
                         <a href="#">4</a>
                         <a href="#">&raquo;</a>
                       </div>
-                    </div>
+                    </div> */}
                   </div>
                 </div>
               </div>
@@ -413,9 +459,38 @@ function ViewLoan() {
             tabindex="0"
           >
             <div class="form">
-              <>
+              {/* <>
                 {documentData && documentData.length
                   ? documentData.map((elm, index) => {
+                      return (
+                        <>
+                          <div class="row">
+                            <div
+                              class="my-4 col-lg-12 col-md-12 col-sm-12"
+                              key={index}
+                            >
+                              <h4 style={{ marginLeft: "0px" }}>
+                                {elm?.documentType}
+                              </h4>
+
+                              <button
+                                className="document_hyper_link"
+                                onClick={() =>
+                                  window.open(elm?.documentURL, "_blank")
+                                }
+                              >
+                                Open
+                              </button>
+                            </div>
+                          </div>
+                        </>
+                      );
+                    })
+                  : ""}
+
+                <h4 class="text-head">Other Document</h4>
+                {otherArray && otherArray.length
+                  ? otherArray.map((elm, index) => {
                       return (
                         <>
                           <div class="row">
@@ -427,20 +502,73 @@ function ViewLoan() {
                                 {elm?.otherDocumentName}
                               </h4>
 
-                              <span
+                              <button
                                 className="document_hyper_link"
                                 onClick={() =>
                                   window.open(elm?.documentURL, "_blank")
                                 }
                               >
-                                {elm?.documentURL}
-                              </span>
+                                Open
+                              </button>
                             </div>
                           </div>
                         </>
                       );
                     })
                   : "No Document Uploaded"}
+              </> */}
+
+              <>
+                {/* {Object.keys(groupedDocuments).map((documentType) => (
+                  <div key={documentType}>
+                    <h4 class="text-head">{documentType}</h4>
+                    <ul>
+                      {groupedDocuments[documentType].map((doc, index) => (
+                        <div key={index}>
+                          {console.log(doc)}
+                          <a
+                            href={doc.url}
+                            target="_blank"
+                            className="document_hyper_link"
+                          >
+                            {doc.name}
+                          </a>
+                        </div>
+                      ))}
+                    </ul>
+                  </div>
+                ))} */}
+
+                {documentData &&
+                  documentData.map((item, index) => (
+                    <div key={index}>
+                      <h4 class="text-head">
+                        {item.documentName === "Other"
+                          ? "Other Document"
+                          : item.documentName}
+                      </h4>
+
+                      <ul>
+                        {item.documentDetail.length > 0 ? (
+                          item.documentDetail.map((detail, i) => (
+                            <div key={index}>
+                              <a
+                                href={detail.documentURL}
+                                target="_blank"
+                                rel="noreferrer"
+                                className="document_hyper_link"
+                              >
+                                {detail.documentName}
+                              </a>
+                            </div>
+                            // <li key={i}>-{detail.documentName}</li>
+                          ))
+                        ) : (
+                          <li>-No document uploaded</li>
+                        )}
+                      </ul>
+                    </div>
+                  ))}
               </>
             </div>
             {/* <form action="" class="form">

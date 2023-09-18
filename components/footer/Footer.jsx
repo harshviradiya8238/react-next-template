@@ -94,11 +94,7 @@ const Footer = () => {
               <h5>Subscribe</h5>
               <form>
                 <div className="form-group">
-                  <input
-                    type="text"
-                    placeholder="Enter Your Email address"
-                    required
-                  />
+                  <input type="text" placeholder="Email address" required />
                   <button className="cmn-btn">Subscribe</button>
                 </div>
               </form>
