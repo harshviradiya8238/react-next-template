@@ -674,15 +674,14 @@ function LoanApplication() {
   };
 
   const handleUploadForField = async (id, name) => {
-    console.log("sdasdasd", docFiles[name]);
     const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
-    console.log(files);
 
     const formData = new FormData();
+    console.log(files, "----------------------------------------------");
     files &&
       files.forEach(async (element, index) => {
+        console.log(element, "=====================");
         // Here 'files' is the FormData key. It may vary based on your backend requirement.
-
         formData.append("DocumentTypeId", element.documentTypeId);
         formData.append("Documents", element);
         formData.append("LoanApplicationId", loanApplicationId);
@@ -817,9 +816,11 @@ function LoanApplication() {
                               {bankOption && bankOption.length > 0 ? (
                                 <>
                                   <div class="table-section">
-                                    <h4 class="text-head">
+                                    <span className="text-head">
+                                      {" "}
                                       Choose your Preference
-                                    </h4>
+                                    </span>
+
                                     {/* <h4> Choose your Preference</h4> */}
                                     <table class="table">
                                       <thead>

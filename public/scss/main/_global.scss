@@ -798,6 +798,19 @@ li {
 
 
 }
+.profile-btn{
+  color: white;
+  background-color: var(--theam-color);
+  box-shadow: 0 20px 20px rgba(26,77,190,.2);
+  margin-bottom: 20px;
+  // width: 150px;
+  padding: 10px 30px !important;
+  transition: all .3s;
+  &:hover{
+      background-color: transparent;
+      color: var(--black);
+  }
+}
 .wrapper_close{
   width: 100%;
   transition: all ease-in-out 0.5s;
@@ -875,11 +888,12 @@ li {
 }
 .delete_button{
 
-  color: red !important;
+    color: red !important;
     // height: 26px;
     // width: 52px;
     font-size: medium;
     cursor: pointer;
+   
 }
 .delete_div{
   display: flex;
@@ -951,9 +965,9 @@ button:disabled,
   width:50% !important;
 }
 .thankYou_button .go_to_dashbaord{
-  color: "blue" !important;
-                                    border-bottom: "1px solid" !important;
-                                    margin-bottom: "10px" !important;
+  color: blue !important;
+                                    border-bottom: 1px solid !important;
+                                    margin-bottom: 10px !important;
 }
 .login_Name{
   color: #1a4dbe;
@@ -999,4 +1013,14 @@ button:disabled,
 }
 .input-box{
   max-width: 141px;
+}
+.custom_padding{
+ padding:20px 0px !important
+}
+.pointer{
+  cursor: pointer;
+}
+.upload_btn{
+  font-size:medium;
+  margin-left:10px
 }

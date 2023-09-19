@@ -213,7 +213,10 @@ function ViewLoan() {
     }
   };
   const initialValues = {
-    firstName: basicDetailState?.user?.firstName,
+    firstName:
+      basicDetailState?.user?.firstName +
+      " " +
+      basicDetailState?.user?.lastName,
     email: basicDetailState?.user?.email,
     phoneNumber: basicDetailState?.user?.phoneNumber,
     loanStatus: basicDetailState?.status,
@@ -1408,7 +1411,21 @@ function ViewLoan() {
                 <button
                   type="button"
                   className="cmn-btn"
-                  onClick={() => handleSubmitUploadDoc()}
+                  onClick={() => {
+                    const allUploadEmpty = Object.values(uploadedFiles).every(
+                      (array) => array.length === 0
+                    );
+
+                    if (allUploadEmpty && uploadedOtherDocuemnt.length == 0) {
+                      Notification(
+                        "error",
+                        "Please Upload atleast one document "
+                      );
+                      return;
+                    } else {
+                      router.push("/userDashBoard");
+                    }
+                  }}
                 >
                   Submit
                 </button>

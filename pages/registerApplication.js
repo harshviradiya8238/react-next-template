@@ -168,6 +168,7 @@ function RegisterApplication() {
   const [state, setSatate] = useState({
     step1: { firstName: "", lastName: "", email: "", phone: "" },
     step2: { loanType: "", loanAmount: "", loanTerm: "", state: "" },
+    stepVerify: { mobileotp: "", emailotp: "" },
     step3: {
       businessProof: [],
       gst: [],
@@ -288,7 +289,12 @@ function RegisterApplication() {
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
                   >
-                    {({ isSubmitting, values, setFieldValue }) => (
+                    {({
+                      isSubmitting,
+                      values,
+                      setFieldValue,
+                      setFieldError,
+                    }) => (
                       <Form>
                         <Stepper
                           steps={stepsmain}
@@ -366,9 +372,41 @@ function RegisterApplication() {
                                         Previous
                                       </button> */}
                                       <button
-                                        type="button"
+                                        type="submit"
                                         onClick={async () => {
+                                          const { mobileotp, emailotp } =
+                                            values.stepVerify || {};
+
                                           {
+                                            if (
+                                              typeof mobileotp ===
+                                                "undefined" ||
+                                              typeof emailotp === "undefined" ||
+                                              !mobileotp ||
+                                              !emailotp
+                                            ) {
+                                              if (
+                                                typeof mobileotp ===
+                                                  "undefined" ||
+                                                !mobileotp
+                                              ) {
+                                                setFieldError(
+                                                  "stepVerify.mobileotp",
+                                                  "Mobile OTP is required"
+                                                );
+                                              }
+                                              if (
+                                                typeof emailotp ===
+                                                  "undefined" ||
+                                                !emailotp
+                                              ) {
+                                                setFieldError(
+                                                  "stepVerify.emailotp",
+                                                  "Email OTP is required"
+                                                );
+                                              }
+                                              return; // Stop further execution if either of the OTPs is undefined or empty
+                                            }
                                             try {
                                               const response = await axios.post(
                                                 "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",

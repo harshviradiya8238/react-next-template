@@ -218,7 +218,7 @@ export default function DashBoardDefault() {
               {currentItems.length && (
                 <div className="text-end mb-2 ">
                   <Link href="/userDashBoard/myloan">
-                    <button className="fs-5">View More</button>
+                    <button className="fs-5 profile-btn">View More</button>
                   </Link>
                 </div>
               )}

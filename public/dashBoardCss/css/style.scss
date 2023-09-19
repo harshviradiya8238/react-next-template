@@ -47,22 +47,22 @@
 // }
 
 button {
-    width: 100px;
-    height: 45px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 10px 5px;
-    border: 1px solid var(--theam-color);
-    border-radius: 30px;
-    background-color: transparent;
+    // width: 100px;
+    // height: 45px;
+    // display: flex;
+    // justify-content: center;
+    // align-items: center;
+    // padding: 10px 5px;
+    // border: 1px solid var(--theam-color);
+    // border-radius: 30px;
+    // background-color: transparent;
 }
 
 html {
     font-size: 70.6% !important;
 }
 
-:root {
+:root { 
     --theam-color: #1A4DBE;
     --dark-bule: #033678;
     --light-theam-color: #2c3655;
@@ -75,11 +75,9 @@ html {
 
 .all-btn {
     color: var(--white);
-    padding: 4px 17px;
+    padding: 2px 5px;
     border-radius: 5px;
-    width: 68%;
-    // margin-inline: auto;
-    // margin-bottom: 0;
+    width: 50%;
     margin: 0 auto;
     display: inline-block;
     font-size: 14px;
@@ -143,14 +141,15 @@ input:focus {
     outline: none;
   }
 button {
-    width: 100px;
-    height: 45px;
+    // width: 100px;
+    height: 35px;
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 10px 5px;
-    border: 1px solid var(--theam-color);
-    border-radius: 10px;
+    // border: 1px solid var(--theam-color);
+    border:1px solid #efe5e5;
+    border-radius: 5px;
     background-color: transparent;
 }
 
@@ -748,21 +747,10 @@ button {
             display: flex;
             justify-content: end;
             margin-top: 20px;
-            .profile-btn{
-                color: white;
-                background-color: var(--theam-color);
-                box-shadow: 0 20px 20px rgba(26,77,190,.2);
-                margin-bottom: 20px;
-                width: 150px;
-                padding: 10px 30px !important;
-                transition: all .3s;
-                &:hover{
-                    background-color: transparent;
-                    color: var(--black);
-                }
-            }
+            
         }
     }
+   
     
     .kyc-details{
         h4{

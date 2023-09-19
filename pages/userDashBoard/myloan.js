@@ -62,10 +62,14 @@ function Myloan() {
     if (searchValue !== "") {
       try {
         let regex = new RegExp(searchValue.replace(/[\|\\]/g), "i");
+        console.log(searchValue, "==");
         let filteredArr =
           loanApplication &&
           loanApplication?.filter((elem) => {
-            return regex.test(elem.applicationNumber) || elem.status === status;
+            return (
+              regex.test(elem.applicationNumberForLoan) ||
+              elem.status === status
+            );
           });
         return filteredArr;
       } catch (e) {

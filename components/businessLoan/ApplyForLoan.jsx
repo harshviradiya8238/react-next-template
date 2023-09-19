@@ -196,6 +196,7 @@ function ApplyForLoan() {
 
   const [state, setSatate] = useState({
     step1: { firstName: "", lastName: "", email: "", phone: "" },
+    stepVerify: { mobileotp: "", emailotp: "" },
     step2: { loanType: "", loanAmount: "", loanTerm: "", state: "" },
     step3: {
       businessProof: [],
@@ -945,7 +946,12 @@ function ApplyForLoan() {
                     onSubmit={handleSubmit}
                     enableReinitialize
                   >
-                    {({ isSubmitting, values, setFieldValue }) => (
+                    {({
+                      isSubmitting,
+                      values,
+                      setFieldValue,
+                      setFieldError,
+                    }) => (
                       <Form>
                         <Stepper
                           steps={stepsmain}
@@ -1018,17 +1024,44 @@ function ApplyForLoan() {
                                       </div>
                                     </div>
 
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                        alignItems: "center",
-                                      }}
-                                    >
+                                    <div className="d-flex justify-content-start align-items-center">
                                       <button
                                         type="submit"
                                         onClick={async () => {
                                           {
+                                            const { mobileotp, emailotp } =
+                                              values.stepVerify || {};
+
+                                            // Check if the mobile OTP or email OTP is undefined or empty
+                                            if (
+                                              typeof mobileotp ===
+                                                "undefined" ||
+                                              typeof emailotp === "undefined" ||
+                                              !mobileotp ||
+                                              !emailotp
+                                            ) {
+                                              if (
+                                                typeof mobileotp ===
+                                                  "undefined" ||
+                                                !mobileotp
+                                              ) {
+                                                setFieldError(
+                                                  "stepVerify.mobileotp",
+                                                  "Mobile OTP is required1111111111111111"
+                                                );
+                                              }
+                                              if (
+                                                typeof emailotp ===
+                                                  "undefined" ||
+                                                !emailotp
+                                              ) {
+                                                setFieldError(
+                                                  "stepVerify.emailotp",
+                                                  "Email OTP is required"
+                                                );
+                                              }
+                                              return; // Stop further execution if either of the OTPs is undefined or empty
+                                            }
                                             try {
                                               const response = await axios.post(
                                                 "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
@@ -1088,7 +1121,7 @@ function ApplyForLoan() {
                                             }
                                           }
                                         }}
-                                        style={{ width: "auto" }}
+                                        // style={{ width: "auto" }}
                                         className="cmn-btn"
                                         // disabled={
                                         //   !values.step1 ||
@@ -1281,7 +1314,10 @@ function ApplyForLoan() {
                               {bankOption && bankOption.length > 0 ? (
                                 <>
                                   <div class="table-section">
-                                    <h4> Choose your Preference</h4>
+                                    <span className="text-head">
+                                      {" "}
+                                      Choose your Preference
+                                    </span>
                                     <table class="table">
                                       <thead>
                                         <tr>
@@ -1339,17 +1375,10 @@ function ApplyForLoan() {
                                       </tbody>
                                     </table>
                                   </div>
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "flex-start",
-                                      alignItems: "center",
-                                    }}
-                                  >
+                                  <div className="d-flex justify-content-start align-items-center">
                                     <button
                                       type="button"
-                                      className="cmn-btn"
-                                      style={{ marginRight: "10px" }}
+                                      className="cmn-btn me-3"
                                       onClick={() => {
                                         // handlePrevious(setFieldValue, values);
                                         // setFieldValue("activeStep", 1);
@@ -1402,11 +1431,7 @@ function ApplyForLoan() {
                                 </>
                               ) : (
                                 <>
-                                  <div
-                                    style={{
-                                      padding: "20px 0px",
-                                    }}
-                                  >
+                                  <div class="custom_padding">
                                     <>
                                       <div className="row">
                                         <div className="col-6">
@@ -1644,13 +1669,7 @@ function ApplyForLoan() {
                                           </div>
                                         </div>
                                       </div>
-                                      <div
-                                        style={{
-                                          display: "flex",
-                                          justifyContent: "flex-start",
-                                          alignItems: "center",
-                                        }}
-                                      >
+                                      <div className="d-flex justify-content-start align-items-center">
                                         {/* <button
                                           type="button"
                                           className="cmn-btn"
@@ -1692,11 +1711,7 @@ function ApplyForLoan() {
                           {values.activeStep === 2 && (
                             <>
                               <>
-                                <div
-                                  style={{
-                                    padding: "20px 0px",
-                                  }}
-                                >
+                                <div className="custom_padding">
                                   <div class="row">
                                     {documentOption?.length > 0 &&
                                       documentOption.map((data, index) => {
@@ -1726,10 +1741,7 @@ function ApplyForLoan() {
                                                     }
                                                   />
                                                   <button
-                                                    style={{
-                                                      margin: "10px",
-                                                      fontSize: "larger",
-                                                    }}
+                                                    className="upload_btn"
                                                     onClick={() =>
                                                       handleUploadForField(
                                                         data?.id,
@@ -1780,11 +1792,8 @@ function ApplyForLoan() {
                                                                     index
                                                                   )
                                                                 }
-                                                                style={{
-                                                                  cursor:
-                                                                    "pointer",
-                                                                }}
-                                                              ></i>
+                                                                // className="pointer"
+                                                              />
                                                             </div>
                                                           </div>
                                                         </div>
@@ -1834,15 +1843,8 @@ function ApplyForLoan() {
                                           // key={fieldIndex}
                                           class="my-4 col-lg-12 col-md-12 col-sm-12"
                                         >
-                                          <h4 style={{ marginLeft: "0" }}>
-                                            Other Document
-                                          </h4>
-                                          <div
-                                            style={{
-                                              display: "flex",
-                                              alignItems: "center",
-                                            }}
-                                          >
+                                          <label>Other Document</label>
+                                          <div className="d-flex align-items-baseline">
                                             <div>
                                               <input
                                                 type="text"
@@ -1859,22 +1861,14 @@ function ApplyForLoan() {
                                               <input
                                                 type="file"
                                                 accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                                                class="upload-box"
+                                                class="upload-box-userDashboard"
                                                 multiple
                                                 onChange={handleFileChange}
                                               />
                                             </div>
-                                            <div
-                                              style={{
-                                                display: "flex",
-                                                // alignItems: "center",
-                                              }}
-                                            >
+                                            <div className="d-flex">
                                               <button
-                                                style={{
-                                                  margin: "10px",
-                                                  fontSize: "larger",
-                                                }}
+                                                className="upload_btn"
                                                 onClick={
                                                   handleUploadForOtherDocument
                                                 }
@@ -1960,17 +1954,10 @@ function ApplyForLoan() {
                                     </div>
                                   </div>
 
-                                  <div
-                                    style={{
-                                      display: "flex",
-                                      justifyContent: "flex-start",
-                                      alignItems: "center",
-                                    }}
-                                  >
+                                  <div className="d-flex justify-content-start align-items-center">
                                     <button
                                       type="button"
-                                      className="cmn-btn"
-                                      style={{ marginRight: "10px" }}
+                                      className="cmn-btn mr-10"
                                       onClick={() =>
                                         handlePrevious(setFieldValue, values)
                                       }
@@ -2013,19 +2000,14 @@ function ApplyForLoan() {
                                   <img src="/images/t.jpg" alt="" />
                                 </div>
                                 {/* <h3 class="thank-you-head">THANK YOU</h3> */}
-                                {/* <div className="thankYou_button"> */}
-                                <Link
-                                  href="/userDashBoard"
-                                  className="go_to_dashbaord"
-                                  style={{
-                                    color: "blue",
-                                    borderBottom: "1px solid",
-                                    marginBottom: "10px",
-                                  }}
-                                >
-                                  Go to My Dashboard
-                                </Link>
-                                {/* </div> */}
+                                <div className="thankYou_button">
+                                  <Link
+                                    href="/userDashBoard"
+                                    className="go_to_dashbaord"
+                                  >
+                                    Go to My Dashboard
+                                  </Link>
+                                </div>
                                 <p>
                                   We have recevied your{" "}
                                   <b>
