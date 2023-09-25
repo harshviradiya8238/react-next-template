@@ -324,23 +324,21 @@ function ViewLoan() {
                                 <tr key={index}>
                                   <td>
                                     <span
-                                      class={`all-btn query_all_button ${
+                                      class={` ${
                                         elm?.status === "Pending"
-                                          ? "Rejected-btn"
+                                          ? "Rejected-text"
                                           : elm?.status === "Query"
-                                          ? "qyery-btn"
+                                          ? "qyery-text"
                                           : elm?.status === "Reject"
-                                          ? "Rejected-btn"
+                                          ? "Rejected-text"
+                                          : elm?.status === "Approved"
+                                          ? "Approved-text"
                                           : elm?.status === "Submitted"
-                                          ? "Approved-btn"
-                                          : elm?.status === "Incomplete"
-                                          ? "Process-btn"
+                                          ? "Process-text"
                                           : ""
                                       }`}
                                     >
-                                      {elm?.status === "Query"
-                                        ? elm?.status === "Pending"
-                                        : elm?.status}
+                                      {elm?.status.toUpperCase()}
                                     </span>
                                   </td>
                                   <td>{elm?.comment}</td>
@@ -352,15 +350,17 @@ function ViewLoan() {
                                   placeholder="Enter your comment "
                                 />
                               ) : ( */}
-                                    <span className="remark">
-                                      {elm.remark ? elm.remark : ""}
-                                      {/* GST Certificate has been received */}
-                                    </span>
-                                    <div className="query_row_remark">
+                                    {elm.remark && (
+                                      <span className="remark">
+                                        {elm.remark}
+                                        {/* GST Certificate has been received */}
+                                      </span>
+                                    )}
+                                    <div className="query_row_remark  justify-content-start">
                                       {elm.documentList.length ? (
                                         <ul>
                                           <h5 class="text-head">
-                                            Uploaded Document
+                                            Uploaded Documents
                                           </h5>
                                           {elm.documentList.length > 0 &&
                                             elm.documentList.map(

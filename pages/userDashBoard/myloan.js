@@ -59,33 +59,29 @@ function Myloan() {
   }
 
   function searchFunction() {
-    if (searchValue !== "") {
-      try {
-        let regex = new RegExp(searchValue.replace(/[\|\\]/g), "i");
-        console.log(searchValue, "==");
-        let filteredArr =
-          loanApplication &&
-          loanApplication?.filter((elem) => {
-            return (
-              regex.test(elem.applicationNumberForLoan) ||
-              elem.status === status
-            );
-          });
-        return filteredArr;
-      } catch (e) {
-        console.log(e.message);
-        return loanApplication;
-      }
-    } else {
-      if (!status) {
-        return loanApplication;
-      }
-      let filteredArr =
-        loanApplication &&
-        loanApplication?.filter((elem) => {
-          return elem.status === status;
+    let filteredArr = loanApplication || [];
+
+    try {
+      // If searchValue is provided, filter by it
+      if (searchValue) {
+        let regex = new RegExp(searchValue.replace(/[\|\\]/g, ""), "i"); // Assuming you meant to replace with an empty string
+        filteredArr = filteredArr.filter((elem) => {
+          return (
+            regex.test(elem.applicationNumberForLoan) ||
+            regex.test(elem.loanTypeName)
+          );
         });
+      }
+
+      // If status is provided, filter by it
+      if (status) {
+        filteredArr = filteredArr.filter((elem) => elem.status === status);
+      }
+
       return filteredArr;
+    } catch (e) {
+      console.log(e.message);
+      return loanApplication; // Return the original array in case of an error
     }
   }
   var filteredList = useMemo(searchFunction, [
@@ -94,14 +90,26 @@ function Myloan() {
     loanApplication,
   ]);
 
+  // const itemsPerPage = 10;
+  // const [currentPage, setCurrentPage] = useState(1);
+  // const totalItems = filteredList?.length;
+  // const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  // const startIndex = (currentPage - 1) * itemsPerPage;
+  // const endIndex = startIndex + itemsPerPage;
+  // const currentItems = filteredList?.slice(startIndex, endIndex);
+
   const itemsPerPage = 10;
   const [currentPage, setCurrentPage] = useState(1);
-  const totalItems = filteredList?.length;
-  const totalPages = Math.ceil(totalItems / itemsPerPage);
 
+  const totalItems = filteredList?.length || 0;
   const startIndex = (currentPage - 1) * itemsPerPage;
   const endIndex = startIndex + itemsPerPage;
-  const currentItems = filteredList?.slice(startIndex, endIndex);
+  const currentItems = filteredList?.slice(startIndex, endIndex) || [];
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
 
   return (
     <div class="loan-content-body">
@@ -124,8 +132,8 @@ function Myloan() {
                 <option value="Incomplete">Incomplete</option>
                 <option value="Pending">Pending</option>
                 <option value="Query">Query</option>
-                <option value="Reject">Reject</option>
-                <option value="Approve">Approve</option>
+                <option value="Reject">Rejected</option>
+                <option value="Approve">Approved</option>
               </Form.Select>
             </div>
             <div class="col-lg-3 col-sm-12 ">
@@ -147,7 +155,10 @@ function Myloan() {
             </div>
           </div>
           <div class="table-responsive">
-            <Table striped class="table align-td-middle table-card">
+            <Table
+              striped
+              class="table align-td-middle table-card my_loan_tabel"
+            >
               <thead>
                 <tr>
                   <th>Sr No.</th>
@@ -156,7 +167,7 @@ function Myloan() {
                   <th>Loan Tenure(Year)</th>
                   <th>Loan Type</th>
                   <th>Status</th>
-                  <th>View</th>
+                  <th>Action</th>
                 </tr>
               </thead>
               <tbody>
@@ -164,7 +175,7 @@ function Myloan() {
                   ? currentItems.map((data, index) => {
                       return (
                         <tr key={index}>
-                          <td>{index + 1}</td>
+                          <td>{startIndex + index + 1}</td>
                           <td>
                             {data?.applicationNumberForLoan
                               ? data?.applicationNumberForLoan?.toUpperCase()
@@ -196,7 +207,9 @@ function Myloan() {
                                   : ""
                               }`}
                             >
-                              {data?.status}
+                              {data?.status === "Approve"
+                                ? "Approved"
+                                : data?.status}
                             </span>
                           </td>
 
@@ -248,11 +261,14 @@ function Myloan() {
               )}
             </>
           </div>
-          <PaginationTable
-            currentPage={currentPage}
-            setCurrentPage={setCurrentPage}
-            totalPages={totalPages}
-          />
+          {totalItems > itemsPerPage && (
+            <PaginationTable
+              totalItems={totalItems}
+              itemsPerPage={itemsPerPage}
+              currentPage={currentPage}
+              onPageChange={handlePageChange}
+            />
+          )}
         </div>
       </div>
     </div>

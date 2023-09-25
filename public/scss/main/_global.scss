@@ -218,7 +218,7 @@ input[type="number"] {
 }
 select {
   -webkit-appearance: none;
-  padding: 10px 10px !important;
+  padding: 7px 10px !important;
   cursor: pointer;
   background-color: transparent;
   background: transparent;
@@ -238,7 +238,7 @@ select {
 // }
 
 textarea {
-  min-height: 150px;
+  min-height: 100px;
   resize: none;
 }
 
@@ -323,7 +323,7 @@ a {
   display: inline-block;
   color: var(--body-color);
   font-weight: 400;
-  font-size: 15px;
+  // font-size: 15px;
   line-height: 30px;
 }
 
@@ -333,7 +333,7 @@ li {
   margin: 0;
   // padding: 5px;
   // font-family: var(--body-font) !important;
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 400;
   // color: var(--para-color);
   line-height: 30px;
@@ -570,7 +570,7 @@ li {
 /* cmn btn */
 .cmn-btn {
   // padding: 10px 30px 15px;
-  padding: 10px 30px;
+  padding: 5px 10px;
   font-weight: 500;
   text-align: center;
   background: var(--hover-color);
@@ -579,7 +579,7 @@ li {
   -webkit-transition: 0.3s;
   transition: 0.3s;
   width: auto;
-  border-radius: 10px;
+  border-radius: 5px;
   &:hover {
     color: #0a1023;
     background: transparent;
@@ -595,6 +595,18 @@ li {
       border: 1px solid var(--hover-color);
     }
   }
+}
+.submit_query_button{
+  padding: 5px 10px;
+  font-weight: 500;
+  text-align: center;
+  background: #f5c534;
+  // color: var(--body-color);
+  // border: 1px solid var(--hover-color);
+  -webkit-transition: 0.3s;
+  transition: 0.3s;
+  width: auto;
+  border-radius: 5px;
 }
 
 // Animation
@@ -715,10 +727,10 @@ li {
           align-items: center;
           border: 1px solid var(--light-gray);
           border-radius: 50px;
-        max-width: 141px;
+        max-width: 120px;
           background-color: white;
           // box-shadow: 0 12px 24px rgba(47,65,129,.1);
-          padding: 5px;
+          // padding: 5px;
           // padding: 10px 20px;
 
           // &:hover{
@@ -778,8 +790,8 @@ li {
               background-color: var(--theam-color);
               box-shadow: 0 20px 20px rgba(26,77,190,.2);
               margin-bottom: 20px;
-              width: 170px;
-              padding: 10px 30px !important;
+              // width: 170px;
+              padding: 5px 10px !important;
               transition: all .3s;
               &:hover{
                   background-color: transparent;
@@ -804,7 +816,7 @@ li {
   box-shadow: 0 20px 20px rgba(26,77,190,.2);
   margin-bottom: 20px;
   // width: 150px;
-  padding: 10px 30px !important;
+  padding: 10px 15px !important;
   transition: all .3s;
   &:hover{
       background-color: transparent;
@@ -842,8 +854,8 @@ li {
   margin-right: 10px;
 }
 .remark{
-  font-size: small;
-  font-weight: 600;
+  font-size: 16px;
+  // font-weight: 600;
 }
 .p-10{
   padding: 10px;
@@ -855,7 +867,7 @@ li {
   margin-right: 10px;
   // margin-left: 10px;
   // margin-top: 10px;
-  font-size: 15px;
+  font-size: 14px;
   border-bottom: 1px solid;
 }
 .new_browse{
@@ -1012,7 +1024,7 @@ button:disabled,
 }
 }
 .input-box{
-  max-width: 141px;
+  max-width: 120px;
 }
 .custom_padding{
  padding:20px 0px !important
@@ -1023,4 +1035,108 @@ button:disabled,
 .upload_btn{
   font-size:medium;
   margin-left:10px
+}
+.other_doc_input{
+  width: 25%;
+}
+.query_table th:nth-child(1),
+.query_table td:nth-child(1) {
+  width: 15%;
+}
+
+.query_table th:nth-child(2),
+.query_table td:nth-child(2) {
+  width: 35%;
+}
+
+.query_table th:nth-child(3),
+.query_table td:nth-child(3) {
+  width: 35%;
+}
+
+.query_table th:nth-child(4),
+.query_table td:nth-child(4) {
+  width: 15%;
+}
+
+
+.my_loan_tabel th:nth-child(1),
+.my_loan_tabel td:nth-child(1) {
+  width: 10%;
+}
+
+.my_loan_tabel th:nth-child(2),
+.my_loan_tabel td:nth-child(2) {
+  width: 15%;
+}
+
+.my_loan_tabel th:nth-child(3),
+.my_loan_tabel td:nth-child(3) {
+  width: 15%;
+}
+
+.my_loan_tabel th:nth-child(4),
+.my_loan_tabel td:nth-child(4) {
+  width: 15%;
+}
+.my_loan_tabel th:nth-child(5),
+.my_loan_tabel td:nth-child(5) {
+  width: 15%;
+}
+.my_loan_tabel th:nth-child(6),
+.my_loan_tabel td:nth-child(6) {
+  width: 15%;
+}
+
+.my_loan_tabel th:nth-child(7),
+.my_loan_tabel td:nth-child(7) {
+  text-align: start !important;
+  width: 5%;
+
+}
+.input-box-query{
+  max-width: 120px !important;
+}
+.upload-box-query{
+  border: none !important;
+}
+
+.upload-box-userDashboard-query{
+  cursor: pointer;
+  color: #1e266d;
+  width: 100%;
+
+  background: none !important;
+  border: none !important;
+  // border-radius: 5px;
+  box-shadow: none !important;
+  outline: none !important;
+  &::-webkit-file-upload-button{
+    // padding: 10px;
+    color: white;
+    // background-color: var(--theam-color);
+    // border-radius: 50px ;
+  
+    background-color: gray !important;
+    // box-shadow: 1px 0 1px 1px #6b4559;
+    outline: none !important;
+    border: none !important;
+}
+&:focus{
+    border: none;
+    box-shadow: none;
+    outline: none;
+}
+}
+.upload_icon{
+  margin: 1px;
+font-size: larger,
+}
+.instructions{
+margin-left: 10px;
+font-size: 12px;
+}
+.pagination_button{
+  width: 30px;
+  margin: 3px;
 }

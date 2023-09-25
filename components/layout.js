@@ -10,8 +10,11 @@ import { useState } from "react";
 import { NotificationContainer } from "react-notifications";
 import "react-notifications/lib/notifications.css";
 import { useEffect } from "react";
+import useAutoLogout from "../helper/useAutoLogout";
 
 const Layout = ({ children }) => {
+  // useAutoLogout(24 * 60 * 1000);
+
   const router = useRouter();
   const { pathname } = router;
 

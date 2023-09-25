@@ -74,7 +74,7 @@ function Profile() {
           if (data?.success) {
             setProfileState({
               ...data.value,
-              countryState: data?.value?.stateId,
+              state: data?.value?.stateId,
             });
             setAccountState(data.value);
             // SetCountryState(data?.value?.stateId);
@@ -137,7 +137,6 @@ function Profile() {
       [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
     }));
   };
-
   const initialValues = {
     firstName: profileState?.firstName,
     lastName: profileState?.lastName,
@@ -146,7 +145,7 @@ function Profile() {
     addressLine1: profileState?.addressLine1,
     addressLine2: profileState?.addressLine2,
     city: profileState?.city,
-    state: profileState?.countryState,
+    state: profileState?.state,
     zipCode: profileState?.zipCode,
   };
   const initialValuesAccount = {
@@ -162,8 +161,8 @@ function Profile() {
     // phoneNumber: Yup.string()
     //   .matches(/^\d{10}$/, "Please enter 10 digits")
     //   .required("Phone Number is required"),
-    addressLine1: Yup.string().required("Address Line 1 is required"),
-    addressLine2: Yup.string().required("Address Line 2 is required"),
+    // addressLine1: Yup.string().required("Address Line 1 is required"),
+    // addressLine2: Yup.string().required("Address Line 2 is required"),
     city: Yup.string().required("City is required"),
     zipCode: Yup.string().required("Pincode is required"),
   });
@@ -181,8 +180,6 @@ function Profile() {
   });
 
   const handleSubmit = async (values, setSubmitting) => {
-    // e.target.preventDefault();
-    console.log(values, "-=-");
     const token = localStorage.getItem("logintoken");
     try {
       const userData = jwtDecode(token);
@@ -193,8 +190,8 @@ function Profile() {
           id: userData?.UserDetails?.Id,
           firstName: values?.firstName,
           lastName: values?.lastName,
-          addressLine1: values?.addressLine1,
-          addressLine2: values?.addressLine2,
+          addressLine1: values?.addressLine1 ? values?.addressLine1 : "",
+          addressLine2: values?.addressLine2 ? values?.addressLine2 : "",
           city: values?.city,
           stateId: Number(values?.state),
           zipCode: values?.zipCode,
@@ -335,7 +332,6 @@ function Profile() {
               setFieldValue,
             }) => (
               <Form class="form">
-                {console.log(values, errors)}
                 {/* <div class="col-1 mx-auto mb-2">
                   <img src="/images/user.png" alt="" />
                 </div> */}
@@ -420,11 +416,11 @@ function Profile() {
                       placeholder="Address Line 1"
                       onChange={handleChange}
                     />
-                    <ErrorMessage
+                    {/* <ErrorMessage
                       name="addressLine1"
                       component="div"
                       className="error"
-                    />
+                    /> */}
                   </div>
                   <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
                     <label for="address-2"> Address Line 2 :</label>
@@ -434,54 +430,11 @@ function Profile() {
                       placeholder="Address Line 2"
                       onChange={handleChange}
                     />
-                    <ErrorMessage
+                    {/* <ErrorMessage
                       name="addressLine2"
                       component="div"
                       className="error"
-                    />
-                  </div>
-                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
-                    <label for="phone">City:</label>
-
-                    <Field
-                      type="text"
-                      name="city"
-                      onChange={handleChange}
-                      placeholder="Plese Enter  City"
-                    />
-                    <ErrorMessage
-                      name="city"
-                      component="div"
-                      className="error"
-                    />
-                  </div>
-
-                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
-                    <label for="phone">State:</label>
-                    <>
-                      {countryStateOption && countryStateOption.length > 0 && (
-                        <select
-                          className="selectDrop form-select"
-                          // aria-label="Default select example"
-                          name="state"
-                          onChange={handleChange}
-                          initialValues={values?.state}
-                          // onChange={handleSelectStateoption}
-                        >
-                          <option disabled={true} value="">
-                            Select State
-                          </option>
-                          {countryStateOption.map((data, index) => (
-                            <option value={data?.id} key={index}>
-                              {data?.name}
-                            </option>
-                          ))}
-                        </select>
-                      )}
-                    </>
-                    {/* {errorStateType && (
-                      <p className="all_error">{errorStateType}</p>
-                    )} */}
+                    /> */}
                   </div>
                   <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
                     <label for="phone">Pincode:</label>
@@ -513,6 +466,50 @@ function Profile() {
                       className="error"
                     />
                   </div>
+                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
+                    <label for="phone">City:</label>
+
+                    <Field
+                      type="text"
+                      name="city"
+                      onChange={handleChange}
+                      placeholder="Plese Enter  City"
+                    />
+                    <ErrorMessage
+                      name="city"
+                      component="div"
+                      className="error"
+                    />
+                  </div>
+
+                  <div class="col-lg-4 col-md-4 col-sm-12 m-basics">
+                    <label for="phone">State:</label>
+                    <>
+                      {countryStateOption && countryStateOption.length > 0 && (
+                        <select
+                          className="selectDrop form-select"
+                          // aria-label="Default select example"
+                          name="state"
+                          value={values?.state}
+                          onChange={handleChange}
+                          // initialValues={values?.state}
+                          // onChange={handleSelectStateoption}
+                        >
+                          <option disabled={true} value="">
+                            Select State
+                          </option>
+                          {countryStateOption.map((data, index) => (
+                            <option value={data?.id} key={index}>
+                              {data?.name}
+                            </option>
+                          ))}
+                        </select>
+                      )}
+                    </>
+                    {/* {errorStateType && (
+                      <p className="all_error">{errorStateType}</p>
+                    )} */}
+                  </div>
                 </div>
 
                 <div class="btn-section">
@@ -535,16 +532,31 @@ function Profile() {
           <div class="form">
             <div className="d-flex">
               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                <h4>Aadhaar Upload- Front Side</h4>
-                <div class="input-box ">
+                <label>
+                  <span className="astrisk_mark">*</span>
+                  Aadhaar Upload- Front Side
+                </label>
+                <div class="input-box-userDashboard ">
                   <input
                     type="file"
                     multiple
                     ref={aRef}
-                    class="upload-box"
+                    class="upload-box-userDashboard"
                     onChange={(e) => handlePanFileChange("aadharFront", e)}
                   />
+                  <button
+                    className="upload_icon"
+                    // onClick={() =>
+                    //   handleUploadForField(
+                    //     data?.id,
+                    //     data?.name
+                    //   )
+                    // }
+                  >
+                    <i class="fa-solid fa-upload"></i>
+                  </button>
                 </div>
+
                 {docFiles?.aadharFront?.length > 0 && (
                   <div>
                     <h4>Selected files:</h4>
@@ -580,15 +592,29 @@ function Profile() {
               </div>
 
               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                <h4>Aadhaar Upload- Back Side</h4>
-                <div class="input-box ">
+                <label>
+                  <span className="astrisk_mark">*</span>
+                  Aadhaar Upload- Back Side
+                </label>
+                <div class="input-box-userDashboard ">
                   <input
                     type="file"
                     multiple
                     ref={aRef}
-                    class="upload-box"
-                    onChange={(e) => handlePanFileChange("aadharBack", e)}
+                    class="upload-box-userDashboard"
+                    onChange={(e) => handlePanFileChange("aadharFront", e)}
                   />
+                  <button
+                    className="upload_icon"
+                    // onClick={() =>
+                    //   handleUploadForField(
+                    //     data?.id,
+                    //     data?.name
+                    //   )
+                    // }
+                  >
+                    <i class="fa-solid fa-upload"></i>
+                  </button>
                 </div>
                 {docFiles?.aadharBack?.length > 0 && (
                   <div>
@@ -625,99 +651,97 @@ function Profile() {
               </div>
             </div>
 
-            <div class="row">
-              <Formik
-                initialValues={initialValuesAccount}
-                validationSchema={validationSchemaAccount}
-                onSubmit={handleSubmitAccountDetails}
-                enableReinitialize
-              >
-                {({ isSubmitting }) => (
-                  <Form>
-                    <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                        <label for="bank-name">Bank Name</label>
-                        <Field
-                          type="text"
-                          name="bankName"
-                          placeholder="Bank Name"
-                        />
-                        <ErrorMessage
-                          name="bankName"
-                          component="div"
-                          className="error"
-                        />
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                        <label for="IFSC">IFSC Code</label>
-                        <Field
-                          type="text"
-                          name="ifscCode"
-                          placeholder="Bank IFSC Code"
-                          onInput={handleInput}
-                          onKeyPress={(event) => {
-                            var charCode = event.which
-                              ? event.which
-                              : event.keyCode;
-
-                            if (
-                              event.key === " " ||
-                              event.target.value.length > 10
-                            ) {
-                              event.preventDefault(); // Prevent space input
-                            }
-                          }}
-                        />
-                        <ErrorMessage
-                          name="ifscCode"
-                          component="div"
-                          className="error"
-                        />
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                        <label for="ac-number">Account Number</label>
-                        <Field
-                          type={"number"}
-                          name="accountNumber"
-                          placeholder="Bank Account Number"
-                        />
-                        <ErrorMessage
-                          name="accountNumber"
-                          component="div"
-                          className="error"
-                        />
-                      </div>
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                        <label for="ac-number">Confirm Account Number</label>
-                        <Field
-                          type={"number"}
-                          name="confirmAccountNumber"
-                          placeholder="Confirm Account Number"
-                        />
-                        <ErrorMessage
-                          name="confirmAccountNumber"
-                          component="div"
-                          className="error"
-                        />
-                      </div>
-
-                      <div class="btn-section">
-                        <button
-                          type="submit"
-                          class="profile-btn me-3"
-                          disabled={isSubmitting}
-                        >
-                          Save
-                        </button>
-                        <Link href="/userDashBoard">
-                          <button class="profile-btn">Cancel</button>
-                        </Link>
-                      </div>
+            <Formik
+              initialValues={initialValuesAccount}
+              validationSchema={validationSchemaAccount}
+              onSubmit={handleSubmitAccountDetails}
+              enableReinitialize
+            >
+              {({ isSubmitting }) => (
+                <Form>
+                  <div class="row">
+                    <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                      <label for="bank-name">Bank Name</label>
+                      <Field
+                        type="text"
+                        name="bankName"
+                        placeholder="Bank Name"
+                      />
+                      <ErrorMessage
+                        name="bankName"
+                        component="div"
+                        className="error"
+                      />
                     </div>
-                  </Form>
-                )}
-              </Formik>
-            </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                      <label for="IFSC">IFSC Code</label>
+                      <Field
+                        type="text"
+                        name="ifscCode"
+                        placeholder="Bank IFSC Code"
+                        onInput={handleInput}
+                        onKeyPress={(event) => {
+                          var charCode = event.which
+                            ? event.which
+                            : event.keyCode;
+
+                          if (
+                            event.key === " " ||
+                            event.target.value.length > 10
+                          ) {
+                            event.preventDefault(); // Prevent space input
+                          }
+                        }}
+                      />
+                      <ErrorMessage
+                        name="ifscCode"
+                        component="div"
+                        className="error"
+                      />
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                      <label for="ac-number">Account Number</label>
+                      <Field
+                        type={"number"}
+                        name="accountNumber"
+                        placeholder="Bank Account Number"
+                      />
+                      <ErrorMessage
+                        name="accountNumber"
+                        component="div"
+                        className="error"
+                      />
+                    </div>
+                    <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                      <label for="ac-number">Confirm Account Number</label>
+                      <Field
+                        type={"number"}
+                        name="confirmAccountNumber"
+                        placeholder="Confirm Account Number"
+                      />
+                      <ErrorMessage
+                        name="confirmAccountNumber"
+                        component="div"
+                        className="error"
+                      />
+                    </div>
+
+                    <div class="btn-section">
+                      <button
+                        type="submit"
+                        class="profile-btn me-3"
+                        disabled={isSubmitting}
+                      >
+                        Save
+                      </button>
+                      <Link href="/userDashBoard">
+                        <button class="profile-btn">Cancel</button>
+                      </Link>
+                    </div>
+                  </div>
+                </Form>
+              )}
+            </Formik>
           </div>
         </Tab>
       </Tabs>

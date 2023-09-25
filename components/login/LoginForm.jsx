@@ -38,7 +38,7 @@ const LoginForm = () => {
       <div className="overlay pt-40 pb-120">
         <div className="container">
           <div className="row">
-            <div className="col-lg-8">
+            <div className="col-lg-6">
               <div>
                 <div className="section-header">
                   <h5 className="sub-title">The Power of Financial Freedom</h5>

@@ -239,25 +239,47 @@ function ViewLoan() {
   const maxFileSize = 10 * 1024 * 1024;
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && documentFileName) {
+    const files = event.target.files;
+
+    if (!documentFileName) {
+      setErrorMessage("Please enter a document name before selecting a file");
+      return;
+    }
+
+    let newFileArray = [];
+    let unsupportedFileType = false;
+    let exceededFileSize = false;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const fileType = "." + file.name.split(".").pop().toLowerCase();
+
       if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
-        setSelectedFilesArray((prevArray) => [
-          ...prevArray,
-          { name: documentFileName, file },
-        ]);
-        // setDocumentFileName("");
-        setErrorMessage("");
+        newFileArray.push({ name: documentFileName, file });
       } else {
         if (!allowedFileTypes.includes(fileType)) {
-          setErrorMessage("File type is not supported");
-        } else if (file.size > maxFileSize) {
-          setErrorMessage("File size exceeds the limit of 10 MB");
+          unsupportedFileType = true;
+        }
+        if (file.size > maxFileSize) {
+          exceededFileSize = true;
         }
       }
+    }
+
+    if (newFileArray.length > 0) {
+      setSelectedFilesArray((prevArray) => [...prevArray, ...newFileArray]);
+    }
+
+    if (unsupportedFileType && exceededFileSize) {
+      setErrorMessage(
+        "Some file types are not supported and some files exceeded the size limit of 10 MB"
+      );
+    } else if (unsupportedFileType) {
+      setErrorMessage("Some file types are not supported");
+    } else if (exceededFileSize) {
+      setErrorMessage("Some files exceeded the size limit of 10 MB");
     } else {
-      setErrorMessage("Please enter a document name before selecting a file");
+      setErrorMessage("");
     }
   };
 
@@ -445,21 +467,27 @@ function ViewLoan() {
   };
 
   const handleFileChange1 = (event, rowIndex) => {
-    const file = event.target.files[0];
+    const files = event.target.files;
 
-    if (file) {
-      const fileType = "." + file.name.split(".").pop().toLowerCase();
+    let updatedDocumentData = [...documentData];
 
-      if (allowedFileTypes.includes(fileType)) {
-        let updatedDocumentData = [...documentData];
-        updatedDocumentData[rowIndex].selectedFile = file;
-        updatedDocumentData[rowIndex].errorMessage = "";
+    // Assume the entered document name is stored in documentFileName for the given rowIndex.
+    const documentName = updatedDocumentData[rowIndex].documentFileName;
+    if (!documentName) {
+      // Handle the case where no document name is entered by the user
+      return;
+    }
 
-        // Check if a document name is available
-        if (updatedDocumentData[rowIndex].documentFileName) {
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+
+      if (file) {
+        const fileType = "." + file.name.split(".").pop().toLowerCase();
+
+        if (allowedFileTypes.includes(fileType)) {
           // Create a new document entry with its name and file
           const newDocumentEntry = {
-            name: updatedDocumentData[rowIndex].documentFileName,
+            name: documentName,
             file: file,
           };
 
@@ -468,19 +496,18 @@ function ViewLoan() {
             newDocumentEntry
           );
 
-          // Clear the document name for the next entry
-          updatedDocumentData[rowIndex].documentFileName = "";
+          updatedDocumentData[rowIndex].errorMessage = "";
+        } else {
+          updatedDocumentData[rowIndex].errorMessage =
+            "One or more file types are not supported";
         }
-
-        setDocumentData(updatedDocumentData);
-      } else {
-        let updatedDocumentData = [...documentData];
-        updatedDocumentData[rowIndex].selectedFile = null;
-        updatedDocumentData[rowIndex].errorMessage =
-          "File type is not supported";
-        setDocumentData(updatedDocumentData);
       }
     }
+
+    // Clear the document name for the next entry
+    updatedDocumentData[rowIndex].documentFileName = "";
+
+    setDocumentData(updatedDocumentData);
   };
 
   const handleUpload1 = (rowIndex) => {
@@ -542,10 +569,52 @@ function ViewLoan() {
     var newFilter = documentData.filter(
       (item) => item.id === LoanApplicationQueryId
     );
-    console.log("newFilter===========5981", newFilter);
-    if (newFilter?.length > 0) {
-      await newFilter.forEach(async (element) => {
-        console.log("584----------------------------");
+
+    await newFilter.forEach(async (element) => {
+      const token = localStorage.getItem("logintoken");
+      if (element?.remarks) {
+        const formData = new FormData();
+        formData.append("Remark", element?.remarks);
+        formData.append("LoanApplicationId", id);
+        formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
+
+        axios.post(
+          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
+          formData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        );
+
+        await Notification("success", "Query submitted ");
+        // const updatedData = documentData.map((item) => {
+        //   if (item.id === LoanApplicationQueryId) {
+        //     return {
+        //       ...item,
+        //       // Update other fields as necessary
+        //       remark: t?.elemenremarks,
+        //     };
+        //   }
+        //   return item;
+        // });
+        // setDocumentData(updatedData);
+        // window.location.reload();
+      } else {
+        Notification("error", "Please add remark");
+      }
+    });
+  };
+
+  const handleSubmitDocuemntQuery = async (LoanApplicationQueryId) => {
+    var newFilter = documentData.filter(
+      (item) => item.id === LoanApplicationQueryId
+    );
+
+    await newFilter.forEach(async (element) => {
+      if (element?.selectedFilesArray?.length > 0) {
         const formData = new FormData();
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
         formData.append("LoanApplicationId", id);
@@ -553,7 +622,6 @@ function ViewLoan() {
           console.log(doc);
           formData.append("Documents", doc?.file);
         });
-
         const token = localStorage.getItem("logintoken");
         if (element?.selectedFilesArray?.length > 0) {
           try {
@@ -581,39 +649,18 @@ function ViewLoan() {
                 },
               }
             );
+            window.location.reload();
             // router.push("/userDashBoard");
             // setFieldValue("activeStep", 2);
           } catch (error) {
             console.log(error);
             Notification("error", error?.response?.data[0]?.errorMessage);
           }
-        } else {
-          if (element?.remarks) {
-            const formData = new FormData();
-            formData.append("Remark", element?.remarks);
-            formData.append("LoanApplicationId", id);
-            formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
-
-            axios.post(
-              "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
-              formData,
-              {
-                headers: {
-                  Authorization: `Bearer ${token}`,
-                  "Content-Type": "multipart/form-data",
-                },
-              }
-            );
-            await Notification("success", "Query submitted ");
-            // window.location.reload();
-          } else {
-            Notification("error", "Please add remark");
-          }
         }
-      });
-    } else {
-      Notification("error", "Please select atleast one document ");
-    }
+      } else {
+        Notification("error", "Please select atleast one document ");
+      }
+    });
   };
 
   const handleUploadForOtherDocument = async () => {
@@ -628,9 +675,7 @@ function ViewLoan() {
       selectedFilesArray.length === 0 ||
       !documentFileName
     ) {
-      setErrorMessage(
-        "Please select a document option, a file, and enter a document name."
-      );
+      setErrorMessage("Please enter document name");
       return;
     }
 
@@ -664,7 +709,7 @@ function ViewLoan() {
           ...selectedFilesArray,
         ];
         setuploadedOtherDocuemnt(newUploadedDocs);
-        // setFieldValue("activeStep", 2);
+        // setFieldValue("activeStewindow.location.reload();
       } catch (error) {
         console.log(error);
         Notification("error", error?.response?.data[0]?.errorMessage);
@@ -936,14 +981,13 @@ function ViewLoan() {
                 <h5>Query History</h5>
                 <div class="loan-section-table">
                   <div class="table-responsive">
-                    <table class="table ">
+                    <table class="table query_table">
                       <thead>
                         <tr>
                           <th>Status</th>
                           <th>Query</th>
                           <th>Remarks</th>
-
-                          <th>Submit</th>
+                          <th>Action</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -952,39 +996,38 @@ function ViewLoan() {
                           commentData.map((elm, index) => {
                             return (
                               <tr key={index}>
-                                <td style={{ width: "5%" }}>
+                                <td>
                                   <span
-                                    class={`all-btn ${
+                                    class={` ${
                                       elm?.status === "Pending"
-                                        ? "Rejected-btn"
+                                        ? "Rejected-text"
                                         : elm?.status === "Query"
-                                        ? "qyery-btn"
+                                        ? "qyery-text"
                                         : elm?.status === "Reject"
-                                        ? "Rejected-btn"
+                                        ? "Rejected-text"
+                                        : elm?.status === "Approved"
+                                        ? "Approved-text"
                                         : elm?.status === "Submitted"
-                                        ? "Approved-btn"
-                                        : elm?.status === "Incomplete"
-                                        ? "Process-btn"
+                                        ? "Process-text"
                                         : ""
                                     }`}
                                   >
-                                    {elm?.status === "Query"
-                                      ? elm?.status === "Pending"
-                                      : elm?.status}
+                                    {elm?.status?.toUpperCase()}
                                   </span>
                                 </td>
-                                <td style={{ width: "13%" }}>{elm?.comment}</td>
-                                <td style={{ width: "13%" }}>
+                                <td>{elm?.comment}</td>
+                                <td>
                                   <div>
-                                    {elm?.remark ? (
+                                    {elm?.remark ||
+                                    elm?.status === "Approved" ? (
                                       <>
-                                        {elm?.remark}
-                                        <div className="query_row_remark justify-content-center">
-                                          {elm.documentList.length > 0 ? (
+                                        <span>{elm?.remark}</span>
+                                        <div className="query_row_remark justify-content-start">
+                                          {elm.documentList.length > 0 && (
                                             <ul>
-                                              <h5 class="text-head">
-                                                Uploaded Document
-                                              </h5>
+                                              <h6 class="text-head">
+                                                Uploaded Documents :
+                                              </h6>
                                               {elm.documentList.length > 0 &&
                                                 elm.documentList.map(
                                                   (detail, i) => (
@@ -1004,8 +1047,6 @@ function ViewLoan() {
                                                   )
                                                 )}
                                             </ul>
-                                          ) : (
-                                            ""
                                           )}
                                         </div>
                                       </>
@@ -1020,144 +1061,147 @@ function ViewLoan() {
                                           }
                                         />
 
-                                        {elm.documentList.length ? (
-                                          <>
-                                            <div className="query_row_remark justify-content-start">
-                                              {elm.documentList.length > 0 ? (
-                                                <ul>
-                                                  <h5 class="text-head">
-                                                    Uploaded Document
-                                                  </h5>
-                                                  {elm.documentList.length >
-                                                    0 &&
-                                                    elm.documentList.map(
-                                                      (detail, i) => (
-                                                        <div key={i}>
-                                                          <a
-                                                            href={
-                                                              detail.documentURL
-                                                            }
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="document_hyper_link"
-                                                          >
-                                                            {
-                                                              detail.documentName
-                                                            }
-                                                          </a>
-                                                        </div>
-                                                        // <li key={i}>-{detail.documentName}</li>
-                                                      )
-                                                    )}
-                                                </ul>
-                                              ) : (
-                                                ""
-                                              )}
-                                            </div>
-                                          </>
-                                        ) : (
-                                          <>
-                                            <div
-                                              style={{ display: "flex" }}
-                                              className="d-flex justify-content-between align-items-center mt-4"
-                                            >
+                                        <>
+                                          <div className="query_row_remark justify-content-start">
+                                            {elm.documentList.length > 0 ? (
+                                              <ul>
+                                                <h5 class="text-head">
+                                                  Uploaded Document
+                                                </h5>
+                                                {elm.documentList.length > 0 &&
+                                                  elm.documentList.map(
+                                                    (detail, i) => (
+                                                      <div key={i}>
+                                                        <a
+                                                          href={
+                                                            detail.documentURL
+                                                          }
+                                                          target="_blank"
+                                                          rel="noreferrer"
+                                                          className="document_hyper_link"
+                                                        >
+                                                          {detail.documentName}
+                                                        </a>
+                                                      </div>
+                                                      // <li key={i}>-{detail.documentName}</li>
+                                                    )
+                                                  )}
+                                              </ul>
+                                            ) : (
+                                              ""
+                                            )}
+                                          </div>
+                                        </>
+
+                                        <>
+                                          <div
+                                            style={{ display: "flex" }}
+                                            className="d-flex justify-content-between align-items-baseline mt-4"
+                                          >
+                                            <input
+                                              type="text"
+                                              placeholder="Enter document name"
+                                              value={
+                                                documentData[index]
+                                                  ?.documentFileName
+                                              }
+                                              onChange={(event) =>
+                                                handleDocumentFileNameChange1(
+                                                  event,
+                                                  index
+                                                )
+                                              }
+                                            />
+                                            <div className="input-box">
                                               <input
-                                                type="text"
-                                                placeholder="Enter document name"
-                                                value={
-                                                  documentData[index]
-                                                    ?.documentFileName
-                                                }
+                                                type="file"
+                                                accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                                                className="upload-box-userDashboard-query"
+                                                multiple
                                                 onChange={(event) =>
-                                                  handleDocumentFileNameChange1(
+                                                  handleFileChange1(
                                                     event,
                                                     index
                                                   )
                                                 }
                                               />
-                                              <div className="input-box">
-                                                <input
-                                                  type="file"
-                                                  accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                                                  className="upload-box"
-                                                  multiple
-                                                  onChange={(event) =>
-                                                    handleFileChange1(
-                                                      event,
-                                                      index
-                                                    )
-                                                  }
-                                                />
-                                              </div>
-                                              <div
-                                                style={{ display: "flex" }}
-                                              ></div>
                                             </div>
-                                            {documentData[index]
-                                              ?.errorMessage && (
-                                              <p className="error">
-                                                {
-                                                  documentData[index]
-                                                    .errorMessage
-                                                }
+                                            <div
+                                              style={{
+                                                display: "flex",
+                                                // alignItems: "center",
+                                              }}
+                                            >
+                                              <button
+                                                className="upload_icon"
+                                                onClick={() => {
+                                                  handleSubmitDocuemntQuery(
+                                                    elm?.id
+                                                  );
+                                                }}
+                                              >
+                                                <i class="fa-solid fa-upload"></i>
+                                              </button>
+                                            </div>
+                                          </div>
+                                          {documentData[index]
+                                            ?.errorMessage && (
+                                            <p className="error">
+                                              {documentData[index].errorMessage}
+                                            </p>
+                                          )}
+                                          {documentData[index]
+                                            ?.selectedFilesArray.length > 0 && (
+                                            <div>
+                                              <p style={{ textAlign: "start" }}>
+                                                Selected File:
                                               </p>
-                                            )}
-                                            {documentData[index]
-                                              ?.selectedFilesArray.length >
-                                              0 && (
-                                              <div>
-                                                <p
-                                                  style={{ textAlign: "start" }}
-                                                >
-                                                  Selected File:
-                                                </p>
-                                                <ul>
-                                                  {documentData[
-                                                    index
-                                                  ]?.selectedFilesArray.map(
-                                                    (fileObj, fileIndex) => (
-                                                      <li key={fileIndex}>
-                                                        <div className="delete_div">
-                                                          <b>{fileObj.name}</b>{" "}
-                                                          -{" "}
-                                                          <span
-                                                            className="document_hyper_link"
-                                                            onClick={() =>
-                                                              handlePreviewFile(
-                                                                fileObj.file
-                                                              )
-                                                            }
-                                                          >
-                                                            {fileObj.file.name}
-                                                          </span>
-                                                          <i
-                                                            className="delete_button fa-solid fa-xmark"
-                                                            onClick={() =>
-                                                              handleRemoveDocumentFile1(
-                                                                index,
-                                                                fileObj.file
-                                                              )
-                                                            }
-                                                          ></i>
-                                                        </div>
-                                                      </li>
-                                                    )
-                                                  )}
-                                                </ul>
-                                              </div>
-                                            )}
-                                          </>
-                                        )}
+                                              <ul>
+                                                {documentData[
+                                                  index
+                                                ]?.selectedFilesArray.map(
+                                                  (fileObj, fileIndex) => (
+                                                    <li key={fileIndex}>
+                                                      <div className="delete_div">
+                                                        <b>{fileObj.name}</b> -{" "}
+                                                        <span
+                                                          className="document_hyper_link"
+                                                          onClick={() =>
+                                                            handlePreviewFile(
+                                                              fileObj.file
+                                                            )
+                                                          }
+                                                        >
+                                                          {fileObj.file.name}
+                                                        </span>
+                                                        <i
+                                                          className="delete_button fa-solid fa-xmark"
+                                                          onClick={() =>
+                                                            handleRemoveDocumentFile1(
+                                                              index,
+                                                              fileObj.file
+                                                            )
+                                                          }
+                                                        ></i>
+                                                      </div>
+                                                    </li>
+                                                  )
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+                                        </>
                                       </>
                                     )}
                                   </div>
                                 </td>
 
-                                <td style={{ width: "10%" }}>
+                                <td>
                                   {" "}
-                                  {!elm?.remark ? (
+                                  {!elm?.remark ||
+                                  !elm?.status == "Approved" ? (
                                     <button
-                                      class="table-btn btn "
+                                      class="cmn-btn btn "
                                       onClick={() => handleSubmitQuery(elm?.id)}
                                     >
                                       Submit
@@ -1206,9 +1250,17 @@ function ViewLoan() {
                           <div key={index}>
                             <label>
                               <span className="astrisk_mark">*</span>
-                              {data?.name}
+                              {data?.name}{" "}
+                              {data?.instructions && (
+                                <span className="instructions">
+                                  <span>&#40; </span>
+
+                                  {data?.instructions}
+                                  <span>&#41; </span>
+                                </span>
+                              )}
                             </label>
-                            <div class="input-box-userDashboard ">
+                            <div class="input-box-userDashboard">
                               <input
                                 type="file"
                                 multiple
@@ -1219,10 +1271,7 @@ function ViewLoan() {
                                 }
                               />
                               <button
-                                style={{
-                                  margin: "10px",
-                                  fontSize: "larger",
-                                }}
+                                className="upload_icon"
                                 onClick={() =>
                                   handleUploadForField(data?.id, data?.name)
                                 }
@@ -1308,13 +1357,8 @@ function ViewLoan() {
                     class="my-4 col-lg-12 col-md-12 col-sm-12"
                   >
                     <h4 style={{ marginLeft: "0" }}>Other Document</h4>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                      }}
-                    >
-                      <div>
+                    <div className="d-flex align-items-baseline">
+                      <div className="other_doc_input">
                         <input
                           type="text"
                           placeholder="Enter document name"
@@ -1328,7 +1372,7 @@ function ViewLoan() {
                         <input
                           type="file"
                           accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                          class="upload-box"
+                          class="upload-box-userDashboard"
                           multiple
                           onChange={handleFileChange}
                         />
@@ -1340,10 +1384,7 @@ function ViewLoan() {
                         }}
                       >
                         <button
-                          style={{
-                            margin: "10px",
-                            fontSize: "larger",
-                          }}
+                          className="upload_icon"
                           onClick={handleUploadForOtherDocument}
                         >
                           <i class="fa-solid fa-upload"></i>

@@ -7,6 +7,7 @@ import Notification from "../../components/utils/Notification";
 import Preloader from "../../components/preloader/Preloader";
 import Link from "next/link";
 import API from "../../helper/API";
+import jwtDecode from "jwt-decode";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -39,9 +40,81 @@ function LoanApplication() {
     activeStep: 0,
   });
 
+  useEffect(() => {
+    const token = localStorage.getItem("logintoken");
+
+    const GetAll = async (token) => {
+      // const token = localStorage.getItem("logintoken");
+      try {
+        const response = await axios.get(
+          "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
+
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+        const { data } = response;
+        setLoanTypeOption(data?.value?.gridRecords);
+      } catch (error) {
+        console.log(error);
+        // Notification("error", error?.response?.data[0]?.errorMessage);
+      }
+    };
+    const GetAllState = async () => {
+      try {
+        const response = await API.get("/State/GetAll");
+        const { data } = response;
+
+        SetCountryStateOption(data.value);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    const fetchData = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+          const userData = jwtDecode(token);
+          const response = await API.get(
+            `/User/GetById?userId=${userData?.UserDetails?.Id}`
+            // {
+            //   headers: {
+            //     Authorization: `Bearer ${token}`,
+            //   },
+            // }
+          );
+          const { data } = response;
+
+          if (data?.success) {
+            if (
+              data?.value?.stateId ||
+              data?.value?.zipCode ||
+              data?.value?.city
+            ) {
+              SetCountryState(data?.value?.stateId);
+              setPincode(data?.value?.zipCode);
+              setCity(data?.value?.city);
+            }
+            // setAccountState(data.value);
+            // SetCountryState(data?.value?.stateId);
+          }
+          return response;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    GetAll(token);
+    GetAllState();
+    fetchData();
+  }, [0]);
+
   const [loanTypeOption, setLoanTypeOption] = useState([]);
   const [countryStateOption, SetCountryStateOption] = useState([]);
-  const [countryState, SetCountryState] = useState("");
+
   const [selectOption, setSelectOption] = useState("");
   const [bankOption, setBankOption] = useState([]);
   const [documentOption, setDocumentOption] = useState([]);
@@ -58,7 +131,7 @@ function LoanApplication() {
   const [cityError, setCityError] = useState("");
   const [pincodeError, setPincodeError] = useState("");
   const [isLoanCreat, setIsLoanCreat] = useState(false);
-
+  console.log(selectOption, "----------");
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
     setSelectOptionName(target.name);
@@ -153,41 +226,7 @@ function LoanApplication() {
     setCity(event.target.value);
   };
 
-  useEffect(() => {
-    const token = localStorage.getItem("logintoken");
-
-    const GetAll = async (token) => {
-      // const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.get(
-          "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
-
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-        const { data } = response;
-        setLoanTypeOption(data?.value?.gridRecords);
-      } catch (error) {
-        console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
-      }
-    };
-    const GetAllState = async () => {
-      try {
-        const response = await API.get("/State/GetAll");
-        const { data } = response;
-        SetCountryStateOption(data.value);
-      } catch (error) {
-        console.log(error);
-      }
-    };
-
-    GetAll(token);
-    GetAllState();
-  }, [0]);
+  const [countryState, SetCountryState] = useState("");
 
   const [selectedRowData, setSelectedRowData] = useState([]);
 
@@ -307,7 +346,7 @@ function LoanApplication() {
       );
       const { data } = response;
 
-      await Notification("success", data?.value?.message);
+      await Notification("success", data?.messages[0]?.messageText);
       GetBankAndDocumetByLoanTypeId(
         selectOption,
         loanAmount,
@@ -347,6 +386,7 @@ function LoanApplication() {
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
+  const [fieldErrorMessages, setFieldErrorMessages] = useState({});
 
   const handleSubmitUploadDoc = async (setFieldValue) => {
     const allUploadEmpty = Object.values(uploadedFiles).every(
@@ -472,18 +512,29 @@ function LoanApplication() {
   };
 
   const handlePanFileChange = (fieldType, event, id) => {
-    if (event.target.files.length) {
-      for (let index = 0; index < event.target.files.length; index++) {
-        event.target.files[index].documentTypeId = id;
-      }
-    } else {
-      event.target.files[0].documentTypeId = id;
-    }
-    var selectedFiles = [...event?.target?.files];
+    const filesWithMeta = [...event.target.files].map((file) => ({
+      file, // Actual file
+      documentTypeId: id,
+    }));
+
+    const { validFiles, errorMessage } = checkFileErrors(
+      filesWithMeta.map((f) => f.file)
+    );
+
+    // Store the valid files along with their metadata
+    const validFilesWithMeta = validFiles.map((file) => ({
+      file,
+      documentTypeId: id,
+    }));
 
     setdocFiles((prevState) => ({
       ...prevState,
-      [fieldType]: selectedFiles,
+      [fieldType]: validFilesWithMeta,
+    }));
+
+    setFieldErrorMessages((prevErrors) => ({
+      ...prevErrors,
+      [fieldType]: errorMessage,
     }));
   };
 
@@ -552,30 +603,82 @@ function LoanApplication() {
   const [documentFileName, setDocumentFileName] = useState("");
   const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
+  const [totalUploadedSize, setTotalUploadedSize] = useState(0);
   const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
   const maxFileSize = 10 * 1024 * 1024;
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && documentFileName) {
+  const checkFileErrors = (files) => {
+    let validFiles = [];
+    let unsupportedFileType = false;
+    let exceededIndividualFileSize = false;
+    let exceededCumulativeFileSize = false;
+    let errorMessage = "";
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const fileType = "." + file.name.split(".").pop().toLowerCase();
+
+      if (totalUploadedSize + file.size > maxFileSize) {
+        exceededCumulativeFileSize = true;
+        continue;
+      }
+
       if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
-        setSelectedFilesArray((prevArray) => [
-          ...prevArray,
-          { name: documentFileName, file },
-        ]);
-        // setDocumentFileName("");
-        setErrorMessage("");
+        validFiles.push(file);
       } else {
         if (!allowedFileTypes.includes(fileType)) {
-          setErrorMessage("File type is not supported");
-        } else if (file.size > maxFileSize) {
-          setErrorMessage("File size exceeds the limit of 10 MB");
+          unsupportedFileType = true;
+        }
+        if (file.size > maxFileSize) {
+          exceededIndividualFileSize = true;
         }
       }
-    } else {
-      setErrorMessage("Please enter a document name before selecting a file");
     }
+
+    if (unsupportedFileType && exceededIndividualFileSize) {
+      errorMessage =
+        "Some file types are not supported and some files exceeded the individual size limit of 10 MB";
+    } else if (unsupportedFileType) {
+      errorMessage = "Some file types are not supported";
+    } else if (exceededIndividualFileSize) {
+      errorMessage = "Some files exceeded the individual size limit of 10 MB";
+    } else if (exceededCumulativeFileSize) {
+      errorMessage = "The combined size of the selected files exceeds 10 MB";
+    }
+
+    return { validFiles, errorMessage };
+  };
+
+  const handleFileChange = (event) => {
+    const files = event.target.files;
+
+    if (!documentFileName) {
+      setErrorMessage("Please enter a document name before selecting a file");
+      return;
+    }
+
+    const { validFiles, errorMessage } = checkFileErrors(files);
+
+    // Update the cumulative total with the size of valid files
+    setTotalUploadedSize(
+      (prevSize) =>
+        prevSize + validFiles.reduce((acc, file) => acc + file.size, 0)
+    );
+
+    // Map through validFiles, add the documentFileName, then add to the state
+    const validFilesWithNames = validFiles.map((file) => ({
+      name: documentFileName,
+      file,
+    }));
+
+    // Update your selected files state
+    setSelectedFilesArray((prevArray) => [
+      ...prevArray,
+      ...validFilesWithNames,
+    ]);
+
+    // Set error message, if any
+    setErrorMessage(errorMessage);
   };
 
   const handleRemoveOtherDocumentFile = (fileToRemove) => {
@@ -677,13 +780,13 @@ function LoanApplication() {
     const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
 
     const formData = new FormData();
-    console.log(files, "----------------------------------------------");
+
     files &&
       files.forEach(async (element, index) => {
         console.log(element, "=====================");
         // Here 'files' is the FormData key. It may vary based on your backend requirement.
         formData.append("DocumentTypeId", element.documentTypeId);
-        formData.append("Documents", element);
+        formData.append("Documents", element?.file);
         formData.append("LoanApplicationId", loanApplicationId);
       });
 
@@ -731,9 +834,7 @@ function LoanApplication() {
       selectedFilesArray.length === 0 ||
       !documentFileName
     ) {
-      setErrorMessage(
-        "Please select a document option, a file, and enter a document name."
-      );
+      setErrorMessage("Please enter document name");
       return;
     }
 
@@ -1191,6 +1292,14 @@ function LoanApplication() {
                                                     *
                                                   </span>
                                                   {data?.name}
+                                                  {data?.instructions && (
+                                                    <span className="instructions">
+                                                      <span>&#40; </span>
+
+                                                      {data?.instructions}
+                                                      <span>&#41; </span>
+                                                    </span>
+                                                  )}
                                                 </label>
                                                 <div class="input-box-userDashboard ">
                                                   <input
@@ -1208,10 +1317,7 @@ function LoanApplication() {
                                                     }
                                                   />
                                                   <button
-                                                    style={{
-                                                      margin: "10px",
-                                                      fontSize: "larger",
-                                                    }}
+                                                    className="upload_icon"
                                                     onClick={() =>
                                                       handleUploadForField(
                                                         data?.id,
@@ -1241,7 +1347,7 @@ function LoanApplication() {
                                                                 onClick={
                                                                   () =>
                                                                     handlePreviewFile(
-                                                                      file
+                                                                      file?.file
                                                                     )
 
                                                                   // window.open(
@@ -1250,7 +1356,14 @@ function LoanApplication() {
                                                                   // )
                                                                 }
                                                               >
-                                                                {file?.name}
+                                                                {console.log(
+                                                                  file,
+                                                                  "======"
+                                                                )}
+                                                                {
+                                                                  file?.file
+                                                                    ?.name
+                                                                }
                                                               </span>
                                                             )}
                                                             <div>
@@ -1275,6 +1388,16 @@ function LoanApplication() {
                                                 </div>
                                               )}
 
+                                              {fieldErrorMessages && (
+                                                <p className="error">
+                                                  {
+                                                    fieldErrorMessages[
+                                                      data?.name
+                                                    ]
+                                                  }
+                                                </p>
+                                              )}
+
                                               {uploadedFiles[data?.name]
                                                 ?.length > 0 && (
                                                 <div>
@@ -1297,7 +1420,7 @@ function LoanApplication() {
                                                           // )
                                                         }
                                                       >
-                                                        {file?.name}
+                                                        {file?.file?.name}
                                                       </span>
                                                     </div>
                                                   ))}
@@ -1336,11 +1459,11 @@ function LoanApplication() {
                                               }
                                             />
                                           </div>
-                                          <div className="input-box">
+                                          <div className="input-box-userDashboard ">
                                             <input
                                               type="file"
                                               accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                                              class="upload-box"
+                                              class="upload-box-userDashboard"
                                               multiple
                                               onChange={handleFileChange}
                                             />
@@ -1352,10 +1475,7 @@ function LoanApplication() {
                                             }}
                                           >
                                             <button
-                                              style={{
-                                                margin: "10px",
-                                                fontSize: "larger",
-                                              }}
+                                              className="upload_icon"
                                               onClick={
                                                 handleUploadForOtherDocument
                                               }

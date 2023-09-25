@@ -14,14 +14,13 @@ const NavBar = ({ userLoginData }) => {
 
   useEffect(() => {
     // You can also set state in a useEffect block
-    console.log(userLoginData, "999999999999999999999");
     if (!userLoginData) {
       if (typeof window !== "undefined") {
         if (localStorage.getItem("user")) {
           var stroge = localStorage.getItem("user");
           if (stroge) {
             var data = JSON.parse(stroge);
-            console.log(data, "-=-=-dddddddddddddddddddddddd");
+
             setNewData(data);
           }
         }
@@ -30,7 +29,6 @@ const NavBar = ({ userLoginData }) => {
       setNewData(userLoginData);
     }
   }, [userLoginData]);
-  console.log(newData);
   // useEffect(() => {
   //   if (newData == "undefined") {
   //     if (typeof window !== "undefined") {

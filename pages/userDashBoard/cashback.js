@@ -68,7 +68,7 @@ function Cashback() {
                   <th>Loan Application Number</th>
                   <th>Loan Type</th>
                   <th>Loan Amount (INR)</th>
-                  <th>CashBack Amount (₹)</th>
+                  <th>Cashback Amount (₹)</th>
                   <th>Transaction Date</th>
                 </tr>
               </thead>

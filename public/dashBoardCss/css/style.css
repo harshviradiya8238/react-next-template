@@ -53,9 +53,10 @@ html {
 
 .all-btn {
   color: var(--white);
-  padding: 2px 5px;
+  padding: 5px 10px;
   border-radius: 5px;
-  width: 50%;
+  width: 75%;
+  text-align: center;
   margin: 0 auto;
   display: inline-block;
   font-size: 14px;

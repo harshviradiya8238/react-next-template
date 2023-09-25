@@ -530,7 +530,7 @@ function ApplyForLoan() {
       );
       const { data } = response;
 
-      await Notification("success", data?.value?.message);
+      await Notification("success", data?.messages[0]?.messageText);
       GetBankAndDocumetByLoanTypeId(
         selectOption,
         loanAmount,
@@ -770,25 +770,47 @@ function ApplyForLoan() {
   const maxFileSize = 10 * 1024 * 1024;
 
   const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && documentFileName) {
+    const files = event.target.files;
+
+    if (!documentFileName) {
+      setErrorMessage("Please enter a document name before selecting a file");
+      return;
+    }
+
+    let newFileArray = [];
+    let unsupportedFileType = false;
+    let exceededFileSize = false;
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
       const fileType = "." + file.name.split(".").pop().toLowerCase();
+
       if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
-        setSelectedFilesArray((prevArray) => [
-          ...prevArray,
-          { name: documentFileName, file },
-        ]);
-        // setDocumentFileName("");
-        setErrorMessage("");
+        newFileArray.push({ name: documentFileName, file });
       } else {
         if (!allowedFileTypes.includes(fileType)) {
-          setErrorMessage("File type is not supported");
-        } else if (file.size > maxFileSize) {
-          setErrorMessage("File size exceeds the limit of 10 MB");
+          unsupportedFileType = true;
+        }
+        if (file.size > maxFileSize) {
+          exceededFileSize = true;
         }
       }
+    }
+
+    if (newFileArray.length > 0) {
+      setSelectedFilesArray((prevArray) => [...prevArray, ...newFileArray]);
+    }
+
+    if (unsupportedFileType && exceededFileSize) {
+      setErrorMessage(
+        "Some file types are not supported and some files exceeded the size limit of 10 MB"
+      );
+    } else if (unsupportedFileType) {
+      setErrorMessage("Some file types are not supported");
+    } else if (exceededFileSize) {
+      setErrorMessage("Some files exceeded the size limit of 10 MB");
     } else {
-      setErrorMessage("Please enter a document name before selecting a file");
+      setErrorMessage("");
     }
   };
 
@@ -819,7 +841,6 @@ function ApplyForLoan() {
     console.log("sdasdasd", docFiles[name]);
     const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
     console.log(files);
-
     const formData = new FormData();
     files &&
       files.forEach(async (element, index) => {
@@ -874,9 +895,7 @@ function ApplyForLoan() {
       selectedFilesArray.length === 0 ||
       !documentFileName
     ) {
-      setErrorMessage(
-        "Please select a document option, a file, and enter a document name."
-      );
+      setErrorMessage("Please enter document name");
       return;
     }
 
@@ -1724,6 +1743,14 @@ function ApplyForLoan() {
                                                     *
                                                   </span>
                                                   {data?.name}
+                                                  {data?.instructions && (
+                                                    <span className="instructions">
+                                                      <span>&#40; </span>
+
+                                                      {data?.instructions}
+                                                      <span>&#41; </span>
+                                                    </span>
+                                                  )}
                                                 </label>
                                                 <div class="input-box-userDashboard ">
                                                   <input

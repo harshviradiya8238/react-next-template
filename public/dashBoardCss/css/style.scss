@@ -75,15 +75,16 @@ html {
 
 .all-btn {
     color: var(--white);
-    padding: 2px 5px;
+    padding: 5px 10px;
     border-radius: 5px;
-    width: 50%;
+    width: 75%;
+    text-align: center;
     margin: 0 auto;
     display: inline-block;
     font-size: 14px;
 }
 .query_all_button{
-    width: 40% !important;
+    width: 100px ;
 }
 
 .Pending-btn {
@@ -111,6 +112,49 @@ html {
 .Re-Active-btn{
     background-color: #8b8ba7;
 }
+
+
+.Pending-text {
+    color: #B0B0B0;
+    font-weight: 600;
+}
+
+.Rejected-text {
+    color: #f82929;
+    font-weight: 600;
+
+}
+
+.Approved-text {
+    color: #058E44;
+    font-weight: 600;
+
+}
+
+.Process-text {
+    color: #Ffac1c;
+    font-weight: 600;
+
+}
+.qyery-text{
+    color: #ff8457;
+    font-weight: 600;
+
+}
+
+.Accepted-text {
+    color: #0050B8;
+    font-weight: 600;
+
+}
+.Re-Active-text{
+    color: #8b8ba7;
+    font-weight: 600;
+
+}
+
+
+
 
 // img {
 //     width: 100%;
@@ -421,7 +465,7 @@ button {
             }
 
             h3 {
-                font-size: 1.3rem;
+                font-size: 1.4rem;
                 margin: 10px 0;
 
             }
@@ -434,21 +478,21 @@ button {
             font-weight: 600;
             margin: 20px 0;
             span{
-                position: relative;
+                // position: relative;
                 font-size: 26px;
                 font-weight: 600;
                 
                 z-index: 0;
-                &::before{
-                    content: "";
-                    min-width: 220px;
-                    height: 12px;
-                    position: absolute;
-                    background: #CDDCFE;
-                    border-radius: 16px 16px 5px 5px;
-                    bottom: 3px;
-                    z-index: -1;
-                }
+                // &::before{
+                //     content: "";
+                //     min-width: 220px;
+                //     height: 12px;
+                //     position: absolute;
+                //     background: #CDDCFE;
+                //     border-radius: 16px 16px 5px 5px;
+                //     bottom: 3px;
+                //     z-index: -1;
+                // }
             }
             .cashback{
                 &::before{
@@ -573,10 +617,10 @@ button {
             thead {
                 tr {
                     th {
-                        text-align: center;
-                        padding: 10px 0;
+                        text-align: left;
+                        padding: 10px 10px;
                         color: var(--theam-color);
-                        font-size: 1.2rem;
+                        font-size: 16px;
                     }
                 }
             }
@@ -585,10 +629,11 @@ button {
                 tr {
 
                     td {
-                        text-align: center;
-                        padding: 10px 0;
+                        text-align: left;
+                        padding: 10px 10px;
                         color: rgba(0, 0, 0, 0.64);
-                        font-weight: 600;
+                        // font-weight: 600;
+                        font-size: 16px;
                         align-items: center;
                         margin-top: auto;
 
@@ -698,7 +743,7 @@ button {
         }
         .text-head{
             color: #1A4DBE;
-            font-size: 17px;
+            font-size: 16px;
             margin-bottom  :10px ;
             margin-top: 10px;
             margin-left: 0px;

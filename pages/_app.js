@@ -7,9 +7,10 @@ import "@fortawesome/fontawesome-free/css/all.min.css";
 import { NotificationContainer } from "react-notifications";
 
 import { wrapper } from "../store";
+import useAutoLogout from "../helper/useAutoLogout";
 
 function App({ Component, pageProps }) {
-  // useAutoLogout(25 * 60 * 1000);
+  useAutoLogout(24 * 60 * 1000);
   useEffect(() => {
     require("bootstrap/dist/js/bootstrap.bundle.min.js");
   }, []);

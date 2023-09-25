@@ -17,7 +17,7 @@ export default function DashBoardDefault() {
       // const token = localStorage.getItem("logintoken");
       try {
         const userData = jwtDecode(token);
-        const response = await axios.get(
+        const response = await API.get(
           `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
           {
             headers: {
@@ -59,7 +59,7 @@ export default function DashBoardDefault() {
                   <img src="/images/aplication.png" alt="" />
                 </div>
                 <h3>Total Loan Application</h3>
-                <p class="text-end">10</p>
+                <p class="text-end">0</p>
               </div>
 
               <div class="card" style={{ backgroundColor: "#C7F9CC" }}>
@@ -67,7 +67,7 @@ export default function DashBoardDefault() {
                   <img src="/images/loan-approval.png" alt="" />
                 </div>
                 <h3>Total Approved Loan</h3>
-                <p class="text-end">03</p>
+                <p class="text-end">0</p>
               </div>
 
               <div class="card" style={{ backgroundColor: "#CCEEFC" }}>
@@ -75,7 +75,7 @@ export default function DashBoardDefault() {
                   <img src="/images/pending.png" alt="" />
                 </div>
                 <h3>Total Pending Loan</h3>
-                <p class="text-end">03</p>
+                <p class="text-end">0</p>
               </div>
 
               <div class="card" style={{ backgroundColor: "#BEE3DB" }}>
@@ -83,7 +83,7 @@ export default function DashBoardDefault() {
                   <img src="/images/loan.png" alt="" />
                 </div>
                 <h3>Total Amount Of Loan</h3>
-                <p class="text-end">₹ 5,00,000</p>
+                <p class="text-end">₹ 0</p>
               </div>
 
               <div class="card" style={{ backgroundColor: "#98e7ff" }}>
@@ -91,7 +91,7 @@ export default function DashBoardDefault() {
                   <img src="/images/cashbak.png" alt="" />
                 </div>
                 <h3>Cashback</h3>
-                <p class="text-end mt-4">₹ 2500</p>
+                <p class="text-end mt-4">₹ 0</p>
               </div>
 
               <div class="card" style={{ backgroundColor: "#ABBCEE" }}>
@@ -99,7 +99,7 @@ export default function DashBoardDefault() {
                   <img src="/images/refer.png" alt="" />
                 </div>
                 <h3>Refer & Earn</h3>
-                <p class="text-end mt-4">₹ 3900</p>
+                <p class="text-end mt-4">₹ 0</p>
               </div>
             </div>
 
@@ -125,48 +125,48 @@ export default function DashBoardDefault() {
                     </tr>
                   </thead>
                   <tbody>
-                    {currentItems && currentItems.length
-                      ? currentItems.map((data, index) => {
-                          return (
-                            <>
-                              <tr key={index}>
-                                <td>{index + 1}</td>
-                                <td>
-                                  {data?.applicationNumberForLoan
-                                    ? data?.applicationNumberForLoan?.toUpperCase()
-                                    : data?.applicationNumber}
-                                </td>
-                                <td>{data?.amount}</td>
+                    {currentItems &&
+                      currentItems.map((data, index) => {
+                        return (
+                          <>
+                            <tr key={index}>
+                              <td>{index + 1}</td>
+                              <td>
+                                {data?.applicationNumberForLoan
+                                  ? data?.applicationNumberForLoan?.toUpperCase()
+                                  : data?.applicationNumber}
+                              </td>
+                              <td>{data?.amount}</td>
 
-                                <td>{data?.tenure ? data?.tenure : 2}</td>
-                                <td>
-                                  {data?.loanTypeName
-                                    ? data?.loanTypeName
-                                        .charAt(0)
-                                        .toUpperCase() +
-                                      data?.loanTypeName.slice(1).toLowerCase()
-                                    : "Home Loan"}
-                                </td>
-                                <td>
-                                  <span
-                                    class={`all-btn ${
-                                      data?.status === "Pending"
-                                        ? "Pending-btn"
-                                        : data?.status === "Query"
-                                        ? "qyery-btn"
-                                        : data?.status === "Reject"
-                                        ? "Rejected-btn"
-                                        : data?.status === "Approve"
-                                        ? "Approved-btn"
-                                        : data?.status === "Incomplete"
-                                        ? "Process-btn"
-                                        : ""
-                                    }`}
-                                  >
-                                    {data?.status}
-                                  </span>
-                                </td>
-                                {/* <td>
+                              <td>{data?.tenure ? data?.tenure : 0}</td>
+                              <td>
+                                {data?.loanTypeName
+                                  ? data?.loanTypeName.charAt(0).toUpperCase() +
+                                    data?.loanTypeName.slice(1).toLowerCase()
+                                  : "Home Loan"}
+                              </td>
+                              <td>
+                                <span
+                                  class={`all-btn ${
+                                    data?.status === "Pending"
+                                      ? "Pending-btn"
+                                      : data?.status === "Query"
+                                      ? "qyery-btn"
+                                      : data?.status === "Reject"
+                                      ? "Rejected-btn"
+                                      : data?.status === "Approve"
+                                      ? "Approved-btn"
+                                      : data?.status === "Incomplete"
+                                      ? "Process-btn"
+                                      : ""
+                                  }`}
+                                >
+                                  {data?.status === "Approve"
+                                    ? "Approved"
+                                    : data?.status}
+                                </span>
+                              </td>
+                              {/* <td>
                                   <div>
                                     <Link
                                       href={`/userDashBoard/viewLoan/${data?.id}`}
@@ -197,11 +197,10 @@ export default function DashBoardDefault() {
                                     </Link>
                                   </div>
                                 </td> */}
-                              </tr>
-                            </>
-                          );
-                        })
-                      : ""}
+                            </tr>
+                          </>
+                        );
+                      })}
                   </tbody>
                 </Table>
                 <>
@@ -215,12 +214,14 @@ export default function DashBoardDefault() {
               {/* <div class="btn-section-dashbard">
                 <button class="view-btn-dashbard">View More</button>
               </div> */}
-              {currentItems.length && (
+              {currentItems && currentItems.length ? (
                 <div className="text-end mb-2 ">
                   <Link href="/userDashBoard/myloan">
                     <button className="fs-5 profile-btn">View More</button>
                   </Link>
                 </div>
+              ) : (
+                ""
               )}
               {/* <button>
               </button> */}
