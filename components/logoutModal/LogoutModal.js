@@ -12,13 +12,7 @@ function LogoutModal({ show, close }) {
     Notification("success", "Logout successFully");
   };
   return (
-    <div
-      className="modal show "
-      style={{
-        display: "block",
-        position: "initial",
-      }}
-    >
+    <div className="modal show d-block">
       <Modal show={show} onHide={close} style={{ zIndex: "9999" }}>
         <Modal.Header closeButton>
           {/* <Modal.Title>Logout</Modal.Title> */}

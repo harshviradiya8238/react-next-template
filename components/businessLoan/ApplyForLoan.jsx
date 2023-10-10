@@ -1,140 +1,10 @@
-// import React, { useState } from "react";
-// import Stepper from "react-stepper-horizontal";
-import LoanForm from "../common/LoanForm";
-import LoanDetailForm from "../common/LoanDetailForm";
-import UploadDoc from "../common/UploadDoc";
-
-// // import './App.css';
-
-// function UserDetails() {
-//   return <LoanForm />;
-// }
-
-// function LoanDetail() {
-//   return <LoanDetailForm />;
-// }
-
-// function UploadDocument() {
-//   return <UploadDoc />;
-// }
-
-// function Confirmation() {
-//   return <h2>Application Submited </h2>;
-// }
-// function ApplyForLoan() {
-//   const [activeStep, setActiveStep] = useState(0);
-
-// const steps = [
-//   { title: "Basic Details" },
-//   { title: "Loan Details" },
-//   { title: "Document Details" },
-//   { title: "Application confirmation" },
-// ];
-
-//   function getSectionComponent() {
-
-//     const [formData, setFormData] = useState({
-//       name: '',
-//       email: '',
-//       password: '',
-//       confirmPassword: '',
-//       address: '',
-//       city: '',
-//       country: ''
-//     });
-
-//     switch (activeStep) {
-//       case 0:
-//         return <UserDetails />;
-//       case 1:
-//         return <LoanDetail />;
-//       case 2:
-//         return <UploadDocument />;
-//       case 3:
-//         return <Confirmation />;
-//       default:
-//         return null;
-//     }
-//   }
-
-//   return (
-//     <section className="apply-for-loan business-loan" id="business-loan-form">
-//       <div className="overlay pt-120">
-//         <div className="container wow fadeInUp">
-//           <div className="row justify-content-center">
-//             {/* <div className="col-lg-8">
-//               <div className="section-header text-center">
-//                 <h2 className="title">
-//                   Apply for  Loan today.
-//                 </h2>
-//                 <p>
-//                   Get business loans approved within days with transparent
-//                   lending criteria and transparent processes.
-//                 </p>
-//               </div>
-//             </div> */}
-//           </div>
-//           <div className="row justify-content-center">
-//             <div className="col-lg-10">
-//               <div className="form-content">
-//                 <div className="section-header text-center">
-//                   <h2 className="title">Apply for  Loan</h2>
-//                   <p>
-//                     Please fill the form below. We will get in touch with you
-//                     within 1-2 business days, to request all necessary details
-//                   </p>
-//                 </div>
-//                 {/* Loan form  */}
-
-//                 <div style={{ marginTop: "100px" }}>
-//                   <Stepper steps={steps} activeStep={activeStep} />
-//                   <div style={{ padding: "20px" }}>
-//                     {getSectionComponent()}
-//                     <div className="d-flex">
-//                       {activeStep !== 0 && activeStep !== steps.length && (
-//                         <div
-//                           className="btn-area text-center m-4"
-//                           onClick={() => setActiveStep(activeStep - 1)}
-//                         >
-//                           <button className="cmn-btn ">Previous</button>
-//                         </div>
-//                       )}
-//                       {activeStep !== steps.length - 1 && (
-//                         <div
-//                           className="btn-area text-center m-4"
-//                           onClick={() => setActiveStep(activeStep + 1)}
-//                         >
-//                           <button className="cmn-btn">Next</button>
-//                         </div>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
-// export default ApplyForLoan;
-
-// Copy code
 import React, { useState, useRef, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Stepper from "react-stepper-horizontal";
 import "react-phone-number-input/style.css";
-import PhoneInput from "react-phone-number-input";
-import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
-import { sendOTP } from "../../store/actions/userAction";
-// import BootstrapTable from "react-bootstrap-table-next";
-// import "bootstrap/dist/css/bootstrap.min.css";
-
 import axios from "axios";
 import Notification from "../utils/Notification";
 import Link from "next/link";
@@ -177,21 +47,7 @@ const validationSchema = Yup.object().shape({
   }),
 });
 
-const data = [
-  { id: 1, name: "HDFC Bank	", intrest: "12%", amount: "4000" },
-  { id: 2, name: "Axis Bank	", intrest: "14%", amount: "5000" },
-  { id: 3, name: "ICICI Bank	", intrest: "14%", amount: "3500" },
-];
-
-const columns = [
-  { dataField: "id", text: "ID" },
-  { dataField: "name", text: "Bank Name" },
-  { dataField: "intrest", text: "Rate of Intrest" },
-];
-
 function ApplyForLoan() {
-  const dispatch = useDispatch();
-
   const [selectedRow, setSelectedRow] = useState(null);
 
   const [state, setSatate] = useState({
@@ -210,34 +66,6 @@ function ApplyForLoan() {
     activeStep: 0,
   });
 
-  // useEffect(() => {
-  //   const isFirstStepCompleted = localStorage.getItem("isFirstStepCompleted");
-
-  //   if (isFirstStepCompleted === "true") {
-  //     // User has completed the first step, so hide it
-  //     stepsmain.shift(); // Remove the first step from the array
-  //   }
-  // }, []);
-
-  // useEffect(() => {
-  //   // Check if a user object exists in local storage
-  //   const userObject = localStorage.getItem("user");
-  //   console.log(userObject);
-  //   if (userObject) {
-  //     // If the user object exists, update the active step in Formik's initialValues
-  //     // to set the initial active step to 2
-  //     setSatate({ ...state, activeStep: 1 });
-  //   }
-  // }, []);
-  const selectRow = {
-    // mode: "checkbox",
-    clickToSelect: true,
-    bgColor: "#f8f9fa",
-    mode: "radio", // Single row selection mode
-    clickToSelect: true,
-    selected: selectedRow, // Set the selected row ID
-  };
-
   const stepsmain = [
     { title: "Basic Details" },
     { title: "Loan Details" },
@@ -247,11 +75,8 @@ function ApplyForLoan() {
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const [sendOtp, setVerifyOtp] = useState(false);
-  const [uploadError, setUploadError] = useState("");
 
   const [eligiblity, setEligiblity] = useState(false);
-  const [phoneValue, setPhoneValue] = useState();
-  const [startDate, setStartDate] = useState(new Date());
   const [apiData, setapiData] = useState({});
   const [loanTypeOption, setLoanTypeOption] = useState([]);
   const [countryStateOption, SetCountryStateOption] = useState("");
@@ -278,7 +103,6 @@ function ApplyForLoan() {
 
   useEffect(() => {
     const CurrentStep = Number(localStorage.getItem("currentStep")) || 0;
-    console.log(CurrentStep, "-------------");
     setSatate((oldState) => {
       return { ...oldState, activeStep: CurrentStep };
     });
@@ -315,10 +139,6 @@ function ApplyForLoan() {
     GetAllState();
   }, []);
 
-  // const handleFunctionSave = (value) => {
-  //   setUserLoginData(value);
-  // };
-
   const handleSelectoption = ({ target }) => {
     setSelectOption(target.value);
     setSelectOptionName(target.name);
@@ -348,8 +168,6 @@ function ApplyForLoan() {
       setErrorLoanTerm("please enter loan tenure between 0 to 20");
       setLoanTerm(inputValue);
     }
-    // setErrorLoanTerm("");
-    // setSelectOptionName(target.name);
   };
   const handlePincodeChange = async (event) => {
     const newPincode = event.target.value;
@@ -361,7 +179,7 @@ function ApplyForLoan() {
           `https://dev.yowza.international/location/details/${newPincode}`
         );
         const { places, state, country, City } = response.data.data;
-        // setCity(places[0]["place name"]);
+
         setCity(City);
         setPincodeError("");
       } catch (error) {
@@ -379,34 +197,10 @@ function ApplyForLoan() {
       setCityError("");
     }
   };
-  const GetAll = async (tokenD) => {
-    // const token = localStorage.getItem("logintoken");
-    try {
-      const response = await API.get("/LoanType/GetAll");
-      const { data } = response;
-
-      setLoanTypeOption(data.value);
-    } catch (error) {
-      console.log(error);
-      // Notification("error", error?.response?.data[0]?.errorMessage);
-    }
-  };
-  const GetAllState = async () => {
-    try {
-      const response = await API.get("/State/GetAll");
-      const { data } = response;
-      SetCountryStateOption(data.value);
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const handleGetAllType = async () => {};
 
   const aRef = useRef(null);
 
   const handleSendOtp = async (data, value) => {
-    console.log(value.step1.phone.length);
     if (
       value.step1.firstName &&
       value.step1.lastName &&
@@ -443,7 +237,6 @@ function ApplyForLoan() {
   };
 
   const handleCreateApplication = async (e, value, setFieldValue) => {
-    console.log("sfsfsfs");
     e.preventDefault();
     if (!selectOption) {
       setErrorLoanType("Please Select Loan Type.");
@@ -582,20 +375,13 @@ function ApplyForLoan() {
       );
       const { data } = response;
 
-      // await Notification("success", data?.value?.message);
-      // setEligiblity(true);
-
       if (data?.value?.bank?.length > 0) {
         setBankOption([...data.value.bank]);
-
-        // setEligiblity(true);
       } else {
         setFieldValue("activeStep", 2);
         setBankOption([]);
-        // setSatate({ ...state, activeStep: 2 });
       }
       if (data?.value?.document?.length > 0) {
-        const inputArray = data.value.document;
         const filteredData = data?.value?.document.filter(
           (item) => item.name !== "Other"
         );
@@ -607,9 +393,6 @@ function ApplyForLoan() {
       console.log(error);
       Notification("error", error?.response?.data[0]?.errorMessage);
     }
-  };
-  const handleCheckEligiblity = () => {
-    setEligiblity(true);
   };
 
   const handleNext = async (setFieldValue, values) => {
@@ -629,7 +412,6 @@ function ApplyForLoan() {
     // Handle form submission
   };
   const handlePreviewFile = (file) => {
-    console.log(file, "============");
     if (file) {
       const reader = new FileReader();
       reader.onload = () => {
@@ -655,39 +437,14 @@ function ApplyForLoan() {
     );
 
     if (allUploadEmpty && uploadedOtherDocuemnt.length == 0) {
-      console.log("if");
       Notification("error", "Please Upload atleast one document ");
       return;
     } else {
       setFieldValue("activeStep", 3);
     }
   };
-  const handleFieldChange = (index, field, value) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments[index][field] = value;
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
-  };
-  const addOtherDocumentField = () => {
-    if (docFiles.otherDocuments.length < 5) {
-      setdocFiles((prevState) => ({
-        ...prevState,
-        otherDocuments: [
-          ...prevState.otherDocuments,
-          { label: "", files: [], editable: true },
-        ],
-      }));
-    }
-  };
+
   const handlePanFileChange = (fieldType, event, id) => {
-    // if (
-    //   event.target.files[index].type === "application/pdf" ||
-    //   event.target.files[index].type.includes("image")
-    // ) {
     if (event.target.files.length) {
       for (let index = 0; index < event.target.files.length; index++) {
         event.target.files[index].documentTypeId = id;
@@ -701,9 +458,6 @@ function ApplyForLoan() {
       ...prevState,
       [fieldType]: selectedFiles,
     }));
-    // } else {
-    //   return Notification("error", "only Accept PDF and image");
-    // }
   };
   const handleRemoveFile = (fieldType, index) => {
     setdocFiles((prevState) => ({
@@ -711,48 +465,7 @@ function ApplyForLoan() {
       [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
     }));
   };
-  const handleOtherDocumentFileChange = (index, event) => {
-    if (
-      event.target.files[index].type === "application/pdf" ||
-      event.target.files[index].type.includes("image")
-    ) {
-      const selectedFiles = [...event.target.files];
-      const updatedFiles = selectedFiles.slice(0, 3);
-      handleFieldChange(index, "files", updatedFiles);
-    } else {
-      return Notification("error", "only Accept PDF and image");
-    }
-  };
-  // const handleRemoveOtherDocumentFile = (index, fileIndex) => {
-  //   setdocFiles((prevState) => {
-  //     const otherDocuments = [...prevState.otherDocuments];
-  //     otherDocuments[index].files.splice(fileIndex, 1);
-  //     return {
-  //       ...prevState,
-  //       otherDocuments,
-  //     };
-  //   });
-  // };
-  const handleToggleEdit = (index) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments[index].editable = !otherDocuments[index].editable;
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
-  };
-  const handleDeleteField = (index) => {
-    setdocFiles((prevState) => {
-      const otherDocuments = [...prevState.otherDocuments];
-      otherDocuments.splice(index, 1);
-      return {
-        ...prevState,
-        otherDocuments,
-      };
-    });
-  };
+
   const handleKeyPress = (event) => {
     var charCode = event.which ? event.which : event.keyCode;
     if (
@@ -838,9 +551,7 @@ function ApplyForLoan() {
   };
 
   const handleUploadForField = async (id, name) => {
-    console.log("sdasdasd", docFiles[name]);
     const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
-    console.log(files);
     const formData = new FormData();
     files &&
       files.forEach(async (element, index) => {
@@ -879,17 +590,11 @@ function ApplyForLoan() {
         Notification("error", error?.response?.data[0]?.errorMessage);
       }
     } else {
-      Notification("error", "select At least one doc");
+      Notification("error", "Please Upload atleast one document");
     }
   };
 
   const handleUploadForOtherDocument = async () => {
-    console.log(
-      selectedFilesArray,
-      otherDocumentId,
-      documentFileName,
-      "============================================"
-    );
     if (
       !otherDocumentId ||
       selectedFilesArray.length === 0 ||
@@ -939,10 +644,7 @@ function ApplyForLoan() {
 
   return (
     <section className="apply-for-loan business-loan" id="business-loan-form">
-      <NavBar
-        userLoginData={userLoginData}
-        // setUserLoginData={handleFunctionSave()}
-      />
+      <NavBar userLoginData={userLoginData} />
       <div className="overlay pt-120">
         <div className="container wow fadeInUp">
           <div className="row justify-content-center"></div>
@@ -977,7 +679,6 @@ function ApplyForLoan() {
                           activeStep={values.activeStep}
                         />
                         <div className="stepper-field-form">
-                          {console.log(values.activeStep, "=-===-=-")}
                           {values.activeStep === 0 && (
                             <div>
                               {sendOtp ? (
@@ -1120,14 +821,12 @@ function ApplyForLoan() {
                                                   "success",
                                                   "OTP Verify SuccessFully and Password Send on Your Email"
                                                 );
-                                                // await GetAllState();
-                                                // await GetAll(tokenData);
+
                                                 await window.location.reload();
                                                 await handleNext(
                                                   setFieldValue,
                                                   values
                                                 );
-                                                // handleGetAllType();
                                               }
                                             } catch (error) {
                                               console.log(error);
@@ -1136,18 +835,10 @@ function ApplyForLoan() {
                                                 error?.response?.data[0]
                                                   .errorMessage
                                               );
-                                              // console.log(error);
                                             }
                                           }
                                         }}
-                                        // style={{ width: "auto" }}
                                         className="cmn-btn"
-                                        // disabled={
-                                        //   !values.step1 ||
-                                        //   !values.step1.name ||
-                                        //   !values.step1.email ||
-                                        //   !values.step1.state
-                                        // }
                                       >
                                         Verify OTP
                                       </button>
@@ -1229,13 +920,6 @@ function ApplyForLoan() {
                                           Contact No:
                                         </label>
                                         <div className="mobile-number-input">
-                                          {/* <img
-                                            src="/images/india_2.png"
-                                            className="indiaFlag"
-                                          />
-                                          <span className="country-code">
-                                            +91
-                                          </span> */}
                                           <Field
                                             type={"number"}
                                             onKeyPress={(event) => {
@@ -1256,43 +940,12 @@ function ApplyForLoan() {
                                           component="div"
                                           className="error_phone"
                                         />
-                                        {/* <PhoneInput
-                                          name="step1.phone"
-                                          international
-                                          defaultCountry="IN"
-                                          placeholder="+91 9999999999"
-                                          value={phoneValue}
-                                          onChange={setPhoneValue}
-                                          onKeyPress={(event) => {
-                                            if (
-                                              event.target.value.length > 18
-                                            ) {
-                                              event.preventDefault();
-                                            }
-                                          }}
-                                        /> */}
-                                        {/* <ErrorMessage
-                                        name="step1.phone"
-                                        component="input"
-                                        className="all_error"
-                                      /> */}
                                       </div>
                                     </div>
                                   </div>
                                   <div>
                                     <button
                                       className="cmn-btn"
-                                      // style={{
-                                      //   backgroundColor:
-                                      //     values.step1.firstName &&
-                                      //     values.step1.lastName &&
-                                      //     values.step1.email &&
-                                      //     values.step1.phone &&
-                                      //     values.step1.phone.toString()
-                                      //       .length === 10
-                                      //       ? "#1a4dbe"
-                                      //       : "gray",
-                                      // }}
                                       disabled={
                                         !values.step1.firstName ||
                                         !values.step1.lastName ||
@@ -1312,20 +965,6 @@ function ApplyForLoan() {
                                   </div>
                                 </>
                               )}
-
-                              {/* <button
-                              type="button"
-                              onClick={() => handleNext(setFieldValue, values)}
-                              className="cmn-btn"
-                              disabled={
-                                !values.step1 ||
-                                !values.step1.name ||
-                                !values.step1.email ||
-                                !values.step1.state
-                              }
-                            >
-                              Next
-                            </button> */}
                             </div>
                           )}
                           {values.activeStep === 1 && (
@@ -1342,7 +981,6 @@ function ApplyForLoan() {
                                         <tr>
                                           <th scope="col"></th>
                                           <th scope="col">Bank Name</th>
-                                          {/* <th scope="col">Rate of interest</th> */}
                                         </tr>
                                       </thead>
                                       <tbody>
@@ -1386,7 +1024,6 @@ function ApplyForLoan() {
                                                     </label>
                                                   </th>
                                                   <td>{elm?.name}</td>
-                                                  {/* <td>{elm?.interestRate}</td> */}
                                                 </tr>
                                               </>
                                             );
@@ -1399,10 +1036,7 @@ function ApplyForLoan() {
                                       type="button"
                                       className="cmn-btn me-3"
                                       onClick={() => {
-                                        // handlePrevious(setFieldValue, values);
-                                        // setFieldValue("activeStep", 1);
                                         setBankOption([]);
-                                        // setEligiblity(false);
                                       }}
                                     >
                                       Previous
@@ -1421,6 +1055,7 @@ function ApplyForLoan() {
                                                 loanApplicationId:
                                                   loanApplicationId,
                                                 bankIds: selectedRowData,
+                                                tenure: Number(loanTerm),
                                                 loanTypeId: selectOption,
                                                 amount: loanAmount,
                                                 stateId: Number(countryState),
@@ -1433,8 +1068,6 @@ function ApplyForLoan() {
                                               "success",
                                               "Bank selection Submitted successfully"
                                             );
-                                            // setEligiblity(true);
-                                            // setFieldValue("activeStep", values.activeStep + 1);
                                           } catch (error) {
                                             console.log(error);
                                             Notification("error", "error");
@@ -1500,9 +1133,6 @@ function ApplyForLoan() {
                                                 loanTypeOption.length > 0 && (
                                                   <select
                                                     className="selectDrop form-select"
-                                                    // aria-label="Default select example"
-                                                    // placeholder="select Loan Type"
-                                                    // name="step2verify.loanType"
                                                     value={selectOption}
                                                     onChange={
                                                       handleSelectoption
@@ -1528,11 +1158,6 @@ function ApplyForLoan() {
                                                     )}
                                                   </select>
                                                 )}
-                                              {/* <ErrorMessage
-                                                name="step2verify.loanType"
-                                                component="div"
-                                                className="all_error"
-                                              /> */}
                                             </>
                                             {errorLoanType && (
                                               <p className="all_error">
@@ -1566,25 +1191,12 @@ function ApplyForLoan() {
                                                   event.preventDefault();
                                                 }
                                               }}
-                                              // onKeyPress={(event) => {
-                                              //   if (
-                                              //     event.target.value.length > 1
-                                              //   ) {
-                                              //     event.preventDefault();
-                                              //   }
-                                              //   // handleKeyPress(event);
-                                              // }}
                                             />
                                             {errorLoanTerm && (
                                               <p className="all_error">
                                                 {errorLoanTerm}
                                               </p>
                                             )}
-                                            {/* <ErrorMessage
-                                              name="step2.loanTerm"
-                                              component="div"
-                                              className="all_error"
-                                            /> */}
                                           </div>
                                         </div>
                                         <div className="col-6">
@@ -1650,14 +1262,8 @@ function ApplyForLoan() {
                                               value={pincode}
                                               onChange={handlePincodeChange}
                                               placeholder="Enter Pincode"
-                                              // value={loanAmount}
-                                              // onChange={handleChnageLoanAmount}
                                             />
-                                            {/* {loanAmountError && (
-    <p className="all_error">
-      {loanAmountError}
-    </p>
-  )} */}
+
                                             {pincodeError && (
                                               <p className="all_error">
                                                 {pincodeError}
@@ -1689,20 +1295,6 @@ function ApplyForLoan() {
                                         </div>
                                       </div>
                                       <div className="d-flex justify-content-start align-items-center">
-                                        {/* <button
-                                          type="button"
-                                          className="cmn-btn"
-                                          style={{ marginRight: "10px" }}
-                                          onClick={() =>
-                                            handlePrevious(
-                                              setFieldValue,
-                                              values
-                                            )
-                                          }
-                                        >
-                                          Previous
-                                        </button> */}
-
                                         <button
                                           onClick={async (e) => {
                                             !isLoanCreat
@@ -1739,9 +1331,6 @@ function ApplyForLoan() {
                                             <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                                               <div key={index}>
                                                 <label>
-                                                  <span className="astrisk_mark">
-                                                    *
-                                                  </span>
                                                   {data?.name}
                                                   {data?.instructions && (
                                                     <span className="instructions">
@@ -1790,21 +1379,12 @@ function ApplyForLoan() {
                                                         <div key={index}>
                                                           <div className="delete_div">
                                                             {file && (
-                                                              // <PreviewComponent
-                                                              //   file={file}
-                                                              // />
                                                               <span
                                                                 className="document_hyper_link"
-                                                                onClick={
-                                                                  () =>
-                                                                    handlePreviewFile(
-                                                                      file
-                                                                    )
-
-                                                                  // window.open(
-                                                                  //   previewUrl,
-                                                                  //   "_blank"
-                                                                  // )
+                                                                onClick={() =>
+                                                                  handlePreviewFile(
+                                                                    file
+                                                                  )
                                                                 }
                                                               >
                                                                 {file?.name}
@@ -1819,7 +1399,6 @@ function ApplyForLoan() {
                                                                     index
                                                                   )
                                                                 }
-                                                                // className="pointer"
                                                               />
                                                             </div>
                                                           </div>
@@ -1839,16 +1418,10 @@ function ApplyForLoan() {
                                                     <div key={index}>
                                                       <span
                                                         className="document_hyper_link"
-                                                        onClick={
-                                                          () =>
-                                                            handlePreviewFile(
-                                                              file?.file
-                                                            )
-
-                                                          // window.open(
-                                                          //   previewUrl,
-                                                          //   "_blank"
-                                                          // )
+                                                        onClick={() =>
+                                                          handlePreviewFile(
+                                                            file?.file
+                                                          )
                                                         }
                                                       >
                                                         {file?.name}
@@ -1864,12 +1437,7 @@ function ApplyForLoan() {
 
                                     <div>
                                       <div class="row">
-                                        {/* {docFiles.otherDocuments.map(
-                                        (field, fieldIndex) => ( */}
-                                        <div
-                                          // key={fieldIndex}
-                                          class="my-4 col-lg-12 col-md-12 col-sm-12"
-                                        >
+                                        <div class="my-4 col-lg-12 col-md-12 col-sm-12">
                                           <label>Other Document</label>
                                           <div className="d-flex align-items-baseline">
                                             <div>
@@ -1884,7 +1452,7 @@ function ApplyForLoan() {
                                                 }
                                               />
                                             </div>
-                                            <div className="input-box">
+                                            <div>
                                               <input
                                                 type="file"
                                                 accept=".jpg, .jpeg, .png, .bmp, .pdf"
@@ -1955,16 +1523,10 @@ function ApplyForLoan() {
                                                   <div key={index}>
                                                     <span
                                                       className="document_hyper_link"
-                                                      onClick={
-                                                        () =>
-                                                          handlePreviewFile(
-                                                            file?.file
-                                                          )
-
-                                                        // window.open(
-                                                        //   previewUrl,
-                                                        //   "_blank"
-                                                        // )
+                                                      onClick={() =>
+                                                        handlePreviewFile(
+                                                          file?.file
+                                                        )
                                                       }
                                                     >
                                                       {file?.name}
@@ -1997,23 +1559,16 @@ function ApplyForLoan() {
                                       onClick={() =>
                                         handleSubmitUploadDoc(setFieldValue)
                                       }
-                                      // onClick={() =>
-                                      //   handleNext(setFieldValue, values)
-                                      // }
-                                      // disabled={
-                                      //   !values.step2 ||
-                                      //   !values.step2.loanAmount ||
-                                      //   !values.step2.loanType ||
-                                      //   !values.step2.state ||
-                                      //   !values.step2.loanTerm
-                                      // }
                                     >
                                       Submit
                                     </button>
                                   </div>
 
                                   <span className="valid_formate">
-                                    * Valid File Formats JPG, JPEG, PNG, PDF
+                                    * Valid File Formats JPG, JPEG, PNG, PDF{" "}
+                                    <br />* Maximum allowed file size is of 10MB{" "}
+                                    <br />* After Selecting File, click on
+                                    upload button
                                   </span>
                                 </div>
                               </>
@@ -2022,11 +1577,9 @@ function ApplyForLoan() {
                           {values.activeStep === 3 && (
                             <div class="main-container d-flex container-fluid p-0">
                               <div class="loan-aplication-approver-section">
-                                {/* <h1 class="text-center">Loan Bazar</h1> */}
                                 <div class="img-box">
                                   <img src="/images/t.jpg" alt="" />
                                 </div>
-                                {/* <h3 class="thank-you-head">THANK YOU</h3> */}
                                 <div className="thankYou_button">
                                   <Link
                                     href="/userDashBoard"

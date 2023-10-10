@@ -530,7 +530,7 @@ function Profile() {
         </Tab>
         <Tab eventKey="profile" title="KYC Details">
           <div class="form">
-            <div className="d-flex">
+            <div className="row">
               <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                 <label>
                   <span className="astrisk_mark">*</span>

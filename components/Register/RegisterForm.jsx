@@ -84,11 +84,7 @@ const RegisterForm = () => {
                     </div>
                   </div>
                   <div className="btn-area">
-                    <button
-                      type={"submit"}
-                      className="cmn-btn"
-                      style={{ width: "auto" }}
-                    >
+                    <button type={"submit"} className="cmn-btn w-auto">
                       Submit Now
                     </button>
                   </div>

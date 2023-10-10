@@ -63,7 +63,7 @@ html {
 }
 
 .Pending-btn {
-  background-color: #b0b0b0;
+  background-color: #6a152469;
 }
 
 .Rejected-btn {
@@ -167,8 +167,9 @@ button {
 .sidebar .ul-section li {
   background: transparent;
   margin-left: 6px;
-  border-radius: 48px 0 0 48px;
+  border-radius: 5px 0 0 5px;
   padding: 10px 0;
+  /* transition: width 0.3s ease; */
 }
 .sidebar .ul-section li a {
   width: 100%;
@@ -176,7 +177,7 @@ button {
   display: flex;
   align-items: center;
   border-radius: 48px;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--white);
   white-space: nowrap;
   overflow-x: hidden;
@@ -440,11 +441,9 @@ button {
   font-size: 1.3rem;
 }
 .profile-page-section .form {
-  width: min(100% - 20px, 80%);
   margin-inline: auto;
-  /* box-shadow: 0 8px 30px -7px #c9dff0; */
   border-radius: 10px;
-  padding: 2rem 5rem;
+  padding: 2rem 2rem;
 }
 .profile-page-section .form .m-basics {
   margin: 1rem 0;

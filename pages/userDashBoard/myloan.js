@@ -209,6 +209,8 @@ function Myloan() {
                             >
                               {data?.status === "Approve"
                                 ? "Approved"
+                                : data?.status === "Reject"
+                                ? "Rejected"
                                 : data?.status}
                             </span>
                           </td>
@@ -216,31 +218,18 @@ function Myloan() {
                           <td>
                             <Link
                               href={`/userDashBoard/viewLoan/${data?.id}`}
-                              className="cmn-btn"
-                              style={{
-                                background: "none",
-                                padding: "0",
-                                border: "none",
-                                marginRight: "10px",
-                              }}
+                              className="cmn-btn p-0 border-0 mr-2 bg-transparent"
                             >
                               <i class="fa-regular fa-eye" />
                             </Link>
                             {data?.status_Key == 3 || data?.status_Key == 1 ? (
                               <Link
                                 href={`/userDashBoard/editLoan/${data?.id}`}
-                                className="cmn-btn"
-                                style={{
-                                  background: "none",
-                                  padding: "0",
-                                  border: "none",
-                                  marginRight: "10px",
-                                }}
+                                className="cmn-btn p-0 border-0 ms-4 bg-transparent"
                               >
                                 <i
                                   class="fa-solid fa-pen-to-square"
                                   style={{ color: "red" }}
-                                  // className="all_error"
                                 />
                               </Link>
                             ) : (
@@ -255,7 +244,7 @@ function Myloan() {
             </Table>
             <>
               {!currentItems?.length && (
-                <div style={{ textAlign: "center" }}>
+                <div className="text-center">
                   <h4>No Data Found</h4>
                 </div>
               )}

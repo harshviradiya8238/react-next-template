@@ -54,7 +54,7 @@ export default function DashBoardDefault() {
         <div class="loan-content-body">
           <div class="container">
             <div class="card-setion">
-              <div class="card" style={{ backgroundColor: "#CCDBFD" }}>
+              <div class="card total_loan_application">
                 <div class="img-box">
                   <img src="/images/aplication.png" alt="" />
                 </div>
@@ -62,7 +62,7 @@ export default function DashBoardDefault() {
                 <p class="text-end">0</p>
               </div>
 
-              <div class="card" style={{ backgroundColor: "#C7F9CC" }}>
+              <div class="card total_Approved_application">
                 <div class="img-box ">
                   <img src="/images/loan-approval.png" alt="" />
                 </div>
@@ -70,7 +70,7 @@ export default function DashBoardDefault() {
                 <p class="text-end">0</p>
               </div>
 
-              <div class="card" style={{ backgroundColor: "#CCEEFC" }}>
+              <div class="card total_pending_application">
                 <div class="img-box">
                   <img src="/images/pending.png" alt="" />
                 </div>
@@ -78,7 +78,7 @@ export default function DashBoardDefault() {
                 <p class="text-end">0</p>
               </div>
 
-              <div class="card" style={{ backgroundColor: "#BEE3DB" }}>
+              <div class="card total_amount_Loan">
                 <div class="img-box">
                   <img src="/images/loan.png" alt="" />
                 </div>
@@ -86,20 +86,20 @@ export default function DashBoardDefault() {
                 <p class="text-end">₹ 0</p>
               </div>
 
-              <div class="card" style={{ backgroundColor: "#98e7ff" }}>
+              <div class="card total_cashback">
                 <div class="img-box">
                   <img src="/images/cashbak.png" alt="" />
                 </div>
                 <h3>Cashback</h3>
-                <p class="text-end mt-4">₹ 0</p>
+                <p class="text-end ">₹ 0</p>
               </div>
 
-              <div class="card" style={{ backgroundColor: "#ABBCEE" }}>
+              <div class="card total_refer_earn">
                 <div class="img-box">
                   <img src="/images/refer.png" alt="" />
                 </div>
                 <h3>Refer & Earn</h3>
-                <p class="text-end mt-4">₹ 0</p>
+                <p class="text-end ">₹ 0</p>
               </div>
             </div>
 
@@ -117,7 +117,7 @@ export default function DashBoardDefault() {
                       <th>No.</th>
                       <th>Application Number</th>
                       <th>Loan Amount (INR) </th>
-                      <th>Loan Tenure(Year) </th>
+                      <th>Loan Tenure (Year) </th>
                       <th>Loan Type </th>
 
                       <th>Status</th>
@@ -166,37 +166,6 @@ export default function DashBoardDefault() {
                                     : data?.status}
                                 </span>
                               </td>
-                              {/* <td>
-                                  <div>
-                                    <Link
-                                      href={`/userDashBoard/viewLoan/${data?.id}`}
-                                      className="cmn-btn"
-                                      style={{
-                                        background: "none",
-                                        padding: "0",
-                                        border: "none",
-                                        marginRight: "10px",
-                                      }}
-                                    >
-                                      <i class="fa-regular fa-eye" />
-                                    </Link>
-                                    <Link
-                                      href={`/userDashBoard/editLoan/${data?.id}`}
-                                      className="cmn-btn"
-                                      style={{
-                                        background: "none",
-                                        padding: "0",
-                                        border: "none",
-                                        marginRight: "10px",
-                                      }}
-                                    >
-                                      <i
-                                        class="fa-solid fa-pen-to-square"
-                                        className="all_error"
-                                      />
-                                    </Link>
-                                  </div>
-                                </td> */}
                             </tr>
                           </>
                         );
@@ -211,9 +180,7 @@ export default function DashBoardDefault() {
                   )}
                 </>
               </div>
-              {/* <div class="btn-section-dashbard">
-                <button class="view-btn-dashbard">View More</button>
-              </div> */}
+
               {currentItems && currentItems.length ? (
                 <div className="text-end mb-2 ">
                   <Link href="/userDashBoard/myloan">
@@ -223,13 +190,6 @@ export default function DashBoardDefault() {
               ) : (
                 ""
               )}
-              {/* <button>
-              </button> */}
-              {/* <PaginationTable
-                currentPage={currentPage}
-                setCurrentPage={setCurrentPage}
-                totalPages={totalPages}
-              /> */}
             </div>
           </div>
         </div>

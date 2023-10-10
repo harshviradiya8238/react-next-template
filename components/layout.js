@@ -11,18 +11,28 @@ import { NotificationContainer } from "react-notifications";
 import "react-notifications/lib/notifications.css";
 import { useEffect } from "react";
 import useAutoLogout from "../helper/useAutoLogout";
+import useAuth from "../helper/useAuth";
 
 const Layout = ({ children }) => {
-  // useAutoLogout(24 * 60 * 1000);
-
   const router = useRouter();
   const { pathname } = router;
 
-  const [isOpen, setIsOpen] = useState(false);
+  // const isAuthenticated = useAuth();
+
+  // useAutoLogout(24 * 60 * 1000);
+
+  // useEffect(() => {
+  //   if (pathname.includes("userDashBoard") && !isAuthenticated) {
+  //     router.push("/login");
+  //   }
+  // }, [isAuthenticated, pathname]);
+
+  const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
   };
+
   // useEffect(() => {
   //   const handleBeforePopState = (event) => {
   //     if (event.state && event.state.route === "/userDashboard") {

@@ -29,20 +29,7 @@ const NavBar = ({ userLoginData }) => {
       setNewData(userLoginData);
     }
   }, [userLoginData]);
-  // useEffect(() => {
-  //   if (newData == "undefined") {
-  //     if (typeof window !== "undefined") {
-  //       if (localStorage.getItem("user")) {
-  //         var stroge = localStorage.getItem("user");
-  //         if (stroge) {
-  //           var data = JSON.parse(stroge);
-  //           console.log(data, "-=-=-dddddddddddddddddddddddd");
-  //           setNewData(data);
-  //         }
-  //       }
-  //     }
-  //   }
-  // }, []);
+
   const menus = useRef();
 
   const hidenMenu = () => {
@@ -62,37 +49,6 @@ const NavBar = ({ userLoginData }) => {
       window.removeEventListener("scroll", navBarTop);
     };
   }, []);
-
-  // useEffect(() => {
-  //   if (typeof window !== "undefined") {
-  //     const handleStroageChange = (event) => {
-  //       if (event.key === "user") {
-  //         console.log("data2323333333333333333333333333baaar");
-
-  //         console.log("fjdkfd", event.newValue);
-  //         if (event.newValue) {
-  //           var data = JSON.parse(event.newValue);
-  //           console.log("data2323333333333333333333333333", data);
-  //           setUserLoginData(data);
-  //         } else {
-  //           setUserLoginData("");
-  //         }
-  //       }
-  //     };
-  //     window.addEventListener("storage", handleStroageChange);
-  //     if (localStorage.getItem("user")) {
-  //       var stroge = localStorage.getItem("user");
-  //       if (stroge) {
-  //         var data = JSON.parse(stroge);
-  //         setUserLoginData(data);
-  //       }
-  //     }
-
-  //     return () => {
-  //       window.removeEventListener("storage", handleStroageChange);
-  //     };
-  //   }
-  // }, []);
 
   return (
     <header

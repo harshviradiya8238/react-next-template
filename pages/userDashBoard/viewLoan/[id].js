@@ -3,16 +3,15 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import Preloader from "../../../components/preloader/Preloader";
 import API from "../../../helper/API";
+import PaginationTable from "../../../components/paginaton_table/PaginationTable";
 
 function ViewLoan() {
   const router = useRouter();
   const { id } = router.query;
   const [loanData, setLoanData] = useState("");
   const [documentData, setDocumentData] = useState("");
-  const [otherArray, setOtherArray] = useState("");
   const [commentData, setCommentData] = useState("");
 
-  console.log(commentData, "=--=");
   useEffect(() => {
     const { id } = router.query;
     try {
@@ -20,17 +19,8 @@ function ViewLoan() {
         const token = localStorage.getItem("logintoken");
 
         const GetLoanById = async (token) => {
-          // const token = localStorage.getItem("logintoken");
           try {
-            const response = await API.get(
-              `/LoanApplication/GetById?id=${id}`
-
-              // {
-              //   headers: {
-              //     Authorization: `Bearer ${token}`,
-              //   },
-              // }
-            );
+            const response = await API.get(`/LoanApplication/GetById?id=${id}`);
             const { data } = response;
 
             setLoanData(data.value);
@@ -44,43 +34,19 @@ function ViewLoan() {
           try {
             const response = await API.get(
               `/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`
-
-              // {
-              //   headers: {
-              //     Authorization: `Bearer ${token}`,
-              //   },
-              // }
             );
             const { data } = response;
             const originalArray = data.value;
 
-            // let main_array = [];
-            // let other_array = [];
-            // originalArray.forEach((item) => {
-            //   if (item.documentType === "Other") {
-            //     other_array.push(item);
-            //   } else {
-            //     main_array.push(item);
-            //   }
-            // });
-
-            setDocumentData(originalArray);
-            // setOtherArray(other_array);
+            setDocumentData(originalArray.reverse());
           } catch (error) {
             console.log(error);
-            // Notification("error", error?.response?.data[0]?.errorMessage);
           }
         };
         const GetCommentById = async (token) => {
-          // const token = localStorage.getItem("logintoken");
           try {
             const response = await API.get(
               `/LoanApplication/GetQueryByLoanApplicationId?id=${id}`
-              // {
-              //   headers: {
-              //     Authorization: `Bearer ${token}`,
-              //   },
-              // }
             );
             const { data } = response;
 
@@ -99,6 +65,8 @@ function ViewLoan() {
       console.log(error);
     }
   }, [id]);
+
+
   return (
     <div>
       <Preloader />
@@ -142,18 +110,43 @@ function ViewLoan() {
             <form action="" class="form">
               <div>
                 <div class="row">
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                    <label for="first-name">Name</label>
-                    <input
-                      type="text"
-                      id="first-name"
-                      name="first-name"
-                      value={`${loanData?.user?.firstName} ${loanData?.user?.lastName}`}
-                      required
-                      disabled
-                    />
+                  <div className="d-flex justify-content-end">
+                    {/* <span className="mr-10">Loan Status - </span> */}
+                    <h4
+                      class={` ${loanData?.status === "Pending"
+                        ? "Pending-text"
+                        : loanData?.status === "Query"
+                          ? "qyery-text"
+                          : loanData?.status === "Reject"
+                            ? "Rejected-text"
+                            : loanData?.status === "Approve"
+                              ? "Approved-text"
+                              : loanData?.status === "Incomplete"
+                                ? "Process-text"
+                                : ""
+                        }`}
+                    >
+                      {loanData?.status === "Approve"
+                        ? "Approved"
+                        : loanData?.status === "Reject"
+                          ? "Rejected"
+                          : loanData?.status?.toUpperCase()}
+                    </h4>
                   </div>
-                  <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="term">Loan Application Number</label>
+                      <input
+                        type="text"
+                        value={loanData?.applicationNumberForLoan?.toUpperCase()}
+                        id="applicationNumberForLoan"
+                        // placeholder="0"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
                     <div class="single-input">
                       <label>Loan Type</label>
                       <input
@@ -165,7 +158,42 @@ function ViewLoan() {
                       />
                     </div>
                   </div>
-                  <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <label for="Loan-Amount">Loan Amount (INR)</label>
+                    <input
+                      type="number"
+                      id="Loan-Amount"
+                      name="begin"
+                      value={loanData?.amount}
+                      disabled
+                    />
+                  </div>
+
+                  <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                    <div class="single-input">
+                      <label for="term">Loan Tenure (Year)</label>
+                      <input
+                        type="text"
+                        value={loanData?.tenure}
+                        id="term"
+                        placeholder="0"
+                        disabled
+                      />
+                    </div>
+                  </div>
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
+                    <label for="first-name">Name</label>
+                    <input
+                      type="text"
+                      id="first-name"
+                      name="first-name"
+                      value={`${loanData?.user?.firstName} ${loanData?.user?.lastName}`}
+                      required
+                      disabled
+                    />
+                  </div>
+
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                     <label for="email">E-mail</label>
                     <input
                       type="email"
@@ -176,7 +204,7 @@ function ViewLoan() {
                       disabled
                     />
                   </div>
-                  <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                     <label for="phone">Contact No.</label>
                     <div className="mobile-number-input">
                       {/* <img src="/images/india_2.png" className="indiaFlag" />
@@ -226,41 +254,6 @@ function ViewLoan() {
                         placeholder="Gujarat"
                         value={loanData?.state}
                         required=""
-                        disabled
-                      />
-                    </div>
-                  </div>
-
-                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
-                    <label for="loan-status">Loan Status</label>
-                    <input
-                      type="loan-status"
-                      id="loan-status"
-                      name="loan-status"
-                      value={loanData?.status}
-                      required
-                      disabled
-                    />
-                  </div>
-                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
-                    <label for="Loan-Amount">Loan Amount (INR)</label>
-                    <input
-                      type="number"
-                      id="Loan-Amount"
-                      name="begin"
-                      value={loanData?.amount}
-                      disabled
-                    />
-                  </div>
-
-                  <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
-                    <div class="single-input">
-                      <label for="term">Loan Tenure (Year)</label>
-                      <input
-                        type="text"
-                        value={loanData?.tenure}
-                        id="term"
-                        placeholder="0"
                         disabled
                       />
                     </div>
@@ -324,21 +317,22 @@ function ViewLoan() {
                                 <tr key={index}>
                                   <td>
                                     <span
-                                      class={` ${
-                                        elm?.status === "Pending"
-                                          ? "Rejected-text"
-                                          : elm?.status === "Query"
+                                      class={` ${elm?.status === "Pending"
+                                        ? "Rejected-text"
+                                        : elm?.status === "Query"
                                           ? "qyery-text"
                                           : elm?.status === "Reject"
-                                          ? "Rejected-text"
-                                          : elm?.status === "Approved"
-                                          ? "Approved-text"
-                                          : elm?.status === "Submitted"
-                                          ? "Process-text"
-                                          : ""
-                                      }`}
+                                            ? "Rejected-text"
+                                            : elm?.status === "Approved"
+                                              ? "Approved-text"
+                                              : elm?.status === "Submitted"
+                                                ? "Process-text"
+                                                : ""
+                                        }`}
                                     >
-                                      {elm?.status.toUpperCase()}
+                                      {elm?.status === "Reject"
+                                        ? "Rejected"
+                                        : elm?.status.toUpperCase()}
                                     </span>
                                   </td>
                                   <td>{elm?.comment}</td>
@@ -359,7 +353,7 @@ function ViewLoan() {
                                     <div className="query_row_remark  justify-content-start">
                                       {elm.documentList.length ? (
                                         <ul>
-                                          <h5 class="text-head">
+                                          <h5 class="text-head text-head-query">
                                             Uploaded Documents
                                           </h5>
                                           {elm.documentList.length > 0 &&
@@ -392,62 +386,28 @@ function ViewLoan() {
                                 </tr>
                               );
                             })}
-
-                          {/* <tr>
-                            <td>
-                              <span class="all-btn Re-Active-btn">
-                                ReActivate
-                              </span>
-                            </td>
-                            <td>GST Certificate not match</td>
-                            <td>
-                              <span className="remark">
-                                Light Bill not found
-                              </span>
-                            </td>
-                            <td>
-                              {" "}
-                              <i class="fa-regular fa-eye" />
-                            </td>
-                          </tr> */}
-                          {/* <tr>
-                            <td>
-                              <span class="all-btn Process-btn">Re-submit</span>
-                            </td>
-                            <td>GST Certificate not found</td>
-                            <td>
-                              <span className="remark">
-                                GST Certificate has been received
-                              </span>
-                            </td>
-                            <td>
-                              {" "}
-                              <i class="fa-regular fa-eye" />
-                            </td>
-                          </tr> */}
                         </tbody>
                       </table>
+                      <>
+                        {!commentData?.length && (
+                          <div className="text-center">
+                            <h4>No Data Found</h4>
+                          </div>
+                        )}
+                      </>
                     </div>
-                    {/* <div class="text-end">
-                      <div class="pagination">
-                        <a href="#">&laquo;</a>
-                        <a href="#" class="active">
-                          1
-                        </a>
-                        <a href="#">2</a>
-                        <a href="#">3</a>
-                        <a href="#">4</a>
-                        <a href="#">&raquo;</a>
-                      </div>
-                    </div> */}
+
+                    {/* {totalItems > itemsPerPage && (
+                      <PaginationTable
+                        totalItems={totalItems}
+                        itemsPerPage={itemsPerPage}
+                        currentPage={currentPage}
+                        onPageChange={handlePageChange}
+                      />
+                    )} */}
                   </div>
                 </div>
               </div>
-
-              {/* <div class="btn-section">
-                <button class="profile-btn me-3">Edit</button>
-                <button class="profile-btn">Save</button>
-              </div> */}
             </form>
           </div>
 
@@ -459,92 +419,13 @@ function ViewLoan() {
             tabindex="0"
           >
             <div class="form">
-              {/* <>
-                {documentData && documentData.length
-                  ? documentData.map((elm, index) => {
-                      return (
-                        <>
-                          <div class="row">
-                            <div
-                              class="my-4 col-lg-12 col-md-12 col-sm-12"
-                              key={index}
-                            >
-                              <h4 style={{ marginLeft: "0px" }}>
-                                {elm?.documentType}
-                              </h4>
-
-                              <button
-                                className="document_hyper_link"
-                                onClick={() =>
-                                  window.open(elm?.documentURL, "_blank")
-                                }
-                              >
-                                Open
-                              </button>
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })
-                  : ""}
-
-                <h4 class="text-head">Other Document</h4>
-                {otherArray && otherArray.length
-                  ? otherArray.map((elm, index) => {
-                      return (
-                        <>
-                          <div class="row">
-                            <div
-                              class="my-4 col-lg-12 col-md-12 col-sm-12"
-                              key={index}
-                            >
-                              <h4 style={{ marginLeft: "0px" }}>
-                                {elm?.otherDocumentName}
-                              </h4>
-
-                              <button
-                                className="document_hyper_link"
-                                onClick={() =>
-                                  window.open(elm?.documentURL, "_blank")
-                                }
-                              >
-                                Open
-                              </button>
-                            </div>
-                          </div>
-                        </>
-                      );
-                    })
-                  : "No Document Uploaded"}
-              </> */}
-
               <>
-                {/* {Object.keys(groupedDocuments).map((documentType) => (
-                  <div key={documentType}>
-                    <h4 class="text-head">{documentType}</h4>
-                    <ul>
-                      {groupedDocuments[documentType].map((doc, index) => (
-                        <div key={index}>
-                          {console.log(doc)}
-                          <a
-                            href={doc.url}
-                            target="_blank"
-                            className="document_hyper_link"
-                          >
-                            {doc.name}
-                          </a>
-                        </div>
-                      ))}
-                    </ul>
-                  </div>
-                ))} */}
-
                 {documentData &&
                   documentData.map((item, index) => (
                     <div key={index}>
-                      <h4 class="text-head">
+                      <h4 class="text-head text-head-query">
                         {item.documentName === "Other"
-                          ? "Other Document"
+                          ? "Other Documents"
                           : item.documentName}
                       </h4>
 
@@ -552,6 +433,13 @@ function ViewLoan() {
                         {item.documentDetail.length > 0 ? (
                           item.documentDetail.map((detail, i) => (
                             <div key={index}>
+                              {item.documentName === "Other" && (
+                                <>
+                                  <span className="view_doc">
+                                    {detail.otherDocumentName} -{" "}
+                                  </span>
+                                </>
+                              )}
                               <a
                                 href={detail.documentURL}
                                 target="_blank"
@@ -571,57 +459,6 @@ function ViewLoan() {
                   ))}
               </>
             </div>
-            {/* <form action="" class="form">
-              <div class="row">
-                {documentOption?.length > 0 &&
-                  documentOption.map((data, index) => {
-                    return (
-                      <>
-                        <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                          <div key={index}>
-                            <h4>{data?.name}</h4>
-                            <div class="input-box ">
-                              <input
-                                type="file"
-                                multiple
-                                ref={aRef}
-                                class="upload-box"
-                                onChange={(e) =>
-                                  handlePanFileChange(data?.name, e, data?.id)
-                                }
-                              />
-                            </div>
-                          </div>
-                          {docFiles[data?.name]?.length > 0 && (
-                            <div>
-                              <h4>Selected files:</h4>
-                              {docFiles[data?.name] &&
-                                docFiles[data?.name]?.map((file, index) => (
-                                  <div key={index}>
-                                    <div className="selectfile">
-                                      <p>{file?.name}</p>
-
-                                      <i
-                                        class="fa-solid fa-xmark"
-                                        onClick={() =>
-                                          handleRemoveFile(data?.name, index)
-                                        }
-                                        style={{
-                                          cursor: "pointer",
-                                        }}
-                                      ></i>
-                                    </div>
-                                    {file && <PreviewComponent file={file} />}
-                                  </div>
-                                ))}
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    );
-                  })}
-              </div>
-            </form> */}
           </div>
         </div>
 

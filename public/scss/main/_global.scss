@@ -17,13 +17,13 @@ html {
 .form-select{
   border: 1px solid  #cfcfcf !important;
   color: black !important;
-  font-size: 16px !important;
+  font-size: 14px !important;
 }
 
 body {
   // font-family: var(--body-font) !important;
   background-color: var(--body-color);
-  font-size: 18px;
+  font-size: 14px;
   line-height: 30px;
   padding: 0;
   margin: 0;
@@ -135,10 +135,10 @@ button {
 
 input,
 textarea {
-  padding: 0px 12px;
+  padding: 0px 10px;
   // color: #1e266d;
   width: 100%;
-  font-size: 16px !important;
+  font-size: 14px !important;
   // font-family: var(--body-font) !important;
   height: 40px;
   // background: #f5faff;
@@ -333,7 +333,7 @@ li {
   margin: 0;
   // padding: 5px;
   // font-family: var(--body-font) !important;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
   // color: var(--para-color);
   line-height: 30px;
@@ -391,7 +391,7 @@ li {
   margin-top: -7px;
 }
 .mdr {
-  font-size: 16px;
+  font-size: 14px;
   line-height: 22px;
 }
 
@@ -419,7 +419,7 @@ li {
 
 @media (max-width: 991px) {
   .pt-120 {
-    padding-top: 60px;
+    padding-top: 120px;
   }
   .mb-60 {
     margin-bottom: 40px;
@@ -431,7 +431,7 @@ li {
 
 @media (max-width: 575px) {
   .pt-120 {
-    padding-top: 50px;
+    padding-top: 120px;
   }
 }
 
@@ -727,7 +727,7 @@ li {
           align-items: center;
           border: 1px solid var(--light-gray);
           border-radius: 50px;
-        max-width: 120px;
+        max-width: 108px;
           background-color: white;
           // box-shadow: 0 12px 24px rgba(47,65,129,.1);
           // padding: 5px;
@@ -834,12 +834,10 @@ li {
   display: flex;
   align-items: center;
   border-radius: 48px;
-  font-size: 16px;
+  font-size: 14px;
   color: var(--white) !important;
   white-space: nowrap;
   overflow-x: hidden;;
-  
-  
   transition: width .3s ease;
 
 }
@@ -854,18 +852,20 @@ li {
   margin-right: 10px;
 }
 .remark{
-  font-size: 16px;
+  font-size: 14px;
   // font-weight: 600;
 }
 .p-10{
   padding: 10px;
 }
 .document_hyper_link{
-  color: black;
+  color: blue !important;
   cursor: pointer;
-  width: auto;
+  // width: 250px;
+  word-wrap: break-word;
   margin-right: 10px;
-  // margin-left: 10px;
+  // margin-left: 5px;
+
   // margin-top: 10px;
   font-size: 14px;
   border-bottom: 1px solid;
@@ -892,6 +892,7 @@ li {
 .table-container{
   position: relative;
   text-align: center; 
+  overflow: auto;
 }
 .error_phone{
   color: red !important;
@@ -1000,7 +1001,7 @@ button:disabled,
   cursor: pointer;
   color: #1e266d;
   width: 100%;
-  max-width: 122px !important;
+  // max-width: 108px !important;
   background: none !important;
   border: none !important;
   // border-radius: 5px;
@@ -1024,7 +1025,7 @@ button:disabled,
 }
 }
 .input-box{
-  max-width: 120px;
+  max-width: 108px;
 }
 .custom_padding{
  padding:20px 0px !important
@@ -1038,6 +1039,7 @@ button:disabled,
 }
 .other_doc_input{
   width: 25%;
+  padding-right: 10px;
 }
 .query_table th:nth-child(1),
 .query_table td:nth-child(1) {
@@ -1095,7 +1097,7 @@ button:disabled,
 
 }
 .input-box-query{
-  max-width: 120px !important;
+  max-width: 108px !important;
 }
 .upload-box-query{
   border: none !important;
@@ -1139,4 +1141,10 @@ font-size: 12px;
 .pagination_button{
   width: 30px;
   margin: 3px;
+}
+.view_doc{
+  font-weight: 600 !important;
+}
+.text-head-query{
+  color: black !important;
 }

@@ -50,11 +50,10 @@ function ApprovedLoan() {
                       <td>20 May,2023</td>
                       <td>Personal Loan</td>
                       <td>₹ 200000.00</td>
-
                       <td>
                         <Link
                           href="/userDashBoard/viewLoan"
-                          className="cmn-btn"
+                          className="cmn-btn "
                           style={{
                             background: "none",
                             padding: "0",

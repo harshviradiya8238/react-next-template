@@ -80,22 +80,6 @@ const HomeTestimonial = () => {
   return (
     <Slider {...settings} className="journey-carousel">
       {journey_carousel_data.map((itm, i) => (
-        // <div style={{ margin: "2px" }}>
-        //   <div className="single-box text-center">
-        //     <div className="thumb d-flex justify-content-center align-items-center">
-        //       <Image src={itm?.icon} alt="checking" />
-        //     </div>
-        //     <div className="content">
-        //       <h5>{itm?.title}</h5>
-        //       <p>{itm?.desc}</p>
-        //       <Link href={itm?.link} className="btn-arrow">
-        //         Open Account
-        //         <Image src={BsChevronRight} alt="arrow" />
-        //       </Link>
-        //     </div>
-        //   </div>
-        // </div>
-
         <div key={itm.id} className="single">
           <div className="single-box">
             <div className="top-box d-flex align-items-center flex-column">

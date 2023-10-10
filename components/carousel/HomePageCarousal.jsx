@@ -52,56 +52,14 @@ function HomePageCarousal() {
             <Carousel.Item key={item.id} interval={4000}>
               <img src={item.imageUrl} alt="slides" className="homeCarousel" />
               <Carousel.Caption>
-                <h1 style={{ color: "white" }}>{item.title}</h1>
-                <p style={{ color: "white" }}>{item.body}</p>
+                <h1 className="text-white">{item.title}</h1>
+                <p className="text-white">{item.body}</p>
                 <button className="btn btn-danger">Visit Docs</button>
               </Carousel.Caption>
             </Carousel.Item>
           ))}
         </Carousel>
       </div>
-
-      {/* <MDBCarousel showIndicators showControls fade>
-        <MDBCarouselItem
-          className="w-100 d-block"
-          itemId={1}
-          src="/images/img1.jpg"
-          alt="..."
-          style={{ minHeight: "90vh" }}
-        >
-          <div></div>
-          <h1 style={{ color: "white" }}>Loan With Great Rates 11%</h1>
-          <p style={{ color: "white" }}>
-            Nulla vitae elit libero, a pharetra augue mollis interdum.
-          </p>
-        </MDBCarouselItem>
-
-        <MDBCarouselItem
-          className="w-100 d-block"
-          itemId={2}
-          src="/images/img2.jpg"
-          alt="..."
-          style={{ minHeight: "90vh" }}
-        >
-          <h1 style={{ color: "white" }}>Loan With Great Rates 11%</h1>
-          <p style={{ color: "white" }}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-          </p>
-        </MDBCarouselItem>
-
-        <MDBCarouselItem
-          className="w-100 d-block"
-          itemId={3}
-          src="/images/img3.jpg"
-          alt="..."
-          style={{ minHeight: "90vh" }}
-        >
-          <h1 style={{ color: "white" }}>Loan With Great Rates 11%</h1>
-          <p style={{ color: "white" }}>
-            Praesent commodo cursus magna, vel scelerisque nisl consectetur.
-          </p>
-        </MDBCarouselItem>
-      </MDBCarousel> */}
     </>
   );
 }

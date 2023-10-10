@@ -1,126 +1,3 @@
-// import React, { useState } from "react";
-// import Stepper from "react-stepper-horizontal";
-// import LoanForm from "../common/LoanForm";
-// import LoanDetailForm from "../common/LoanDetailForm";
-// import UploadDoc from "../common/UploadDoc";
-
-// // import './App.css';
-
-// function UserDetails() {
-//   return <LoanForm />;
-// }
-
-// function LoanDetail() {
-//   return <LoanDetailForm />;
-// }
-
-// function UploadDocument() {
-//   return <UploadDoc />;
-// }
-
-// function Confirmation() {
-//   return <h2>Application Submited </h2>;
-// }
-// function ApplyForLoan() {
-//   const [activeStep, setActiveStep] = useState(0);
-
-// const steps = [
-//   { title: "Basic Details" },
-//   { title: "Loan Details" },
-//   { title: "Document Details" },
-//   { title: "Application confirmation" },
-// ];
-
-//   function getSectionComponent() {
-
-//     const [formData, setFormData] = useState({
-//       name: '',
-//       email: '',
-//       password: '',
-//       confirmPassword: '',
-//       address: '',
-//       city: '',
-//       country: ''
-//     });
-
-//     switch (activeStep) {
-//       case 0:
-//         return <UserDetails />;
-//       case 1:
-//         return <LoanDetail />;
-//       case 2:
-//         return <UploadDocument />;
-//       case 3:
-//         return <Confirmation />;
-//       default:
-//         return null;
-//     }
-//   }
-
-//   return (
-//     <section className="apply-for-loan business-loan" id="business-loan-form">
-//       <div className="overlay pt-120">
-//         <div className="container wow fadeInUp">
-//           <div className="row justify-content-center">
-//             {/* <div className="col-lg-8">
-//               <div className="section-header text-center">
-//                 <h2 className="title">
-//                   Apply for  Loan today.
-//                 </h2>
-//                 <p>
-//                   Get business loans approved within days with transparent
-//                   lending criteria and transparent processes.
-//                 </p>
-//               </div>
-//             </div> */}
-//           </div>
-//           <div className="row justify-content-center">
-//             <div className="col-lg-10">
-//               <div className="form-content">
-//                 <div className="section-header text-center">
-//                   <h2 className="title">Apply for  Loan</h2>
-//                   <p>
-//                     Please fill the form below. We will get in touch with you
-//                     within 1-2 business days, to request all necessary details
-//                   </p>
-//                 </div>
-//                 {/* Loan form  */}
-
-//                 <div style={{ marginTop: "100px" }}>
-//                   <Stepper steps={steps} activeStep={activeStep} />
-//                   <div style={{ padding: "20px" }}>
-//                     {getSectionComponent()}
-//                     <div className="d-flex">
-//                       {activeStep !== 0 && activeStep !== steps.length && (
-//                         <div
-//                           className="btn-area text-center m-4"
-//                           onClick={() => setActiveStep(activeStep - 1)}
-//                         >
-//                           <button className="cmn-btn ">Previous</button>
-//                         </div>
-//                       )}
-//                       {activeStep !== steps.length - 1 && (
-//                         <div
-//                           className="btn-area text-center m-4"
-//                           onClick={() => setActiveStep(activeStep + 1)}
-//                         >
-//                           <button className="cmn-btn">Next</button>
-//                         </div>
-//                       )}
-//                     </div>
-//                   </div>
-//                 </div>
-//               </div>
-//             </div>
-//           </div>
-//         </div>
-//       </div>
-//     </section>
-//   );
-// }
-
-// export default ApplyForLoan;
-
 // Copy code
 import React, { useState, useRef, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
@@ -131,9 +8,6 @@ import PhoneInput from "react-phone-number-input";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { useDispatch } from "react-redux";
-// import { sendOTP } from "../../store/actions/userAction";
-// import BootstrapTable from "react-bootstrap-table-next";
-// import "bootstrap/dist/css/bootstrap.min.css";
 
 import axios from "axios";
 import Notification from "../components/utils/Notification";
@@ -166,7 +40,7 @@ function RegisterApplication() {
   const [selectedRow, setSelectedRow] = useState(null);
 
   const [state, setSatate] = useState({
-    step1: { firstName: "", lastName: "", email: "", phone: "" },
+    step1: { firstName: "", lastName: "", email: "", phone: "", refer: "" },
     step2: { loanType: "", loanAmount: "", loanTerm: "", state: "" },
     stepVerify: { mobileotp: "", emailotp: "" },
     step3: {
@@ -200,7 +74,6 @@ function RegisterApplication() {
   const [apiData, setapiData] = useState({});
 
   const handleSendOtp = async (data, value) => {
-    console.log(value.step1.phone.length);
     if (
       value.step1.firstName &&
       value.step1.lastName &&
@@ -218,6 +91,7 @@ function RegisterApplication() {
             lastName: value.step1.lastName,
             email: value.step1.email,
             phoneNumber: Number(value.step1.phone),
+            referrerCode: value.step1.refer
           }
         );
 
@@ -354,23 +228,7 @@ function RegisterApplication() {
                                       </div>
                                     </div>
 
-                                    <div
-                                      style={{
-                                        display: "flex",
-                                        justifyContent: "flex-start",
-                                        alignItems: "center",
-                                      }}
-                                    >
-                                      {/* <button
-                                        type="button"
-                                        className="cmn-btn"
-                                        onClick={() => setVerifyOtp(false)}
-                                        style={{
-                                          marginRight: "10px",
-                                        }}
-                                      >
-                                        Previous
-                                      </button> */}
+                                    <div className="d-flex justify-content-start align-items-center">
                                       <button
                                         type="submit"
                                         onClick={async () => {
@@ -380,14 +238,14 @@ function RegisterApplication() {
                                           {
                                             if (
                                               typeof mobileotp ===
-                                                "undefined" ||
+                                              "undefined" ||
                                               typeof emailotp === "undefined" ||
                                               !mobileotp ||
                                               !emailotp
                                             ) {
                                               if (
                                                 typeof mobileotp ===
-                                                  "undefined" ||
+                                                "undefined" ||
                                                 !mobileotp
                                               ) {
                                                 setFieldError(
@@ -397,7 +255,7 @@ function RegisterApplication() {
                                               }
                                               if (
                                                 typeof emailotp ===
-                                                  "undefined" ||
+                                                "undefined" ||
                                                 !emailotp
                                               ) {
                                                 setFieldError(
@@ -441,14 +299,6 @@ function RegisterApplication() {
                                                   "success",
                                                   "OTP Verify SuccessFully and Password Send on Your Email"
                                                 );
-
-                                                // await GetAllState();
-                                                // await GetAll(tokenData);
-                                                // await handleNext(
-                                                //   setFieldValue,
-                                                //   values
-                                                // );
-                                                // handleGetAllType();
                                               }
                                             } catch (error) {
                                               console.log(error);
@@ -457,18 +307,10 @@ function RegisterApplication() {
                                                 error?.response?.data[0]
                                                   .errorMessage
                                               );
-                                              // console.log(error);
                                             }
                                           }
                                         }}
-                                        style={{ width: "auto" }}
-                                        className="cmn-btn"
-                                        // disabled={
-                                        //   !values.step1 ||
-                                        //   !values.step1.name ||
-                                        //   !values.step1.email ||
-                                        //   !values.step1.state
-                                        // }
+                                        className="cmn-btn w-auto"
                                       >
                                         Verify OTP
                                       </button>
@@ -527,13 +369,6 @@ function RegisterApplication() {
                                       <div className="single-input">
                                         <label>Contact No:</label>
                                         <div className="mobile-number-input">
-                                          {/* <img
-                                            src="/images/india_2.png"
-                                            className="indiaFlag"
-                                          />
-                                          <span className="country-code">
-                                            +91
-                                          </span> */}
                                           <Field
                                             type={"number"}
                                             onKeyPress={(event) => {
@@ -556,6 +391,21 @@ function RegisterApplication() {
                                         />
                                       </div>
                                     </div>
+                                    {/* <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Referral Code :</label>
+                                        <Field
+                                          type="text"
+                                          name="step1.refer"
+                                          placeholder="Referal Code "
+                                        />
+                                        <ErrorMessage
+                                          name="step1.refer"
+                                          component="div"
+                                          className="all_error"
+                                        />
+                                      </div>
+                                    </div> */}
                                   </div>
                                   <div>
                                     <button
@@ -563,9 +413,9 @@ function RegisterApplication() {
                                       style={{
                                         backgroundColor:
                                           values.step1.firstName &&
-                                          values.step1.lastName &&
-                                          values.step1.email &&
-                                          values.step1.phone
+                                            values.step1.lastName &&
+                                            values.step1.email &&
+                                            values.step1.phone
                                             ? "#1a4dbe"
                                             : "gray",
                                       }}
@@ -588,20 +438,6 @@ function RegisterApplication() {
                                   </div>
                                 </>
                               )}
-
-                              {/* <button
-                              type="button"
-                              onClick={() => handleNext(setFieldValue, values)}
-                              className="cmn-btn"
-                              disabled={
-                                !values.step1 ||
-                                !values.step1.name ||
-                                !values.step1.email ||
-                                !values.step1.state
-                              }
-                            >
-                              Next
-                            </button> */}
                             </div>
                           )}
                         </div>

@@ -1,17 +1,16 @@
 // hooks/useAuth.js
-import { useEffect, useState } from "react";
 
-export const useAuth = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+import { useEffect } from "react";
+import { useRouter } from "next/router";
 
-  useEffect(() => {
-    const userInfo = localStorage.getItem("user");
-    if (userInfo) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, []);
+function useAuth() {
+  const router = useRouter();
+  const isAuthenticated =
+    typeof window !== "undefined" && localStorage.getItem("logintoken")
+      ? true
+      : false;
 
   return isAuthenticated;
-};
+}
+
+export default useAuth;

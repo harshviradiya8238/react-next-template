@@ -28,10 +28,7 @@ function Sidebar({ toggleSidebar, isOpen }) {
             </span>
             <span class="text-white">Loan Bazaar</span>{" "}
           </h1>
-          <div
-            style={{ color: "white", margin: "10px", cursor: "pointer" }}
-            onClick={toggleSidebar}
-          >
+          <div className="text-white mr-10 pe-auto" onClick={toggleSidebar}>
             <i class="fa-solid fa-arrow-left"></i>
           </div>
           <div class="btn d-md-none close-btn px-1 py-0 ">
@@ -60,7 +57,6 @@ function Sidebar({ toggleSidebar, isOpen }) {
               <i class="fa-solid fa-plus"></i>
               <span class="text">New Loan Request</span>
             </Link>
-            <a href="#" class="link-box"></a>
           </li>
 
           <li

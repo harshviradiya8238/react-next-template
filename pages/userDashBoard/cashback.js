@@ -3,6 +3,7 @@ import jwtDecode from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
 import API from "../../helper/API";
+import Link from "next/link";
 
 function Cashback() {
   const [cashBack, setCashBack] = useState("");
@@ -34,6 +35,18 @@ function Cashback() {
 
     fetchData();
   }, []);
+
+  function formatDateToDDMMYYYY(dateStr) {
+    const date = new Date(dateStr);
+    const formattedDate = [
+      String(date.getDate()).padStart(2, "0"),
+      String(date.getMonth() + 1).padStart(2, "0"),
+      date.getFullYear(),
+    ].join("-");
+
+    return formattedDate;
+  }
+
   return (
     <div class="loan-content-body ">
       <Preloader />
@@ -66,24 +79,32 @@ function Cashback() {
                 <tr>
                   <th>Sr No.</th>
                   <th>Loan Application Number</th>
-                  <th>Loan Type</th>
+                  {/* <th>Loan Type</th> */}
                   <th>Loan Amount (INR)</th>
                   <th>Cashback Amount (₹)</th>
                   <th>Transaction Date</th>
                 </tr>
               </thead>
               <tbody>
-                {cashBack && cashBack.length
-                  ? cashBack.map((elem, index) => {
+                {cashBack && cashBack.gridRecords?.length
+                  ? cashBack.gridRecords?.map((elem, index) => {
                       return (
                         <>
                           <tr>
                             <td>{index + 1}</td>
-                            <td>{elem?.applicationNumbr}</td>
-                            <td>Personal loan</td>
-                            <td>₹ {elem?.loanAmount}</td>
-                            <td>₹ 1200.00</td>
-                            <td>{elem?.createdon}</td>
+                            <td>
+                              <Link
+                                href={`/userDashBoard/viewLoan/${elem?.loanApplicationId}`}
+                                className="document_hyper_link p-0 border-0 mr-2"
+                              >
+                                {elem?.applicationNumbr?.toUpperCase()}
+                              </Link>
+                            </td>
+                            {/* <td>Personal loan</td> */}
+                            <td>{elem?.loanAmount}</td>
+                            <td>{elem?.cashBackAmount}</td>
+                            <td>{formatDateToDDMMYYYY(elem?.createdon)}</td>
+                            {/* <td>{elem?.createdon}</td> */}
                           </tr>
                         </>
                       );
@@ -92,8 +113,8 @@ function Cashback() {
               </tbody>
             </table>
             <>
-              {!cashBack.length && (
-                <div style={{ textAlign: "center" }}>
+              {!cashBack?.gridRecords?.length && (
+                <div className="text-center">
                   <h4>No Data Found</h4>
                 </div>
               )}

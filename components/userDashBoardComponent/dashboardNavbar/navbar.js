@@ -15,29 +15,29 @@ function Navbar({ toggleSidebar }) {
         : ""
     );
 
-    const handlePopstate = (event) => {
-      // Check if the user is navigating back to the login page
-      if (window.location.pathname === "/login") {
-        // Show an alert
-        // alert("ioajsodjasod");
-        return setShowLogout(true);
-      }
-    };
+    // const handlePopstate = (event) => {
+    //   // Check if the user is navigating back to the login page
+    //   if (window.location.pathname === "/login") {
+    //     // Show an alert
+    //     // alert("ioajsodjasod");
+    //     return setShowLogout(true);
+    //   }
+    // };
 
     // Add the event listener
-    window.addEventListener("popstate", handlePopstate);
+    // window.addEventListener("popstate", handlePopstate);
 
     // Clean up the event listener when the component is unmounted
-    return () => {
-      window.removeEventListener("popstate", handlePopstate);
-    };
+    // return () => {
+    //   window.removeEventListener("popstate", handlePopstate);
+    // };
   }, [showLogout]);
   return (
     <div>
       <nav class="navbarDashBoard navbar-expand-md  sticky-top">
-        <div class="container" style={{ margin: "0", maxWidth: "100%" }}>
-          <div class="d-flex justify-content-between align-items-center">
-            <div style={{ color: "white", margin: "10px", cursor: "pointer" }}>
+        <div class="container mw-100">
+          <div class="d-flex justify-content-between align-items-center ">
+            <div class="m-10 text-white">
               <i class="fa-solid fa-bars-staggered" onClick={toggleSidebar}></i>
             </div>
 

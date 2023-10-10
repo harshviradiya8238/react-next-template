@@ -6,22 +6,22 @@ import * as Yup from "yup";
 import Notification from "../../../components/utils/Notification";
 import Link from "next/link";
 import API from "../../../helper/API";
+import PaginationTable from "../../../components/paginaton_table/PaginationTable";
 
 function ViewLoan() {
   const router = useRouter();
   const { id } = router.query;
 
   const [countryStateOption, SetCountryStateOption] = useState("");
-  const [countryState, SetCountryState] = useState("");
+
   const [loanTypeOption, setLoanTypeOption] = useState([]);
   const [selectOption, setSelectOption] = useState("");
-  const [errorStateType, setErrorStateType] = useState("");
-  const [errorLoanType, setErrorLoanType] = useState("");
+  const [uploadedExist, setUploadedExist] = useState([]);
   const [documentOption, setDocumentOption] = useState([]);
   const [otherDocumentId, setOtherDocumentId] = useState("");
   const [commentData, setCommentData] = useState("");
   const [queryDocuemntListing, setQueryDocuemntListing] = useState("");
-  console.log(commentData, "-=-=-");
+
   const validationSchema = Yup.object().shape({
     loanAmount: Yup.string().required("loan Amount is required"),
     loanTenure: Yup.string().required("loan Tenure is required"),
@@ -32,6 +32,7 @@ function ViewLoan() {
   const [basicDetailState, setBasicDetailState] = useState({
     firstName: "",
     email: "",
+    loanApplicationNumber: "",
     phoneNumber: "",
     state: "",
     postalCode: "",
@@ -75,15 +76,6 @@ function ViewLoan() {
     });
   };
 
-  const handleSelectoption = ({ target }) => {
-    setSelectOption(target.value);
-    setErrorLoanType("");
-  };
-  const handleSelectStateoption = ({ target }) => {
-    SetCountryState(target.value);
-    setErrorStateType("");
-  };
-
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
     const GetLoanById = async (token) => {
@@ -92,24 +84,19 @@ function ViewLoan() {
         const { id } = router.query;
 
         if (id) {
-          const response = await API.get(
-            `/LoanApplication/GetById?id=${id}`
-
-            // {
-            //   headers: {
-            //     Authorization: `Bearer ${token}`,
-            //   },
-            // }
-          );
+          const response = await API.get(`/LoanApplication/GetById?id=${id}`);
           const { data } = response;
-          setBasicDetailState(data.value);
-          setSelectOption(data?.value?.loanTypeId);
-          SetCountryState(data?.value?.stateId);
+
+          setBasicDetailState({
+            ...data.value,
+            state: data?.value?.stateId,
+            loanType: data?.value?.loanTypeId,
+          });
+
           GetBankAndDocumetByLoanTypeId(data?.value?.loanTypeId);
         }
       } catch (error) {
         console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
     const GetAllState = async () => {
@@ -122,27 +109,16 @@ function ViewLoan() {
       }
     };
     const GetAll = async (token) => {
-      // const token = localStorage.getItem("logintoken");
       try {
-        const response = await API.get(
-          "/LoanType/GetAll"
-          // {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // }
-        );
+        const response = await API.get("/LoanType/GetAll");
         const { data } = response;
 
         setLoanTypeOption(data?.value?.gridRecords);
       } catch (error) {
         console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
     const GetCommentById = async (token) => {
-      // const token = localStorage.getItem("logintoken");
-
       try {
         const { id } = router.query;
         if (id) {
@@ -163,11 +139,11 @@ function ViewLoan() {
         // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
+
     GetLoanById(token);
     GetAllState();
     GetAll(token);
     GetCommentById(token);
-    // GetBankAndDocumetByLoanTypeId(selectOption);
   }, [id]);
 
   const GetBankAndDocumetByLoanTypeId = async (selectOption) => {
@@ -178,26 +154,9 @@ function ViewLoan() {
         {
           loanTypeId: selectOption,
         }
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // }
       );
       const { data } = response;
 
-      // await Notification("success", data?.value?.message);
-      // setEligiblity(true);
-
-      // if (data?.value?.bank?.length > 0) {
-      //   setBankOption([...data.value.bank]);
-
-      //   // setEligiblity(true);
-      // } else {
-      //   setFieldValue("activeStep", 1);
-      //   setBankOption([]);
-      //   // setSatate({ ...state, activeStep: 2 });
-      // }
       if (data?.value?.document?.length > 0) {
         const inputArray = data.value.document;
         const filteredData = data?.value?.document.filter(
@@ -206,34 +165,42 @@ function ViewLoan() {
 
         setDocumentOption(filteredData);
       }
+      const Docresponse = await API.get(
+        `/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`
+      );
+      setUploadedExist(Docresponse?.data?.value);
       setOtherDocumentId(data?.value?.otherDocumentId);
     } catch (error) {
       console.log(error);
       Notification("error", error?.response?.data[0]?.errorMessage);
     }
   };
+
   const initialValues = {
     firstName:
       basicDetailState?.user?.firstName +
       " " +
       basicDetailState?.user?.lastName,
     email: basicDetailState?.user?.email,
+    loanApplicationNumber:
+      basicDetailState?.applicationNumberForLoan?.toUpperCase(),
     phoneNumber: basicDetailState?.user?.phoneNumber,
     loanStatus: basicDetailState?.status,
     loanTenure: basicDetailState?.tenure,
     loanAmount: basicDetailState?.amount,
     city: basicDetailState?.city,
+    loanType: basicDetailState?.loanType,
+    state: basicDetailState?.state,
     postalCode: basicDetailState?.postalCode,
   };
 
   const [docFiles, setdocFiles] = useState([]);
   const [documentFileName, setDocumentFileName] = useState("");
-  const [selectedFile, setSelectedFile] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadedFiles, setUploadedFiles] = useState({});
   const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
-  const [loanApplicationId, setLoanAppliactionId] = useState("");
+  const [loanTypeChanged, setLoanTypeChanged] = useState(false);
 
   const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
   const maxFileSize = 10 * 1024 * 1024;
@@ -290,22 +257,6 @@ function ViewLoan() {
     setSelectedFilesArray(updatedFiles);
   };
 
-  const handleUpload = () => {
-    if (selectedFile && documentFileName) {
-      setSelectedFilesArray((prevArray) => [
-        ...prevArray,
-        { name: documentFileName, file: selectedFile },
-      ]);
-      setSelectedFile(null);
-      setDocumentFileName("");
-      setErrorMessage("");
-    } else {
-      setErrorMessage(
-        "Please enter a document name and choose a supported file to upload"
-      );
-    }
-  };
-
   const handlePreviewFile = (file) => {
     if (file) {
       const reader = new FileReader();
@@ -327,39 +278,34 @@ function ViewLoan() {
   };
 
   const handleSubmit = async (values, { setSubmitting }) => {
-    if (!selectOption) {
-      setErrorLoanType("Please Select Loan Type.");
+    if (loanTypeChanged) {
+      const isConfirmed = window.confirm(
+        "Your loan type has been changed. Are you sure you want to proceed?"
+      );
+      if (!isConfirmed) {
+        return;
+      }
     }
-    if (!countryState) {
-      setErrorStateType("Please Select State");
-    }
-
-    const token = localStorage.getItem("logintoken");
 
     try {
       const response = await API.post(
         `/LoanApplication/UpdateLoanApplication`,
         {
           loanApplicationId: id,
-          loanTypeId: selectOption,
-          stateId: Number(countryState),
+          loanTypeId: values.loanType,
+          stateId: Number(values.state),
           amount: Number(values.loanAmount),
           tenure: Number(values.loanTenure),
           city: values?.city,
           postalCode: values?.postalCode,
           isActive: true,
         }
-        // {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // }
       );
       const { data } = response;
-
+      setLoanTypeChanged(false);
       setSubmitting(false);
+      await GetBankAndDocumetByLoanTypeId(values.loanType);
       await Notification("success", "Loan Application Updated SuccessFully");
-      router.push("/userDashBoard");
     } catch (error) {
       console.log(error);
     }
@@ -379,7 +325,6 @@ function ViewLoan() {
       ...prevState,
       [fieldType]: selectedFiles,
     }));
-    console.log("sdasdasd", docFiles);
   };
 
   const handleRemoveFile = (fieldType, index) => {
@@ -389,10 +334,12 @@ function ViewLoan() {
     }));
   };
 
-  console.log("sdasdasd", docFiles);
   const handleUploadForField = async (fieldid, name) => {
     const files = docFiles[name]; // Assuming docFiles is an object where keys are the document names and values are arrays of File objects
-
+    if (!files || !files?.length) {
+      Notification("error", "please select atleast one document");
+      return;
+    }
     const formData = new FormData();
     files &&
       files.forEach(async (element, index) => {
@@ -402,41 +349,43 @@ function ViewLoan() {
         formData.append("Documents", element);
         formData.append("LoanApplicationId", id);
       });
+    console.log(files, files?.length);
 
-    if (files || files?.length) {
-      const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
-          formData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+    const token = localStorage.getItem("logintoken");
 
-        Notification("success", "document Upload Successfully ");
-        const newDocFiles = { ...docFiles };
-        newDocFiles[name] = [];
+    try {
+      const response = await axios.post(
+        "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
 
-        setdocFiles(newDocFiles);
-        // setFieldValue("activeStep", 2);
-        setUploadedFiles((prevState) => ({
-          ...prevState,
-          [name]: [...(prevState[name] || []), ...files],
-        }));
-      } catch (error) {
-        console.log(error);
-        Notification("error", error?.response?.data[0]?.errorMessage);
-      }
-    } else {
-      Notification("error", "select At least one doc");
+      Notification("success", "document Upload Successfully ");
+      const newDocFiles = { ...docFiles };
+      newDocFiles[name] = [];
+
+      setdocFiles(newDocFiles);
+      // setFieldValue("activeStep", 2);
+
+      const Docresponse = await API.get(
+        `/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`
+      );
+      setUploadedExist(Docresponse?.data?.value);
+      setUploadedFiles((prevState) => ({
+        ...prevState,
+        [name]: [...(prevState[name] || []), ...files],
+      }));
+    } catch (error) {
+      console.log(error);
+      Notification("error", error?.response?.data[0]?.errorMessage);
     }
   };
 
   const [documentData, setDocumentData] = useState([]);
-  console.log(documentData, "-=-=");
   // Initialize document data for each row
   const initializeDocumentData = () => {
     const initialData =
@@ -510,49 +459,9 @@ function ViewLoan() {
     setDocumentData(updatedDocumentData);
   };
 
-  const handleUpload1 = (rowIndex) => {
-    const {
-      documentFileName,
-      selectedFile,
-      remarks, // Get remarks from the state
-    } = documentData[rowIndex];
-
-    if (selectedFile && documentFileName) {
-      let updatedDocumentData = [...documentData];
-      updatedDocumentData[rowIndex].selectedFilesArray.push({
-        name: documentFileName,
-        file: selectedFile,
-      });
-      // updatedDocumentData[rowIndex].selectedFile = null;
-      // updatedDocumentData[rowIndex].documentFileName = "";
-      // updatedDocumentData[rowIndex].errorMessage = "";
-
-      // Clear the remarks field after upload if needed
-      // updatedDocumentData[rowIndex].remarks = "";
-
-      setDocumentData(updatedDocumentData);
-
-      // Now, you can send both remarks and document data to your API
-      // Make your API request here
-      // Example:
-      // api.uploadDocument({
-      //   documentFileName,
-      //   selectedFile,
-      //   remarks,
-      // })
-    } else {
-      const updatedDocumentData = [...documentData];
-      updatedDocumentData[rowIndex].errorMessage =
-        "Please enter a document name and choose a supported file to upload";
-      setDocumentData(updatedDocumentData);
-    }
-  };
-
   const handleRemarksChange = (event, rowIndex) => {
     const newRemarks = event.target.value;
-    console.log(newRemarks, "=-=-qqqqqqqqqqqqqqqqq");
     let updatedDocumentData = [...documentData];
-    console.log(updatedDocumentData, "sassssssssssssss");
     updatedDocumentData[rowIndex].remarks = newRemarks;
     setDocumentData(updatedDocumentData);
   };
@@ -578,7 +487,7 @@ function ViewLoan() {
         formData.append("LoanApplicationId", id);
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
 
-        axios.post(
+        await axios.post(
           "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
           formData,
           {
@@ -589,21 +498,26 @@ function ViewLoan() {
           }
         );
 
-        await Notification("success", "Query submitted ");
-        // const updatedData = documentData.map((item) => {
-        //   if (item.id === LoanApplicationQueryId) {
-        //     return {
-        //       ...item,
-        //       // Update other fields as necessary
-        //       remark: t?.elemenremarks,
-        //     };
-        //   }
-        //   return item;
-        // });
-        // setDocumentData(updatedData);
+        try {
+          if (id) {
+            const response = await axios.get(
+              `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              }
+            );
+            const { data } = response;
+            await setCommentData(data.value);
+            await Notification("success", "Query submitted ");
+          }
+        } catch (error) {
+          console.log(error);
+          // Notification("error", error?.response?.data[0]?.errorMessage);
+        }
+
         // window.location.reload();
-      } else {
-        Notification("error", "Please add remark");
       }
     });
   };
@@ -619,7 +533,6 @@ function ViewLoan() {
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
         formData.append("LoanApplicationId", id);
         element?.selectedFilesArray.map((doc) => {
-          console.log(doc);
           formData.append("Documents", doc?.file);
         });
         const token = localStorage.getItem("logintoken");
@@ -649,12 +562,30 @@ function ViewLoan() {
                 },
               }
             );
-            window.location.reload();
+            try {
+              if (id) {
+                const response = await axios.get(
+                  `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  }
+                );
+                const { data } = response;
+                setCommentData(data.value);
+                setQueryDocuemntListing(data?.value);
+              }
+            } catch (error) {
+              console.log(error);
+              // Notification("error", error?.response?.data[0]?.errorMessage);
+            }
+
             // router.push("/userDashBoard");
             // setFieldValue("activeStep", 2);
           } catch (error) {
             console.log(error);
-            Notification("error", error?.response?.data[0]?.errorMessage);
+            Notification("error", "please Select File");
           }
         }
       } else {
@@ -664,12 +595,6 @@ function ViewLoan() {
   };
 
   const handleUploadForOtherDocument = async () => {
-    console.log(
-      selectedFilesArray,
-      otherDocumentId,
-      documentFileName,
-      "============================================"
-    );
     if (
       !otherDocumentId ||
       selectedFilesArray.length === 0 ||
@@ -704,17 +629,47 @@ function ViewLoan() {
         // setSelectedFilesArray([]);
         setSelectedFilesArray([]);
         setDocumentFileName("");
-        const newUploadedDocs = [
-          ...uploadedOtherDocuemnt,
-          ...selectedFilesArray,
-        ];
-        setuploadedOtherDocuemnt(newUploadedDocs);
+        const Docresponse = await API.get(
+          `/LoanApplication/GetDocumentByLoanApplicationId?loanApplicationId=${id}`
+        );
+        setUploadedExist(Docresponse?.data?.value);
+        // const newUploadedDocs = [
+        //   ...uploadedOtherDocuemnt,
+        //   ...selectedFilesArray,
+        // ];
+        // setuploadedOtherDocuemnt(newUploadedDocs);
         // setFieldValue("activeStewindow.location.reload();
       } catch (error) {
         console.log(error);
         Notification("error", error?.response?.data[0]?.errorMessage);
       }
     }
+  };
+
+  const itemsPerPage = 3;
+  const [currentPage, setCurrentPage] = useState(1);
+
+  const totalItems = commentData?.length || "";
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentItems = commentData?.slice(startIndex, endIndex) || [];
+
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+  };
+
+  const getDocumentDetailsById = (id) => {
+    var dataCheck = [];
+    console.log(uploadedExist, "-=-=-=");
+    uploadedExist?.filter((item) =>
+      item?.documentDetail?.filter((newItem) => {
+        if (newItem.id === id) {
+          dataCheck.push(newItem);
+        }
+      })
+    );
+    console.log(dataCheck, "-=-=-=");
+    return dataCheck;
   };
 
   return (
@@ -763,10 +718,122 @@ function ViewLoan() {
                 onSubmit={handleSubmit}
                 enableReinitialize
               >
-                {({ isSubmitting, values }) => (
+                {({ isSubmitting, values, handleChange }) => (
                   <Form>
                     <div class="row">
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
+                      <div className="d-flex justify-content-end">
+                        {/* <span className="mr-10">Loan Status - </span> */}
+                        <h4
+                          class={` ${basicDetailState?.status === "Pending"
+                            ? "Pending-text"
+                            : basicDetailState?.status === "Query"
+                              ? "qyery-text"
+                              : basicDetailState?.status === "Reject"
+                                ? "Rejected-text"
+                                : basicDetailState?.status === "Approve"
+                                  ? "Approved-text"
+                                  : basicDetailState?.status === "Incomplete"
+                                    ? "Process-text"
+                                    : ""
+                            }`}
+                        >
+                          {basicDetailState?.status === "Approve"
+                            ? "Approved"
+                            : basicDetailState?.status === "Reject"
+                              ? "Rejected"
+                              : basicDetailState?.status?.toUpperCase()}
+                        </h4>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                        <label for="first-name">Loan Application Number</label>
+                        <div>
+                          <Field
+                            type="text"
+                            // initialValues={basicDetailState?.firstName}
+                            name="loanApplicationNumber"
+                            disabled
+                            placeholder="Loan Application Number"
+                          />
+                          <ErrorMessage
+                            name="loanApplicationNumber"
+                            component="div"
+                            className="error"
+                          />
+                        </div>
+                      </div>
+
+                      <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                        <div class="single-input">
+                          <label>Loan Type</label>
+                          <>
+                            {loanTypeOption && loanTypeOption.length > 0 && (
+                              <select
+                                className="selectDrop form-select"
+                                name="loanType"
+                                value={values?.loanType}
+                                onChange={async (e) => {
+                                  handleChange(e);
+
+                                  if (
+                                    e.target.value !== initialValues.loanType
+                                  ) {
+                                    setLoanTypeChanged(true);
+                                  } else {
+                                    setLoanTypeChanged(false);
+                                  }
+                                  setSelectOption(e.target.value);
+                                }}
+                              >
+                                <option disabled={true} value="">
+                                  Select Loan Type
+                                </option>
+                                {loanTypeOption.map((data, index) => (
+                                  <>
+                                    <option value={data?.id} key={index}>
+                                      {data?.name}
+                                    </option>
+                                  </>
+                                ))}
+                              </select>
+                            )}
+                          </>
+                          {/* {errorLoanType && (
+                            <p className="all_error">{errorLoanType}</p>
+                          )} */}
+                        </div>
+                      </div>
+                      <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                        <label for="Loan-Amount">Loan Amount (INR)</label>
+
+                        <Field
+                          type={"number"}
+                          name="loanAmount"
+                          placeholder="Enter Loan Amount"
+                        />
+                        <ErrorMessage
+                          name="loanAmount"
+                          component="div"
+                          className="error"
+                        />
+                      </div>
+
+                      <div class="col-lg-3 col-md-3 col-sm-12 m-basics">
+                        <div class="single-input">
+                          <label for="term">Loan Tenure (Year)</label>
+
+                          <Field
+                            type={"number"}
+                            name="loanTenure"
+                            placeholder="Enter Loan Tenure"
+                          />
+                          <ErrorMessage
+                            name="loanTenure"
+                            component="div"
+                            className="error"
+                          />
+                        </div>
+                      </div>
+                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                         <label for="first-name">Name</label>
                         <div>
                           <Field
@@ -783,35 +850,8 @@ function ViewLoan() {
                           />
                         </div>
                       </div>
-                      <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                        <div class="single-input">
-                          <label>Loan Type</label>
-                          <>
-                            {loanTypeOption && loanTypeOption.length > 0 && (
-                              <select
-                                className="selectDrop form-select"
-                                value={selectOption}
-                                onChange={handleSelectoption}
-                              >
-                                <option disabled={true} value="">
-                                  Select Loan Type
-                                </option>
-                                {loanTypeOption.map((data, index) => (
-                                  <>
-                                    <option value={data?.id} key={index}>
-                                      {data?.name}
-                                    </option>
-                                  </>
-                                ))}
-                              </select>
-                            )}
-                          </>
-                          {errorLoanType && (
-                            <p className="all_error">{errorLoanType}</p>
-                          )}
-                        </div>
-                      </div>
-                      <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+
+                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                         <label for="email">E-mail</label>
                         <Field
                           type="text"
@@ -825,7 +865,7 @@ function ViewLoan() {
                           className="error"
                         />
                       </div>
-                      <div class="col-lg-6 col-md-3 col-sm-12 m-basics">
+                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                         <label for="phone">Contact No</label>
                         <div className="mobile-number-input">
                           {/* <img
@@ -896,10 +936,10 @@ function ViewLoan() {
                               countryStateOption.length > 0 && (
                                 <select
                                   className="selectDrop form-select"
+                                  name="state"
                                   // aria-label="Default select example"
-                                  value={countryState}
-                                  // initialValues={countryState?.stateId}
-                                  onChange={handleSelectStateoption}
+                                  value={values?.state}
+                                  onChange={handleChange}
                                 >
                                   <option disabled={true} value="">
                                     Select State
@@ -912,12 +952,12 @@ function ViewLoan() {
                                 </select>
                               )}
                           </>
-                          {errorStateType && (
+                          {/* {errorStateType && (
                             <p className="all_error">{errorStateType}</p>
-                          )}
+                          )} */}
                         </div>
                       </div>
-                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
+                      {/* <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
                         <label for="loan-status">Loan Status</label>
                         <Field
                           type="text"
@@ -930,38 +970,7 @@ function ViewLoan() {
                           component="div"
                           className="error"
                         />
-                      </div>
-                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
-                        <label for="Loan-Amount">Loan Amount (INR)</label>
-
-                        <Field
-                          type={"number"}
-                          name="loanAmount"
-                          placeholder="Enter Loan Amount"
-                        />
-                        <ErrorMessage
-                          name="loanAmount"
-                          component="div"
-                          className="error"
-                        />
-                      </div>
-
-                      <div class="col-lg-4 col-md-3 col-sm-12 m-basics">
-                        <div class="single-input">
-                          <label for="term">Loan Tenure (Year)</label>
-
-                          <Field
-                            type={"number"}
-                            name="loanTenure"
-                            placeholder="Enter Loan Tenure"
-                          />
-                          <ErrorMessage
-                            name="loanTenure"
-                            component="div"
-                            className="error"
-                          />
-                        </div>
-                      </div>
+                      </div> */}
                     </div>
 
                     <div class="btn-section">
@@ -991,26 +1000,25 @@ function ViewLoan() {
                         </tr>
                       </thead>
                       <tbody>
-                        {commentData &&
+                        {currentItems &&
                           // commentData.length &&
-                          commentData.map((elm, index) => {
+                          currentItems.map((elm, index) => {
                             return (
                               <tr key={index}>
                                 <td>
                                   <span
-                                    class={` ${
-                                      elm?.status === "Pending"
-                                        ? "Rejected-text"
-                                        : elm?.status === "Query"
+                                    class={` ${elm?.status === "Pending"
+                                      ? "Rejected-text"
+                                      : elm?.status === "Query"
                                         ? "qyery-text"
                                         : elm?.status === "Reject"
-                                        ? "Rejected-text"
-                                        : elm?.status === "Approved"
-                                        ? "Approved-text"
-                                        : elm?.status === "Submitted"
-                                        ? "Process-text"
-                                        : ""
-                                    }`}
+                                          ? "Rejected-text"
+                                          : elm?.status === "Approved"
+                                            ? "Approved-text"
+                                            : elm?.status === "Submitted"
+                                              ? "Process-text"
+                                              : ""
+                                      }`}
                                   >
                                     {elm?.status?.toUpperCase()}
                                   </span>
@@ -1019,13 +1027,13 @@ function ViewLoan() {
                                 <td>
                                   <div>
                                     {elm?.remark ||
-                                    elm?.status === "Approved" ? (
+                                      elm?.status === "Approved" ? (
                                       <>
                                         <span>{elm?.remark}</span>
                                         <div className="query_row_remark justify-content-start">
                                           {elm.documentList.length > 0 && (
                                             <ul>
-                                              <h6 class="text-head">
+                                              <h6 class="text-head text-head-query">
                                                 Uploaded Documents :
                                               </h6>
                                               {elm.documentList.length > 0 &&
@@ -1065,7 +1073,7 @@ function ViewLoan() {
                                           <div className="query_row_remark justify-content-start">
                                             {elm.documentList.length > 0 ? (
                                               <ul>
-                                                <h5 class="text-head">
+                                                <h5 class="text-head text-head-query">
                                                   Uploaded Document
                                                 </h5>
                                                 {elm.documentList.length > 0 &&
@@ -1094,10 +1102,7 @@ function ViewLoan() {
                                         </>
 
                                         <>
-                                          <div
-                                            style={{ display: "flex" }}
-                                            className="d-flex justify-content-between align-items-baseline mt-4"
-                                          >
+                                          <div className="d-flex justify-content-between align-items-baseline mt-4">
                                             <input
                                               type="text"
                                               placeholder="Enter document name"
@@ -1112,7 +1117,7 @@ function ViewLoan() {
                                                 )
                                               }
                                             />
-                                            <div className="input-box">
+                                            <div>
                                               <input
                                                 type="file"
                                                 accept=".jpg, .jpeg, .png, .bmp, .pdf"
@@ -1126,12 +1131,7 @@ function ViewLoan() {
                                                 }
                                               />
                                             </div>
-                                            <div
-                                              style={{
-                                                display: "flex",
-                                                // alignItems: "center",
-                                              }}
-                                            >
+                                            <div className="d-flex">
                                               <button
                                                 className="upload_icon"
                                                 onClick={() => {
@@ -1146,50 +1146,50 @@ function ViewLoan() {
                                           </div>
                                           {documentData[index]
                                             ?.errorMessage && (
-                                            <p className="error">
-                                              {documentData[index].errorMessage}
-                                            </p>
-                                          )}
+                                              <p className="error">
+                                                {documentData[index].errorMessage}
+                                              </p>
+                                            )}
                                           {documentData[index]
                                             ?.selectedFilesArray.length > 0 && (
-                                            <div>
-                                              <p style={{ textAlign: "start" }}>
-                                                Selected File:
-                                              </p>
-                                              <ul>
-                                                {documentData[
-                                                  index
-                                                ]?.selectedFilesArray.map(
-                                                  (fileObj, fileIndex) => (
-                                                    <li key={fileIndex}>
-                                                      <div className="delete_div">
-                                                        <b>{fileObj.name}</b> -{" "}
-                                                        <span
-                                                          className="document_hyper_link"
-                                                          onClick={() =>
-                                                            handlePreviewFile(
-                                                              fileObj.file
-                                                            )
-                                                          }
-                                                        >
-                                                          {fileObj.file.name}
-                                                        </span>
-                                                        <i
-                                                          className="delete_button fa-solid fa-xmark"
-                                                          onClick={() =>
-                                                            handleRemoveDocumentFile1(
-                                                              index,
-                                                              fileObj.file
-                                                            )
-                                                          }
-                                                        ></i>
-                                                      </div>
-                                                    </li>
-                                                  )
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
+                                              <div>
+                                                <p className="text-start">
+                                                  Selected File:
+                                                </p>
+                                                <ul>
+                                                  {documentData[
+                                                    index
+                                                  ]?.selectedFilesArray.map(
+                                                    (fileObj, fileIndex) => (
+                                                      <li key={fileIndex}>
+                                                        <div className="delete_div">
+                                                          <b>{fileObj.name}</b> -{" "}
+                                                          <span
+                                                            className="document_hyper_link"
+                                                            onClick={() =>
+                                                              handlePreviewFile(
+                                                                fileObj.file
+                                                              )
+                                                            }
+                                                          >
+                                                            {fileObj.file.name}
+                                                          </span>
+                                                          <i
+                                                            className="delete_button fa-solid fa-xmark"
+                                                            onClick={() =>
+                                                              handleRemoveDocumentFile1(
+                                                                index,
+                                                                fileObj.file
+                                                              )
+                                                            }
+                                                          ></i>
+                                                        </div>
+                                                      </li>
+                                                    )
+                                                  )}
+                                                </ul>
+                                              </div>
+                                            )}
                                         </>
                                       </>
                                     )}
@@ -1199,7 +1199,7 @@ function ViewLoan() {
                                 <td>
                                   {" "}
                                   {!elm?.remark ||
-                                  !elm?.status == "Approved" ? (
+                                    !elm?.status == "Approved" ? (
                                     <button
                                       class="cmn-btn btn "
                                       onClick={() => handleSubmitQuery(elm?.id)}
@@ -1215,7 +1215,22 @@ function ViewLoan() {
                           })}
                       </tbody>
                     </table>
+                    <>
+                      {!currentItems?.length && (
+                        <div className="text-start">
+                          <h4>No Data Found</h4>
+                        </div>
+                      )}
+                    </>
                   </div>
+                  {totalItems > itemsPerPage && (
+                    <PaginationTable
+                      totalItems={totalItems}
+                      itemsPerPage={itemsPerPage}
+                      currentPage={currentPage}
+                      onPageChange={handlePageChange}
+                    />
+                  )}
                   {/* <div class="text-end">
                     <div class="pagination">
                       <a href="#">&laquo;</a>
@@ -1229,6 +1244,15 @@ function ViewLoan() {
                     </div>
                   </div> */}
                 </div>
+                {currentItems && currentItems?.length ? (
+                  <span className="valid_formate">
+                    * Valid File Formats JPG, JPEG, PNG, PDF <br />* Maximum
+                    allowed file size is of 10MB <br />* After Selecting File,
+                    click on upload button
+                  </span>
+                ) : (
+                  ""
+                )}
               </div>
             </div>
           </div>
@@ -1249,7 +1273,7 @@ function ViewLoan() {
                         <div class="my-4 col-lg-6 col-md-6 col-sm-12">
                           <div key={index}>
                             <label>
-                              <span className="astrisk_mark">*</span>
+                              {/* <span className="astrisk_mark">*</span> */}
                               {data?.name}{" "}
                               {data?.instructions && (
                                 <span className="instructions">
@@ -1279,6 +1303,26 @@ function ViewLoan() {
                                 <i class="fa-solid fa-upload"></i>
                               </button>
                             </div>
+                            <div>
+                              {getDocumentDetailsById(data?.id).map(
+                                (docDetail, index) => {
+                                  console.log(docDetail);
+                                  return (
+                                    <ul key={index}>
+                                      <a
+                                        key={docDetail.id}
+                                        href={docDetail.documentURL}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="document_hyper_link"
+                                      >
+                                        {docDetail.documentName}
+                                      </a>
+                                    </ul>
+                                  );
+                                }
+                              )}
+                            </div>
                           </div>
                           {docFiles[data?.name]?.length > 0 && (
                             <div>
@@ -1288,18 +1332,10 @@ function ViewLoan() {
                                   <div key={index}>
                                     <div className="delete_div">
                                       {file && (
-                                        // <PreviewComponent
-                                        //   file={file}
-                                        // />
                                         <span
                                           className="document_hyper_link"
-                                          onClick={
-                                            () => handlePreviewFile(file)
-
-                                            // window.open(
-                                            //   previewUrl,
-                                            //   "_blank"
-                                            // )
+                                          onClick={() =>
+                                            handlePreviewFile(file)
                                           }
                                         >
                                           {file?.name}
@@ -1321,42 +1357,14 @@ function ViewLoan() {
                                 ))}
                             </div>
                           )}
-
-                          {uploadedFiles[data?.name]?.length > 0 && (
-                            <div>
-                              <h4>Uploaded files:</h4>
-                              {uploadedFiles[data?.name]?.map((file, index) => (
-                                <div key={index}>
-                                  <span
-                                    className="document_hyper_link"
-                                    onClick={
-                                      () => handlePreviewFile(file?.file)
-
-                                      // window.open(
-                                      //   previewUrl,
-                                      //   "_blank"
-                                      // )
-                                    }
-                                  >
-                                    {file?.name}
-                                  </span>
-                                </div>
-                              ))}
-                            </div>
-                          )}
                         </div>
                       </>
                     );
                   })}
 
                 <div class="row">
-                  {/* {docFiles.otherDocuments.map(
-                                        (field, fieldIndex) => ( */}
-                  <div
-                    // key={fieldIndex}
-                    class="my-4 col-lg-12 col-md-12 col-sm-12"
-                  >
-                    <h4 style={{ marginLeft: "0" }}>Other Document</h4>
+                  <div class="my-4 col-lg-12 col-md-12 col-sm-12">
+                    <h4 className="ml-0">Other Document</h4>
                     <div className="d-flex align-items-baseline">
                       <div className="other_doc_input">
                         <input
@@ -1368,7 +1376,7 @@ function ViewLoan() {
                           }
                         />
                       </div>
-                      <div className="input-box">
+                      <div>
                         <input
                           type="file"
                           accept=".jpg, .jpeg, .png, .bmp, .pdf"
@@ -1377,12 +1385,8 @@ function ViewLoan() {
                           onChange={handleFileChange}
                         />
                       </div>
-                      <div
-                        style={{
-                          display: "flex",
-                          // alignItems: "center",
-                        }}
-                      >
+
+                      <div className="d-flex">
                         <button
                           className="upload_icon"
                           onClick={handleUploadForOtherDocument}
@@ -1390,6 +1394,7 @@ function ViewLoan() {
                           <i class="fa-solid fa-upload"></i>
                         </button>
                       </div>
+                      {/* {otherDocumentId} */}
                     </div>
                     <>
                       {errorMessage && <p className="error">{errorMessage}</p>}
@@ -1423,31 +1428,26 @@ function ViewLoan() {
                       </div>
                     )}
 
-                    {uploadedOtherDocuemnt?.length > 0 && (
-                      <div>
-                        <h4>Uploaded files:</h4>
-                        {uploadedOtherDocuemnt?.map((file, index) => (
-                          <div key={index}>
-                            <span
+                    {getDocumentDetailsById(otherDocumentId).map(
+                      (docDetail, index) => {
+                        return (
+                          <> <ul key={index}>
+                            <b>{docDetail?.otherDocumentName} - </b>
+                            <a
+                              key={docDetail.id}
+                              href={docDetail.documentURL}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="document_hyper_link"
-                              onClick={
-                                () => handlePreviewFile(file?.file)
-
-                                // window.open(
-                                //   previewUrl,
-                                //   "_blank"
-                                // )
-                              }
                             >
-                              {file?.name}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
+                              {docDetail.documentName}
+                            </a>
+                          </ul></>
+
+                        );
+                      }
                     )}
                   </div>
-                  {/* )
-                                      )} */}
                 </div>
                 <button
                   type="button"
@@ -1457,100 +1457,40 @@ function ViewLoan() {
                       (array) => array.length === 0
                     );
 
-                    if (allUploadEmpty && uploadedOtherDocuemnt.length == 0) {
+                    const hasDocumentDetails = uploadedExist.some(
+                      (document) => document.documentDetail.length > 0
+                    );
+
+                    if (
+                      allUploadEmpty &&
+                      uploadedOtherDocuemnt.length === 0 &&
+                      !hasDocumentDetails
+                    ) {
                       Notification(
                         "error",
-                        "Please Upload atleast one document "
+                        "Please Upload at least one document"
                       );
-                      return;
                     } else {
-                      router.push("/userDashBoard");
+                      // Reload the page if there are document details in at least one object
+                      if (hasDocumentDetails) {
+                        window.location.reload();
+                      } else {
+                        // Handle your regular submission logic here
+                        // For example, you can submit a form or perform other actions
+                        // when there are no document details to reload the page
+                      }
                     }
                   }}
                 >
                   Submit
                 </button>
+                <span className="valid_formate">
+                  * Valid File Formats JPG, JPEG, PNG, PDF <br />* Maximum
+                  allowed file size is of 10MB <br />* After Selecting File,
+                  click on upload button
+                </span>
               </div>
               <></>
-            </div>
-          </div>
-
-          <div
-            class="tab-pane fade "
-            id="nav-contact"
-            role="tabpanel"
-            aria-labelledby="nav-contact-tab"
-            tabindex="0"
-          >
-            <div class="loan-content-body">
-              <div class="loan-section-table">
-                <div class="table-responsive">
-                  <table class="table ">
-                    <thead>
-                      <tr>
-                        <th>Status</th>
-                        <th>Comment</th>
-                        <th>Remarks</th>
-                        <th>Submit</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <tr>
-                        <td>
-                          <span class="all-btn Accepted-btn">New</span>
-                        </td>
-                        <td>Light Bill not found</td>
-                        <td>
-                          <input type="text" placeholder="comment " />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-
-                      <tr>
-                        <td>
-                          <span class="all-btn Re-Active-btn">ReActivate</span>
-                        </td>
-                        <td>GST Certificate not match</td>
-                        <td>
-                          <input type="text" placeholder="comment " />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-                      <tr>
-                        <td>
-                          <span class="all-btn Process-btn">Re-submit</span>
-                        </td>
-                        <td>GST Certificate not found</td>
-                        <td>
-                          <input type="text" placeholder="comment " />
-                        </td>
-                        <td>
-                          {" "}
-                          <button class="table-btn btn ">Submit</button>
-                        </td>
-                      </tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="text-end">
-                  <div class="pagination">
-                    <a href="#">&laquo;</a>
-                    <a href="#" class="active">
-                      1
-                    </a>
-                    <a href="#">2</a>
-                    <a href="#">3</a>
-                    <a href="#">4</a>
-                    <a href="#">&raquo;</a>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

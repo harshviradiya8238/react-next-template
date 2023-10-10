@@ -26,7 +26,7 @@ const LatestArticles = () => {
                 className="count-content text-center d-flex justify-content-center align-items-center flex-column"
                 style={{
                   background: "var(--body-color)",
-                  boxShadow: " 0px 12px 24px rgba(47, 65, 129, 0.1)",
+                  boxShadow: "0px 12px 24px rgba(47, 65, 129, 0.1)",
                   borderRadius: "10px",
                   height: "200px",
                 }}
