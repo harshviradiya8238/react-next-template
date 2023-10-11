@@ -17,7 +17,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Notification from "../../components/utils/Notification";
 import Link from "next/link";
 import Preloader from "../../components/preloader/Preloader";
-import API from "../../helper/API.js";
+import API from "../../helper/API";
 
 function Profile() {
   const aRef = useRef(null);

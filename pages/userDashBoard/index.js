@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
 import PaginationTable from "../../components/paginaton_table/PaginationTable";
 import { Table } from "react-bootstrap";
-import API from "../../helper/API.js";
+import API from "../../helper/API";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -148,16 +148,16 @@ export default function DashBoardDefault() {
                               <td>
                                 <span
                                   class={`all-btn ${data?.status === "Pending"
-                                      ? "Pending-btn"
-                                      : data?.status === "Query"
-                                        ? "qyery-btn"
-                                        : data?.status === "Reject"
-                                          ? "Rejected-btn"
-                                          : data?.status === "Approve"
-                                            ? "Approved-btn"
-                                            : data?.status === "Incomplete"
-                                              ? "Process-btn"
-                                              : ""
+                                    ? "Pending-btn"
+                                    : data?.status === "Query"
+                                      ? "qyery-btn"
+                                      : data?.status === "Reject"
+                                        ? "Rejected-btn"
+                                        : data?.status === "Approve"
+                                          ? "Approved-btn"
+                                          : data?.status === "Incomplete"
+                                            ? "Process-btn"
+                                            : ""
                                     }`}
                                 >
                                   {data?.status === "Approve"

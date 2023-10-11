@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/router";
 import axios from "axios";
 import Preloader from "../../../components/preloader/Preloader";
-import API from "../../../helper/API.js";
+import API from "../../../helper/API";
 import PaginationTable from "../../../components/paginaton_table/PaginationTable";
 
 function ViewLoan() {

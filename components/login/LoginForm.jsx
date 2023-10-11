@@ -8,7 +8,7 @@ import Notification from "../utils/Notification";
 import { useRouter } from "next/router";
 
 import axios from "axios";
-import API from "../../helper/API.js.Js";
+import API from "../../helper/API";
 
 const validationSchema = Yup.object().shape({
   email: Yup.string()

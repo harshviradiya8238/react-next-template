@@ -6,7 +6,7 @@ import axios from "axios";
 import Notification from "../../components/utils/Notification";
 import Preloader from "../../components/preloader/Preloader";
 import Link from "next/link";
-import API from "../../helper/API.js";
+import API from "../../helper/API";
 import jwtDecode from "jwt-decode";
 
 // Define the validation schema

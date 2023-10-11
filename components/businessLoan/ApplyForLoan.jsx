@@ -9,7 +9,7 @@ import axios from "axios";
 import Notification from "../utils/Notification";
 import Link from "next/link";
 import NavBar from "../navBar/NavBar";
-import API from "../../helper/API.js.Js";
+import API from "../../helper/API";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
