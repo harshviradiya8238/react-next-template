@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
 import PaginationTable from "../../components/paginaton_table/PaginationTable";
 import { Table } from "react-bootstrap";
-import API from "../../helper/API";
+import API from "../../helper/API.Js";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
@@ -142,24 +142,23 @@ export default function DashBoardDefault() {
                               <td>
                                 {data?.loanTypeName
                                   ? data?.loanTypeName.charAt(0).toUpperCase() +
-                                    data?.loanTypeName.slice(1).toLowerCase()
+                                  data?.loanTypeName.slice(1).toLowerCase()
                                   : "Home Loan"}
                               </td>
                               <td>
                                 <span
-                                  class={`all-btn ${
-                                    data?.status === "Pending"
+                                  class={`all-btn ${data?.status === "Pending"
                                       ? "Pending-btn"
                                       : data?.status === "Query"
-                                      ? "qyery-btn"
-                                      : data?.status === "Reject"
-                                      ? "Rejected-btn"
-                                      : data?.status === "Approve"
-                                      ? "Approved-btn"
-                                      : data?.status === "Incomplete"
-                                      ? "Process-btn"
-                                      : ""
-                                  }`}
+                                        ? "qyery-btn"
+                                        : data?.status === "Reject"
+                                          ? "Rejected-btn"
+                                          : data?.status === "Approve"
+                                            ? "Approved-btn"
+                                            : data?.status === "Incomplete"
+                                              ? "Process-btn"
+                                              : ""
+                                    }`}
                                 >
                                   {data?.status === "Approve"
                                     ? "Approved"

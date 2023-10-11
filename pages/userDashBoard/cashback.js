@@ -2,7 +2,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
-import API from "../../helper/API";
+import API from "../../helper/API.Js";
 import Link from "next/link";
 
 function Cashback() {
@@ -88,27 +88,27 @@ function Cashback() {
               <tbody>
                 {cashBack && cashBack.gridRecords?.length
                   ? cashBack.gridRecords?.map((elem, index) => {
-                      return (
-                        <>
-                          <tr>
-                            <td>{index + 1}</td>
-                            <td>
-                              <Link
-                                href={`/userDashBoard/viewLoan/${elem?.loanApplicationId}`}
-                                className="document_hyper_link p-0 border-0 mr-2"
-                              >
-                                {elem?.applicationNumbr?.toUpperCase()}
-                              </Link>
-                            </td>
-                            {/* <td>Personal loan</td> */}
-                            <td>{elem?.loanAmount}</td>
-                            <td>{elem?.cashBackAmount}</td>
-                            <td>{formatDateToDDMMYYYY(elem?.createdon)}</td>
-                            {/* <td>{elem?.createdon}</td> */}
-                          </tr>
-                        </>
-                      );
-                    })
+                    return (
+                      <>
+                        <tr>
+                          <td>{index + 1}</td>
+                          <td>
+                            <Link
+                              href={`/userDashBoard/viewLoan/${elem?.loanApplicationId}`}
+                              className="document_hyper_link p-0 border-0 mr-2"
+                            >
+                              {elem?.applicationNumbr?.toUpperCase()}
+                            </Link>
+                          </td>
+                          {/* <td>Personal loan</td> */}
+                          <td>{elem?.loanAmount}</td>
+                          <td>{elem?.cashBackAmount}</td>
+                          <td>{formatDateToDDMMYYYY(elem?.createdon)}</td>
+                          {/* <td>{elem?.createdon}</td> */}
+                        </tr>
+                      </>
+                    );
+                  })
                   : ""}
               </tbody>
             </table>

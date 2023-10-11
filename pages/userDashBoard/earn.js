@@ -2,7 +2,7 @@ import React from "react";
 import Preloader from "../../components/preloader/Preloader";
 import { useState } from "react";
 import { useEffect } from "react";
-import API from "../../helper/API.Js";
+import axios from "axios";
 
 function Earn() {
   const [referCode, setReferCode] = useState("")
@@ -12,7 +12,7 @@ function Earn() {
       try {
         if (token) {
           // const userData = jwtDecode(token);
-          const response = await API.post(
+          const response = await axios.post(
             `https://loancrmtrn.azurewebsites.net/api/User/GetReferralCodeLink`,
             {
               headers: {

@@ -5,7 +5,7 @@ import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import Notification from "../../../components/utils/Notification";
 import Link from "next/link";
-import API from "../../../helper/API";
+import API from "../../../helper/API.Js";
 import PaginationTable from "../../../components/paginaton_table/PaginationTable";
 
 function ViewLoan() {
