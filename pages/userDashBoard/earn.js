@@ -2,7 +2,7 @@ import React from "react";
 import Preloader from "../../components/preloader/Preloader";
 import { useState } from "react";
 import { useEffect } from "react";
-import API from "../../helper/API";
+import API from "../../helper/API.js";
 
 function Earn() {
   const [referCode, setReferCode] = useState("")

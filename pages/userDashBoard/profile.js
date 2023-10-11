@@ -17,7 +17,7 @@ import Tabs from "react-bootstrap/Tabs";
 import Notification from "../../components/utils/Notification";
 import Link from "next/link";
 import Preloader from "../../components/preloader/Preloader";
-import API from "../../helper/API";
+import API from "../../helper/API.js";
 
 function Profile() {
   const aRef = useRef(null);
@@ -98,7 +98,7 @@ function Profile() {
     GetAllState();
   }, []);
 
-  const handleKycOnchange = () => {};
+  const handleKycOnchange = () => { };
 
   // useEffect(() => {
   //   setProfileState({
@@ -315,7 +315,7 @@ function Profile() {
         id="fill-tab-example"
         activeKey={key}
         onSelect={(k) => setKey(k)}
-        // className="mb-3"
+      // className="mb-3"
       >
         <Tab eventKey="home" title="Basic Details">
           <Formik
@@ -492,8 +492,8 @@ function Profile() {
                           name="state"
                           value={values?.state}
                           onChange={handleChange}
-                          // initialValues={values?.state}
-                          // onChange={handleSelectStateoption}
+                        // initialValues={values?.state}
+                        // onChange={handleSelectStateoption}
                         >
                           <option disabled={true} value="">
                             Select State
@@ -516,7 +516,7 @@ function Profile() {
                   <button
                     type="submit"
                     class="profile-btn me-3"
-                    // disabled={isSubmitting}
+                  // disabled={isSubmitting}
                   >
                     Save
                   </button>
@@ -546,12 +546,12 @@ function Profile() {
                   />
                   <button
                     className="upload_icon"
-                    // onClick={() =>
-                    //   handleUploadForField(
-                    //     data?.id,
-                    //     data?.name
-                    //   )
-                    // }
+                  // onClick={() =>
+                  //   handleUploadForField(
+                  //     data?.id,
+                  //     data?.name
+                  //   )
+                  // }
                   >
                     <i class="fa-solid fa-upload"></i>
                   </button>
@@ -606,12 +606,12 @@ function Profile() {
                   />
                   <button
                     className="upload_icon"
-                    // onClick={() =>
-                    //   handleUploadForField(
-                    //     data?.id,
-                    //     data?.name
-                    //   )
-                    // }
+                  // onClick={() =>
+                  //   handleUploadForField(
+                  //     data?.id,
+                  //     data?.name
+                  //   )
+                  // }
                   >
                     <i class="fa-solid fa-upload"></i>
                   </button>
