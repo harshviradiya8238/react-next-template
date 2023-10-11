@@ -23,6 +23,7 @@ export const navData = [
     url: "/loanapplication",
     dropdown: false,
   },
+
   // {
   //   id: "au@201",
   //   itm: "Product",

@@ -121,7 +121,7 @@ function Myloan() {
           </h3>
 
           <div class="d-flex justify-content-end">
-            <div class="col-lg-3 col-sm-12 mr-10">
+            <div class="col-lg-3 col-sm-6 col-4 mr-10">
               <Form.Select
                 aria-label="Default select example"
                 value={status}
@@ -136,7 +136,7 @@ function Myloan() {
                 <option value="Approve">Approved</option>
               </Form.Select>
             </div>
-            <div class="col-lg-3 col-sm-12 ">
+            <div class="col-lg-3 col-sm-6 col-8">
               <form class="form">
                 <div>
                   <i class="fa-solid fa-magnifying-glass"></i>
@@ -173,72 +173,71 @@ function Myloan() {
               <tbody>
                 {currentItems && currentItems.length
                   ? currentItems.map((data, index) => {
-                      return (
-                        <tr key={index}>
-                          <td>{startIndex + index + 1}</td>
-                          <td>
-                            {data?.applicationNumberForLoan
-                              ? data?.applicationNumberForLoan?.toUpperCase()
-                              : data?.applicationNumber}
-                          </td>
+                    return (
+                      <tr key={index}>
+                        <td>{startIndex + index + 1}</td>
+                        <td>
+                          {data?.applicationNumberForLoan
+                            ? data?.applicationNumberForLoan?.toUpperCase()
+                            : data?.applicationNumber}
+                        </td>
 
-                          <td>{data?.amount}</td>
-                          <td>{data.tenure ? data.tenure : 0}</td>
-                          <td>
-                            {data?.loanTypeName
-                              ? data?.loanTypeName.charAt(0)?.toUpperCase() +
-                                data?.loanTypeName.slice(1)?.toLowerCase()
-                              : "Home Loan"}
-                          </td>
-                          <td>
-                            {" "}
-                            <span
-                              class={`all-btn ${
-                                data?.status === "Pending"
-                                  ? "Pending-btn"
-                                  : data?.status === "Query"
-                                  ? "qyery-btn"
-                                  : data?.status === "Reject"
+                        <td>{data?.amount}</td>
+                        <td>{data.tenure ? data.tenure : 0}</td>
+                        <td>
+                          {data?.loanTypeName
+                            ? data?.loanTypeName.charAt(0)?.toUpperCase() +
+                            data?.loanTypeName.slice(1)?.toLowerCase()
+                            : "Home Loan"}
+                        </td>
+                        <td>
+                          {" "}
+                          <span
+                            class={`all-btn ${data?.status === "Pending"
+                              ? "Pending-btn"
+                              : data?.status === "Query"
+                                ? "qyery-btn"
+                                : data?.status === "Reject"
                                   ? "Rejected-btn"
                                   : data?.status === "Approve"
-                                  ? "Approved-btn"
-                                  : data?.status === "Incomplete"
-                                  ? "Process-btn"
-                                  : ""
+                                    ? "Approved-btn"
+                                    : data?.status === "Incomplete"
+                                      ? "Process-btn"
+                                      : ""
                               }`}
-                            >
-                              {data?.status === "Approve"
-                                ? "Approved"
-                                : data?.status === "Reject"
+                          >
+                            {data?.status === "Approve"
+                              ? "Approved"
+                              : data?.status === "Reject"
                                 ? "Rejected"
                                 : data?.status}
-                            </span>
-                          </td>
+                          </span>
+                        </td>
 
-                          <td>
+                        <td>
+                          <Link
+                            href={`/userDashBoard/viewLoan/${data?.id}`}
+                            className="cmn-btn p-0 border-0 mr-2 bg-transparent"
+                          >
+                            <i class="fa-regular fa-eye" />
+                          </Link>
+                          {data?.status_Key == 3 || data?.status_Key == 1 ? (
                             <Link
-                              href={`/userDashBoard/viewLoan/${data?.id}`}
-                              className="cmn-btn p-0 border-0 mr-2 bg-transparent"
+                              href={`/userDashBoard/editLoan/${data?.id}`}
+                              className="cmn-btn p-0 border-0 ms-4 bg-transparent"
                             >
-                              <i class="fa-regular fa-eye" />
+                              <i
+                                class="fa-solid fa-pen-to-square"
+                                style={{ color: "red" }}
+                              />
                             </Link>
-                            {data?.status_Key == 3 || data?.status_Key == 1 ? (
-                              <Link
-                                href={`/userDashBoard/editLoan/${data?.id}`}
-                                className="cmn-btn p-0 border-0 ms-4 bg-transparent"
-                              >
-                                <i
-                                  class="fa-solid fa-pen-to-square"
-                                  style={{ color: "red" }}
-                                />
-                              </Link>
-                            ) : (
-                              ""
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })
+                          ) : (
+                            ""
+                          )}
+                        </td>
+                      </tr>
+                    );
+                  })
                   : ""}
               </tbody>
             </Table>

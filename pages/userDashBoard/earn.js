@@ -1,7 +1,38 @@
 import React from "react";
 import Preloader from "../../components/preloader/Preloader";
+import { useState } from "react";
+import { useEffect } from "react";
+import API from "../../helper/API.Js";
 
 function Earn() {
+  const [referCode, setReferCode] = useState("")
+  useEffect(() => {
+    const fetchData = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+          // const userData = jwtDecode(token);
+          const response = await API.post(
+            `https://loancrmtrn.azurewebsites.net/api/User/GetReferralCodeLink`,
+            {
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+          const { data } = response;
+          if (data?.success) {
+            setReferCode(data.value);
+          }
+          return response;
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    fetchData();
+  }, []);
   return (
     <div class="loan-content-body">
       <Preloader />
@@ -9,11 +40,12 @@ function Earn() {
         <div class="cashback-section"></div>
         <div class="invite-section">
           <div class="col-lg-7 col-md-6 col-sm-12">
-            <div class="input-box">
+            <div class="input-box" style={{ maxWidth: "fit-content" }}>
               <input
                 type="text"
                 id="myInput"
-                value="https://developer.android.com/training/app-links"
+                value={referCode}
+              // value="https://developer.android.com/training/app-links"
               />
               <i class="fa-solid fa-copy" style={{ cursor: "pointer" }}></i>
             </div>

@@ -391,13 +391,13 @@ function RegisterApplication() {
                                         />
                                       </div>
                                     </div>
-                                    {/* <div className="col-6">
+                                    <div className="col-6">
                                       <div className="single-input">
                                         <label>Referral Code :</label>
                                         <Field
                                           type="text"
                                           name="step1.refer"
-                                          placeholder="Referal Code "
+                                          placeholder="Referral Code "
                                         />
                                         <ErrorMessage
                                           name="step1.refer"
@@ -405,7 +405,7 @@ function RegisterApplication() {
                                           className="all_error"
                                         />
                                       </div>
-                                    </div> */}
+                                    </div>
                                   </div>
                                   <div>
                                     <button

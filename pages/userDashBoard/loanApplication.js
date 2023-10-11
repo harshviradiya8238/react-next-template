@@ -1124,8 +1124,8 @@ function LoanApplication() {
                                         class="my-4 col-lg-12 col-md-12 col-sm-12"
                                       >
                                         <h4 className="ml-0">Other Document</h4>
-                                        <div className="d-flex align-items-center">
-                                          <div>
+                                        <div className="d-flex align-items-center flex-wrap">
+                                          <div className="other_doc_input">
                                             <input
                                               type="text"
                                               placeholder="Enter document name"
@@ -1137,24 +1137,27 @@ function LoanApplication() {
                                               }
                                             />
                                           </div>
-                                          <div className="input-box-userDashboard ">
-                                            <input
-                                              type="file"
-                                              accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                                              class="upload-box-userDashboard"
-                                              multiple
-                                              onChange={handleFileChange}
-                                            />
-                                          </div>
                                           <div className="d-flex">
-                                            <button
-                                              className="upload_icon"
-                                              onClick={
-                                                handleUploadForOtherDocument
-                                              }
-                                            >
-                                              <i class="fa-solid fa-upload"></i>
-                                            </button>
+
+                                            <div className="input-box-userDashboard ">
+                                              <input
+                                                type="file"
+                                                accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                                                class="upload-box-userDashboard"
+                                                multiple
+                                                onChange={handleFileChange}
+                                              />
+                                            </div>
+                                            <div className="d-flex">
+                                              <button
+                                                className="upload_icon"
+                                                onClick={
+                                                  handleUploadForOtherDocument
+                                                }
+                                              >
+                                                <i class="fa-solid fa-upload"></i>
+                                              </button>
+                                            </div>
                                           </div>
                                         </div>
                                         <>

@@ -533,7 +533,10 @@ function ViewLoan() {
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
         formData.append("LoanApplicationId", id);
         element?.selectedFilesArray.map((doc) => {
+
           formData.append("Documents", doc?.file);
+          formData.append("OtherDocumentName", doc?.name);
+
         });
         const token = localStorage.getItem("logintoken");
         if (element?.selectedFilesArray?.length > 0) {
@@ -603,6 +606,7 @@ function ViewLoan() {
       setErrorMessage("Please enter document name");
       return;
     }
+    console.log(selectedFilesArray, "=--=-=-=-");
 
     for (const { name, file } of selectedFilesArray) {
       const formData = new FormData();
@@ -724,7 +728,7 @@ function ViewLoan() {
                       <div className="d-flex justify-content-end">
                         {/* <span className="mr-10">Loan Status - </span> */}
                         <h4
-                          class={` ${basicDetailState?.status === "Pending"
+                          class={`title_text ${basicDetailState?.status === "Pending"
                             ? "Pending-text"
                             : basicDetailState?.status === "Query"
                               ? "qyery-text"
@@ -1023,7 +1027,40 @@ function ViewLoan() {
                                     {elm?.status?.toUpperCase()}
                                   </span>
                                 </td>
-                                <td>{elm?.comment}</td>
+                                <td>{elm?.comment}
+
+                                  <div className="query_row_remark justify-content-start">
+                                    {elm.documentList.length > 0 && (
+                                      <ul>
+                                        {elm.documentList.length > 0 &&
+                                          elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
+                                            (detail, i) => (
+                                              <>
+                                                <h6 class="text-head text-head-query">
+                                                  Attached  Documents :
+                                                </h6>
+                                                {/* <li key={i}>{detail.otherDocumentName}-</li> */}
+                                                <div key={i}>
+                                                  <a
+                                                    href={
+                                                      detail.documentURL
+                                                    }
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="document_hyper_link"
+                                                  >
+                                                    {detail.documentName}
+                                                  </a>
+                                                </div>
+
+                                              </>
+                                            )
+                                          )}
+                                      </ul>
+                                    )}
+                                  </div>
+
+                                </td>
                                 <td>
                                   <div>
                                     {elm?.remark ||
@@ -1033,25 +1070,28 @@ function ViewLoan() {
                                         <div className="query_row_remark justify-content-start">
                                           {elm.documentList.length > 0 && (
                                             <ul>
-                                              <h6 class="text-head text-head-query">
-                                                Uploaded Documents :
-                                              </h6>
                                               {elm.documentList.length > 0 &&
                                                 elm.documentList.map(
                                                   (detail, i) => (
-                                                    <div key={i}>
-                                                      <a
-                                                        href={
-                                                          detail.documentURL
-                                                        }
-                                                        target="_blank"
-                                                        rel="noreferrer"
-                                                        className="document_hyper_link"
-                                                      >
-                                                        {detail.documentName}
-                                                      </a>
-                                                    </div>
-                                                    // <li key={i}>-{detail.documentName}</li>
+                                                    <>
+                                                      <h6 class="text-head text-head-query">
+                                                        Uploaded Documents :
+                                                      </h6>
+                                                      <li key={i}>{detail.otherDocumentName}-</li>
+                                                      <div key={i}>
+                                                        <a
+                                                          href={
+                                                            detail.documentURL
+                                                          }
+                                                          target="_blank"
+                                                          rel="noreferrer"
+                                                          className="document_hyper_link"
+                                                        >
+                                                          {detail.documentName}
+                                                        </a>
+                                                      </div>
+
+                                                    </>
                                                   )
                                                 )}
                                             </ul>
@@ -1073,25 +1113,31 @@ function ViewLoan() {
                                           <div className="query_row_remark justify-content-start">
                                             {elm.documentList.length > 0 ? (
                                               <ul>
-                                                <h5 class="text-head text-head-query">
-                                                  Uploaded Document
-                                                </h5>
                                                 {elm.documentList.length > 0 &&
-                                                  elm.documentList.map(
+                                                  elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
                                                     (detail, i) => (
-                                                      <div key={i}>
-                                                        <a
-                                                          href={
-                                                            detail.documentURL
-                                                          }
-                                                          target="_blank"
-                                                          rel="noreferrer"
-                                                          className="document_hyper_link"
-                                                        >
-                                                          {detail.documentName}
-                                                        </a>
-                                                      </div>
-                                                      // <li key={i}>-{detail.documentName}</li>
+                                                      <>
+                                                        <h5 class="text-head text-head-query">
+                                                          Uploaded Document
+                                                        </h5>
+                                                        <div style={{ display: "flex" }}>
+
+                                                          <span className="view_doc" key={i}>{detail?.otherDocumentName}-{" "}</span>
+                                                          <div key={i}>
+                                                            <a
+                                                              href={
+                                                                detail.documentURL
+                                                              }
+                                                              target="_blank"
+                                                              rel="noreferrer"
+                                                              className="document_hyper_link"
+                                                            >
+                                                              {detail.documentName}
+                                                            </a>
+                                                          </div>
+                                                        </div>
+
+                                                      </>
                                                     )
                                                   )}
                                               </ul>
@@ -1365,7 +1411,7 @@ function ViewLoan() {
                 <div class="row">
                   <div class="my-4 col-lg-12 col-md-12 col-sm-12">
                     <h4 className="ml-0">Other Document</h4>
-                    <div className="d-flex align-items-baseline">
+                    <div className="d-flex align-items-baseline flex-wrap">
                       <div className="other_doc_input">
                         <input
                           type="text"
@@ -1376,24 +1422,27 @@ function ViewLoan() {
                           }
                         />
                       </div>
-                      <div>
-                        <input
-                          type="file"
-                          accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                          class="upload-box-userDashboard"
-                          multiple
-                          onChange={handleFileChange}
-                        />
+                      <div className="d-flex">
+
+                        <div>
+                          <input
+                            type="file"
+                            accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                            class="upload-box-userDashboard"
+                            multiple
+                            onChange={handleFileChange}
+                          />
+                        </div>
+                        <div className="d-flex">
+                          <button
+                            className="upload_icon"
+                            onClick={handleUploadForOtherDocument}
+                          >
+                            <i class="fa-solid fa-upload"></i>
+                          </button>
+                        </div>
                       </div>
 
-                      <div className="d-flex">
-                        <button
-                          className="upload_icon"
-                          onClick={handleUploadForOtherDocument}
-                        >
-                          <i class="fa-solid fa-upload"></i>
-                        </button>
-                      </div>
                       {/* {otherDocumentId} */}
                     </div>
                     <>

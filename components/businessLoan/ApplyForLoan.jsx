@@ -51,7 +51,7 @@ function ApplyForLoan() {
   const [selectedRow, setSelectedRow] = useState(null);
 
   const [state, setSatate] = useState({
-    step1: { firstName: "", lastName: "", email: "", phone: "" },
+    step1: { firstName: "", lastName: "", email: "", phone: "", refer: "" },
     stepVerify: { mobileotp: "", emailotp: "" },
     step2: { loanType: "", loanAmount: "", loanTerm: "", state: "" },
     step3: {
@@ -218,6 +218,7 @@ function ApplyForLoan() {
             lastName: value.step1.lastName,
             email: value.step1.email,
             phoneNumber: Number(value.step1.phone),
+            referrerCode: value.step1.refer,
           }
         );
 
@@ -942,6 +943,21 @@ function ApplyForLoan() {
                                         />
                                       </div>
                                     </div>
+                                    <div className="col-6">
+                                      <div className="single-input">
+                                        <label>Referral Code :</label>
+                                        <Field
+                                          type="text"
+                                          name="step1.refer"
+                                          placeholder="Referral Code "
+                                        />
+                                        <ErrorMessage
+                                          name="step1.refer"
+                                          component="div"
+                                          className="all_error"
+                                        />
+                                      </div>
+                                    </div>
                                   </div>
                                   <div>
                                     <button
@@ -1439,8 +1455,8 @@ function ApplyForLoan() {
                                       <div class="row">
                                         <div class="my-4 col-lg-12 col-md-12 col-sm-12">
                                           <label>Other Document</label>
-                                          <div className="d-flex align-items-baseline">
-                                            <div>
+                                          <div className="d-flex align-items-baseline flex-wrap">
+                                            <div className="other_doc_input">
                                               <input
                                                 type="text"
                                                 placeholder="Enter document name"
@@ -1452,24 +1468,26 @@ function ApplyForLoan() {
                                                 }
                                               />
                                             </div>
-                                            <div>
-                                              <input
-                                                type="file"
-                                                accept=".jpg, .jpeg, .png, .bmp, .pdf"
-                                                class="upload-box-userDashboard"
-                                                multiple
-                                                onChange={handleFileChange}
-                                              />
-                                            </div>
                                             <div className="d-flex">
-                                              <button
-                                                className="upload_btn"
-                                                onClick={
-                                                  handleUploadForOtherDocument
-                                                }
-                                              >
-                                                <i class="fa-solid fa-upload"></i>
-                                              </button>
+                                              <div>
+                                                <input
+                                                  type="file"
+                                                  accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                                                  class="upload-box-userDashboard"
+                                                  multiple
+                                                  onChange={handleFileChange}
+                                                />
+                                              </div>
+                                              <div className="d-flex">
+                                                <button
+                                                  className="upload_btn"
+                                                  onClick={
+                                                    handleUploadForOtherDocument
+                                                  }
+                                                >
+                                                  <i class="fa-solid fa-upload"></i>
+                                                </button>
+                                              </div>
                                             </div>
                                           </div>
                                           <>

@@ -113,7 +113,7 @@ function ViewLoan() {
                   <div className="d-flex justify-content-end">
                     {/* <span className="mr-10">Loan Status - </span> */}
                     <h4
-                      class={` ${loanData?.status === "Pending"
+                      class={`title_text ${loanData?.status === "Pending"
                         ? "Pending-text"
                         : loanData?.status === "Query"
                           ? "qyery-text"
@@ -335,7 +335,40 @@ function ViewLoan() {
                                         : elm?.status.toUpperCase()}
                                     </span>
                                   </td>
-                                  <td>{elm?.comment}</td>
+                                  <td>
+
+
+                                    {elm?.comment}
+
+                                    {elm.documentList.length > 0 && (
+                                      <ul>
+                                        {elm.documentList.length > 0 &&
+                                          elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
+                                            (detail, i) => (
+                                              <>
+                                                <h6 class="text-head text-head-query">
+                                                  Attached  Documents :
+                                                </h6>
+                                                {/* <li key={i}>{detail.otherDocumentName}-</li> */}
+                                                <div key={i}>
+                                                  <a
+                                                    href={
+                                                      detail.documentURL
+                                                    }
+                                                    target="_blank"
+                                                    rel="noreferrer"
+                                                    className="document_hyper_link"
+                                                  >
+                                                    {detail.documentName}
+                                                  </a>
+                                                </div>
+
+                                              </>
+                                            )
+                                          )}
+                                      </ul>
+                                    )}
+                                  </td>
                                   <td>
                                     {/* {loanData?.status === "Incomplete" ||
                               loanData?.status === "Query" ? (
@@ -353,23 +386,29 @@ function ViewLoan() {
                                     <div className="query_row_remark  justify-content-start">
                                       {elm.documentList.length ? (
                                         <ul>
-                                          <h5 class="text-head text-head-query">
-                                            Uploaded Documents
-                                          </h5>
                                           {elm.documentList.length > 0 &&
-                                            elm.documentList.map(
+                                            elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
                                               (detail, i) => (
-                                                <div key={i}>
-                                                  <a
-                                                    href={detail.documentURL}
-                                                    target="_blank"
-                                                    rel="noreferrer"
-                                                    className="document_hyper_link"
-                                                  >
-                                                    {detail.documentName}
-                                                  </a>
-                                                </div>
-                                                // <li key={i}>-{detail.documentName}</li>
+                                                <>
+                                                  <h5 class="text-head text-head-query">
+                                                    Uploaded Documents
+                                                  </h5>
+                                                  <div style={{ display: "flex" }}>
+
+                                                    <span className="view_doc" key={i}>{detail.otherDocumentName}-{" "}</span>
+                                                    <div key={i}>
+                                                      <a
+                                                        href={detail.documentURL}
+                                                        target="_blank"
+                                                        rel="noreferrer"
+                                                        className="document_hyper_link"
+                                                      >
+                                                        {detail.documentName}
+                                                      </a>
+                                                    </div>
+                                                  </div>
+                                                </>
+
                                               )
                                             )}
                                         </ul>

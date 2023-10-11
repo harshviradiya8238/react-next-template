@@ -727,7 +727,7 @@ li {
           align-items: center;
           border: 1px solid var(--light-gray);
           border-radius: 50px;
-        max-width: 108px;
+          max-width: 108px;
           background-color: white;
           // box-shadow: 0 12px 24px rgba(47,65,129,.1);
           // padding: 5px;
@@ -1038,7 +1038,7 @@ button:disabled,
   margin-left:10px
 }
 .other_doc_input{
-  width: 25%;
+  width: 25% ;
   padding-right: 10px;
 }
 .query_table th:nth-child(1),
@@ -1147,4 +1147,7 @@ font-size: 12px;
 }
 .text-head-query{
   color: black !important;
+}
+.title_text{
+  font-size: 18px !important;
 }
