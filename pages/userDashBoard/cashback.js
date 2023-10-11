@@ -2,7 +2,7 @@ import axios from "axios";
 import jwtDecode from "jwt-decode";
 import React, { useEffect, useState } from "react";
 import Preloader from "../../components/preloader/Preloader";
-import API from "../../helper/API.Js";
+import API from "../../helper/API";
 import Link from "next/link";
 
 function Cashback() {

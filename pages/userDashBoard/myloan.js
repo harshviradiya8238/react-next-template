@@ -8,7 +8,7 @@ import Form from "react-bootstrap/Form";
 import "bootstrap/dist/css/bootstrap.min.css";
 import Preloader from "../../components/preloader/Preloader";
 import PaginationTable from "../../components/paginaton_table/PaginationTable";
-import API from "../../helper/API.Js";
+import API from "../../helper/API.js";
 
 function Myloan() {
   const [loanApplication, setLoanApplication] = useState("");
