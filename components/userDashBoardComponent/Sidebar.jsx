@@ -78,10 +78,10 @@ function Sidebar({ toggleSidebar, isOpen }) {
             </Link>
           </li>
           <li className={` ${pathname.includes("earn") ? "active" : ""}`}>
-            {/* <Link href="/userDashBoard/earn"> */}
-            <i class="fa-solid fa-gift"></i>
-            <span class="text">Refer & Earn</span>
-            {/* </Link> */}
+            <Link href="/userDashBoard/earn">
+              <i class="fa-solid fa-gift"></i>
+              <span class="text">Refer & Earn</span>
+            </Link>
           </li>
           <li className={` ${pathname.includes("profile") ? "active" : ""}`}>
             <Link href="/userDashBoard/profile">

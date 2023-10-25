@@ -10,6 +10,7 @@ import Notification from "../utils/Notification";
 import Link from "next/link";
 import NavBar from "../navBar/NavBar";
 import API from "../../helper/API";
+import { useRouter } from "next/router";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -72,6 +73,22 @@ function ApplyForLoan() {
     { title: "Document Details" },
     { title: "Application confirmation" },
   ];
+
+  const router = useRouter();
+
+  useEffect(() => {
+    // Extract referralCode from query params
+    const { referralCode } = router.query;
+    if (referralCode) {
+      setSatate((prevFormData) => ({
+        ...prevFormData,
+        step1: {
+          ...prevFormData.step1,
+          refer: referralCode,
+        },
+      }));
+    }
+  }, [router.query]);
   const [buttonDisabled, setButtonDisabled] = useState(false);
 
   const [sendOtp, setVerifyOtp] = useState(false);
@@ -224,7 +241,7 @@ function ApplyForLoan() {
 
         const { data } = response;
         if (data?.success) {
-          await Notification("success", "OTP Sent SuccessFully");
+          await Notification("success", "OTP sent successFully");
 
           setVerifyOtp(true);
           setButtonDisabled(false);
@@ -254,7 +271,7 @@ function ApplyForLoan() {
     if (!pincode) {
       setPincodeError("Please Enter pincode");
     }
-    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+    if (!loanAmount || !selectOption || !countryState || !city || !pincode) {
       return;
     }
 
@@ -269,7 +286,7 @@ function ApplyForLoan() {
       });
       const { data } = response;
 
-      await Notification("success", data?.value?.message);
+      await Notification("success", "Loan application created successfully");
       GetBankAndDocumetByLoanTypeId(
         selectOption,
         loanAmount,
@@ -279,6 +296,7 @@ function ApplyForLoan() {
 
       setLoanAppliactionId(data?.value?.id);
       setLoanAppliactionNumber(data?.value?.applicationNumber);
+      setIsLoanCreat(true);
     } catch (error) {
       console.log(error);
       // Notification("error", "Please Enter All Field");
@@ -303,7 +321,7 @@ function ApplyForLoan() {
     if (!pincode) {
       setPincodeError("Please Enter pincode");
     }
-    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+    if (!loanAmount || !selectOption || !countryState || !city || !pincode) {
       return;
     }
 
@@ -331,7 +349,7 @@ function ApplyForLoan() {
         loanTerm,
         setFieldValue
       );
-      setIsLoanCreat(true);
+      // setIsLoanCreat(true);
     } catch (error) {
       console.log(error);
       // Notification("error", "Please Enter All Field");
@@ -576,7 +594,7 @@ function ApplyForLoan() {
           }
         );
 
-        Notification("success", "document Upload Successfully ");
+        Notification("success", "Document uploaded successfully ");
         const newDocFiles = { ...docFiles };
         newDocFiles[name] = [];
 
@@ -626,7 +644,7 @@ function ApplyForLoan() {
           }
         );
         // const { data } = response;
-        Notification("success", "document Upload Successfully ");
+        Notification("success", "Document uploaded successfully ");
         // setSelectedFilesArray([]);
         setSelectedFilesArray([]);
         setDocumentFileName("");
@@ -672,6 +690,7 @@ function ApplyForLoan() {
                       isSubmitting,
                       values,
                       setFieldValue,
+                      onChange,
                       setFieldError,
                     }) => (
                       <Form>
@@ -820,7 +839,7 @@ function ApplyForLoan() {
                                                 await setVerifyOtp(true);
                                                 await Notification(
                                                   "success",
-                                                  "OTP Verify SuccessFully and Password Send on Your Email"
+                                                  "OTP verified successfully and password is sent on your email id"
                                                 );
 
                                                 await window.location.reload();
@@ -943,12 +962,20 @@ function ApplyForLoan() {
                                         />
                                       </div>
                                     </div>
-                                    <div className="col-6">
+                                    {/* <div className="col-6">
                                       <div className="single-input">
                                         <label>Referral Code :</label>
                                         <Field
                                           type="text"
                                           name="step1.refer"
+                                          onChange={async (e) => {
+                                            console.log(e.target.value);
+                                            setFieldValue(
+                                              "step1.refer",
+                                              e.target.value
+                                            );
+                                          }}
+                                          // value={referralCode}
                                           placeholder="Referral Code "
                                         />
                                         <ErrorMessage
@@ -957,7 +984,7 @@ function ApplyForLoan() {
                                           className="all_error"
                                         />
                                       </div>
-                                    </div>
+                                    </div> */}
                                   </div>
                                   <div>
                                     <button
@@ -995,7 +1022,7 @@ function ApplyForLoan() {
                                     <table class="table">
                                       <thead>
                                         <tr>
-                                          <th scope="col"></th>
+                                          <th scope="col">Sr.No</th>
                                           <th scope="col">Bank Name</th>
                                         </tr>
                                       </thead>

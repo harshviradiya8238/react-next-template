@@ -340,15 +340,15 @@ function ViewLoan() {
 
                                     {elm?.comment}
 
-                                    {elm.documentList.length > 0 && (
+                                    {elm.documentList.filter((ele, i) => ele.documentSource === "Admin").length > 0 && (
                                       <ul>
+                                        <h6 class="text-head text-head-query">
+                                          Attached  Documents :
+                                        </h6>
                                         {elm.documentList.length > 0 &&
-                                          elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
+                                          elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
                                             (detail, i) => (
                                               <>
-                                                <h6 class="text-head text-head-query">
-                                                  Attached  Documents :
-                                                </h6>
                                                 {/* <li key={i}>{detail.otherDocumentName}-</li> */}
                                                 <div key={i}>
                                                   <a
@@ -384,15 +384,15 @@ function ViewLoan() {
                                       </span>
                                     )}
                                     <div className="query_row_remark  justify-content-start">
-                                      {elm.documentList.length ? (
+                                      {elm.documentList.filter((ele, i) => ele.documentSource === "User").length ? (
                                         <ul>
+                                          <h5 class="text-head text-head-query">
+                                            Uploaded Documents
+                                          </h5>
                                           {elm.documentList.length > 0 &&
-                                            elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
+                                            elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
                                               (detail, i) => (
                                                 <>
-                                                  <h5 class="text-head text-head-query">
-                                                    Uploaded Documents
-                                                  </h5>
                                                   <div style={{ display: "flex" }}>
 
                                                     <span className="view_doc" key={i}>{detail.otherDocumentName}-{" "}</span>
@@ -459,6 +459,7 @@ function ViewLoan() {
           >
             <div class="form">
               <>
+
                 {documentData &&
                   documentData.map((item, index) => (
                     <div key={index}>
@@ -472,13 +473,14 @@ function ViewLoan() {
                         {item.documentDetail.length > 0 ? (
                           item.documentDetail.map((detail, i) => (
                             <div key={index}>
-                              {item.documentName === "Other" && (
+                              {/* {item.documentName === "Other"(
                                 <>
+
                                   <span className="view_doc">
                                     {detail.otherDocumentName} -{" "}
                                   </span>
                                 </>
-                              )}
+                              )} */}
                               <a
                                 href={detail.documentURL}
                                 target="_blank"
@@ -491,6 +493,7 @@ function ViewLoan() {
                             // <li key={i}>-{detail.documentName}</li>
                           ))
                         ) : (
+
                           <li>-No document uploaded</li>
                         )}
                       </ul>

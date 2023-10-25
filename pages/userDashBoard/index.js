@@ -9,7 +9,8 @@ import API from "../../helper/API";
 
 export default function DashBoardDefault() {
   const [loanApplication, setLoanApplication] = useState("");
-
+  // const token = localStorage.getItem("logintoken");
+  // console.log(token, "][][][][][][][[][]");
   useEffect(() => {
     const token = localStorage.getItem("logintoken");
 
@@ -27,7 +28,7 @@ export default function DashBoardDefault() {
         );
         const { data } = response;
         // const sortedEntries = Array.from(data.value).reverse();
-
+        console.log(data, "============================");
         setLoanApplication(data.value);
       } catch (error) {
         console.log(error);
@@ -119,9 +120,8 @@ export default function DashBoardDefault() {
                       <th>Loan Amount (INR) </th>
                       <th>Loan Tenure (Year) </th>
                       <th>Loan Type </th>
-
                       <th>Status</th>
-                      {/* <th>Action</th> */}
+
                     </tr>
                   </thead>
                   <tbody>
@@ -172,7 +172,7 @@ export default function DashBoardDefault() {
                   </tbody>
                 </Table>
                 <>
-                  {!currentItems.length && (
+                  {!currentItems?.length && (
                     <div>
                       <h4>No Data Found</h4>
                     </div>

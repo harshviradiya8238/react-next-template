@@ -39,6 +39,7 @@ function RegisterApplication() {
   const router = useRouter();
   const [selectedRow, setSelectedRow] = useState(null);
 
+
   const [state, setSatate] = useState({
     step1: { firstName: "", lastName: "", email: "", phone: "", refer: "" },
     step2: { loanType: "", loanAmount: "", loanTerm: "", state: "" },
@@ -54,6 +55,20 @@ function RegisterApplication() {
     },
     activeStep: 0,
   });
+
+  useEffect(() => {
+    // Extract referralCode from query params
+    const { referralCode } = router.query;
+    if (referralCode) {
+      setSatate((prevFormData) => ({
+        ...prevFormData,
+        step1: {
+          ...prevFormData.step1,
+          refer: referralCode,
+        },
+      }));
+    }
+  }, [router.query]);
   const selectRow = {
     // mode: "checkbox",
     clickToSelect: true,
@@ -97,7 +112,7 @@ function RegisterApplication() {
 
         const { data } = response;
         if (data?.success) {
-          await Notification("success", "OTP Sent SuccessFully");
+          await Notification("success", "OTP sent successFully");
 
           setVerifyOtp(true);
           setButtonDisabled(false);
@@ -147,13 +162,13 @@ function RegisterApplication() {
               <div className="form-content">
                 <div className="section-header text-center">
                   <h3 class="thankYou_register">
-                    <span> Registration </span>
+                    <span><b>Registration</b>  </span>
                   </h3>
                   {/* <h2 className="title">Registration</h2> */}
-                  <p>
+                  {/* <p>
                     Please fill the form below. We will get in touch with you
                     within 1-2 business days, to request all necessary details
-                  </p>
+                  </p> */}
                 </div>
                 {/* Loan form  */}
 
@@ -162,6 +177,7 @@ function RegisterApplication() {
                     initialValues={state}
                     validationSchema={validationSchema}
                     onSubmit={handleSubmit}
+                    enableReinitialize
                   >
                     {({
                       isSubmitting,
@@ -289,15 +305,17 @@ function RegisterApplication() {
                                                   "logintoken",
                                                   tokenData
                                                 );
-                                                localStorage.setItem(
+                                                await localStorage.setItem(
                                                   "user",
                                                   JSON.stringify(data?.value)
                                                 );
                                                 await setVerifyOtp(true);
                                                 router.push("/userDashBoard");
+                                                // await window.location.reload();
+
                                                 await Notification(
                                                   "success",
-                                                  "OTP Verify SuccessFully and Password Send on Your Email"
+                                                  "OTP verified successfully and password is sent on your email id"
                                                 );
                                               }
                                             } catch (error) {
@@ -397,6 +415,13 @@ function RegisterApplication() {
                                         <Field
                                           type="text"
                                           name="step1.refer"
+                                          onChange={async (e) => {
+                                            setFieldValue(
+                                              "step1.refer",
+                                              e.target.value
+                                            );
+                                          }}
+                                          // value={referralCode}
                                           placeholder="Referral Code "
                                         />
                                         <ErrorMessage

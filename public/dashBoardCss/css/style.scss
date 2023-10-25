@@ -300,6 +300,7 @@ button {
         h1 {
             display: flex;
             align-items: center;
+            margin-top: initial;
 
             .img-box {
                 display: block;
@@ -656,8 +657,10 @@ button {
             }
 
             tbody {
-                tr {
-
+                tr {th:nth-child(3),
+                     td:nth-child(3) {
+                      text-align:center;
+                      }
                     td {
                         text-align: left;
                         padding: 10px 10px;
@@ -673,6 +676,7 @@ button {
                         }
                         input{
                             // border: none;
+                            min-width: fit-content;
                             width: 100%;
                             border: 1px solid lightgray;
                             border-radius: 3px;

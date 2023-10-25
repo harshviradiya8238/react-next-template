@@ -394,7 +394,7 @@ button {
   font-size: 1.2rem;
 }
 .loan-content-body .loan-section-table .table tbody tr td {
-  text-align: center;
+  text-align: left;
   padding: 10px 0;
   color: rgba(0, 0, 0, 0.64);
   font-weight: 600;

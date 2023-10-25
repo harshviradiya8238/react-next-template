@@ -21,10 +21,12 @@ function ViewLoan() {
   const [otherDocumentId, setOtherDocumentId] = useState("");
   const [commentData, setCommentData] = useState("");
   const [queryDocuemntListing, setQueryDocuemntListing] = useState("");
+  const [bankOption, setBankOption] = useState([]);
+
 
   const validationSchema = Yup.object().shape({
     loanAmount: Yup.string().required("loan Amount is required"),
-    loanTenure: Yup.string().required("loan Tenure is required"),
+    // loanTenure: Yup.string().required("loan Tenure is required"),
     postalCode: Yup.string().required("Pincode is required"),
     city: Yup.string().required("City is required"),
   });
@@ -42,6 +44,8 @@ function ViewLoan() {
     loanAmount: "",
     loanStatus: "",
   });
+  const [preffredBank, setPreffredBank] = useState()
+  console.log(preffredBank, "ppppppppppp");
 
   const handlePincodeChange = async (event) => {
     const newPincode = event.target.value;
@@ -86,7 +90,7 @@ function ViewLoan() {
         if (id) {
           const response = await API.get(`/LoanApplication/GetById?id=${id}`);
           const { data } = response;
-
+          setPreffredBank(data.value)
           setBasicDetailState({
             ...data.value,
             state: data?.value?.stateId,
@@ -139,11 +143,32 @@ function ViewLoan() {
         // Notification("error", error?.response?.data[0]?.errorMessage);
       }
     };
+    const GetAllBank = async (token) => {
+      try {
+        const response = await API.get("/BanksAndInstitute/GetAll?pageNumber=1", {
 
+          headers: {
+            Authorization: `Bearer ${token}`,
+          }
+        });
+        const { data } = response;
+        // if (data?.value?.gridRecords?.length > 0) {
+        setBankOption(data.value.gridRecords);
+        // setEligiblity(true);
+        // } else {
+        //   setBankOption([]);
+        //   // setSatate({ ...state, activeStep: 2 });
+        // }
+        // setLoanTypeOption(data?.value?.gridRecords);
+      } catch (error) {
+        console.log(error);
+      }
+    };
     GetLoanById(token);
     GetAllState();
     GetAll(token);
     GetCommentById(token);
+    GetAllBank(token)
   }, [id]);
 
   const GetBankAndDocumetByLoanTypeId = async (selectOption) => {
@@ -156,6 +181,16 @@ function ViewLoan() {
         }
       );
       const { data } = response;
+
+
+      // if (data?.value?.bank?.length > 0) {
+      //   setBankOption([...data.value.bank]);
+      //   // setEligiblity(true);
+      // } else {
+      //   setBankOption([]);
+      //   // setSatate({ ...state, activeStep: 2 });
+      // }
+
 
       if (data?.value?.document?.length > 0) {
         const inputArray = data.value.document;
@@ -201,6 +236,21 @@ function ViewLoan() {
   const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
   const [loanTypeChanged, setLoanTypeChanged] = useState(false);
+
+  const [selectedRowData, setSelectedRowData] = useState([]);
+
+  const handleCheckboxChange = (event, rowData) => {
+    if (event.target.checked) {
+      setSelectedRowData((prevSelectedRowData) => [
+        ...prevSelectedRowData,
+        rowData.id,
+      ]);
+    } else {
+      setSelectedRowData((prevSelectedRowData) =>
+        prevSelectedRowData.filter((row) => row !== rowData.id)
+      );
+    }
+  };
 
   const allowedFileTypes = [".jpg", ".jpeg", ".png", ".bmp", ".pdf"];
   const maxFileSize = 10 * 1024 * 1024;
@@ -347,8 +397,8 @@ function ViewLoan() {
 
         formData.append("DocumentTypeId", element.documentTypeId);
         formData.append("Documents", element);
-        formData.append("LoanApplicationId", id);
       });
+    formData.append("LoanApplicationId", id);
     console.log(files, files?.length);
 
     const token = localStorage.getItem("logintoken");
@@ -364,7 +414,7 @@ function ViewLoan() {
         }
       );
 
-      Notification("success", "document Upload Successfully ");
+      Notification("success", "Document uploaded successfully ");
       const newDocFiles = { ...docFiles };
       newDocFiles[name] = [];
 
@@ -533,7 +583,6 @@ function ViewLoan() {
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
         formData.append("LoanApplicationId", id);
         element?.selectedFilesArray.map((doc) => {
-
           formData.append("Documents", doc?.file);
           formData.append("OtherDocumentName", doc?.name);
 
@@ -551,7 +600,7 @@ function ViewLoan() {
               }
             );
             // const { data } = response;
-            Notification("success", "document Upload Successfully ");
+            Notification("success", "Document uploaded successfully ");
             await axios.post(
               "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
               {
@@ -606,7 +655,6 @@ function ViewLoan() {
       setErrorMessage("Please enter document name");
       return;
     }
-    console.log(selectedFilesArray, "=--=-=-=-");
 
     for (const { name, file } of selectedFilesArray) {
       const formData = new FormData();
@@ -629,7 +677,7 @@ function ViewLoan() {
           }
         );
         // const { data } = response;
-        Notification("success", "document Upload Successfully ");
+        Notification("success", "Document uploaded successfully ");
         // setSelectedFilesArray([]);
         setSelectedFilesArray([]);
         setDocumentFileName("");
@@ -672,7 +720,6 @@ function ViewLoan() {
         }
       })
     );
-    console.log(dataCheck, "-=-=-=");
     return dataCheck;
   };
 
@@ -989,6 +1036,175 @@ function ViewLoan() {
                   </Form>
                 )}
               </Formik>
+              {preffredBank?.bankDetailForLoans?.length ? (
+                <div class="row preferred_bank">
+                  <div className="col-lg-6 col-md-6 col-sm-12 m-basics ">
+                    <div class="table-section">
+                      <>
+                        <h5> Preferred bank</h5>
+                        <table class="table mt-4 preferred_bank_table">
+                          <thead>
+                            <tr>
+                              <th scope="col">Sr.No</th>
+
+                              <th scope="col">Bank Name</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {preffredBank &&
+                              preffredBank?.bankDetailForLoans?.length &&
+                              preffredBank?.bankDetailForLoans.map(
+                                (elm, index) => {
+                                  return (
+                                    <>
+                                      <tr key={index}>
+                                        <td>{index + 1}</td>
+                                        <td>{elm?.bankName}</td>
+                                      </tr>
+                                    </>
+                                  );
+                                }
+                              )}
+                          </tbody>
+                        </table>
+                      </>
+
+                    </div>
+                  </div>
+                </div>
+              ) : (
+                ""
+              )}
+              {bankOption &&
+                bankOption.filter(bank => !preffredBank?.bankDetailForLoans?.some(prefBank => prefBank.bankName === bank.name) && !selectedRowData.some(selectedRowData => selectedRowData.id === bank.id)).length ?
+
+                <div class="table-section">
+                  <span className="text-head">
+                    {" "}
+                    Choose other bank Preference
+                  </span>
+
+                  {/* <h4> Choose your Preference</h4> */}
+                  <table class="table">
+                    <thead>
+                      <tr>
+                        <th scope="col">Sr.No</th>
+                        <th scope="col">Bank Name</th>
+                        {/* <th scope="col">Rate of interest</th> */}
+                      </tr>
+                    </thead>
+                    <tbody>
+
+
+                      <>
+                        {bankOption &&
+                          bankOption.filter(bank => !preffredBank?.bankDetailForLoans?.some(prefBank => prefBank.bankName === bank.name) && !selectedRowData.some(selectedRowData => selectedRowData.id === bank.id)).map((elm, index) => {
+                            return (
+                              <>
+                                <tr key={index}>
+                                  <th>
+                                    <label class="checkbox">
+                                      <input
+                                        type="checkbox"
+                                        checked={selectedRowData.includes(
+                                          elm.id
+                                        )}
+                                        onChange={(e) =>
+                                          handleCheckboxChange(
+                                            e,
+                                            elm
+                                          )
+                                        }
+                                      />
+                                      <div class="checkbox-circle">
+                                        <svg
+                                          viewBox="0 0 52 52"
+                                          class="checkmark"
+                                        >
+                                          <circle
+                                            fill="none"
+                                            r="25"
+                                            cy="26"
+                                            cx="26"
+                                            class="checkmark-circle"
+                                          ></circle>
+                                          <path
+                                            d="M16 26l9.2 8.4 17.4-21.4"
+                                            class="checkmark-kick"
+                                          ></path>
+                                        </svg>
+                                      </div>
+                                    </label>
+                                  </th>
+                                  <td>{elm?.name}</td>
+                                  {/* <td>{elm?.interestRate}</td> */}
+                                </tr>
+                              </>
+                            );
+                          })}
+                        {/* <div className="align-right"> */}
+
+
+                        {/* </div> */}
+                      </>
+                    </tbody>
+                  </table>
+                  <div className="d-flex justify-content-end">
+
+                    <button
+                      type="button"
+                      className="cmn-btn"
+                      onClick={async () => {
+                        const token =
+                          localStorage.getItem("logintoken");
+                        if (selectedRowData.length) {
+                          try {
+                            const response = await API.post(
+                              `/LoanApplication/UpdateLoanApplication`,
+                              {
+                                isActive: true,
+                                loanApplicationId:
+                                  id,
+                                bankIds: selectedRowData,
+                                tenure: Number(basicDetailState.tenure),
+                                stateId: basicDetailState?.state,
+                                city: basicDetailState?.city,
+                                postalCode: basicDetailState?.postalCode,
+                                loanTypeId: basicDetailState?.loanType,
+                                amount: Number(basicDetailState?.amount)
+
+                              }
+                            );
+                            // const { id } = router.query;
+                            const loanDATA = await API.get(`/LoanApplication/GetById?id=${id}`);
+                            // setPreffredBank(loanDATA.value)
+
+                            const { data } = response;
+
+                            await Notification(
+                              "success",
+                              "Bank selection Submitted successfully"
+                            );
+
+
+                          } catch (error) {
+                            console.log(error);
+                          }
+                        } else {
+                          await Notification(
+                            "error",
+                            "please select bank "
+                          );
+
+                        }
+
+                      }}
+                    >
+                      Update
+                    </button>
+                  </div>
+                </div>
+                : ""}
 
               <div class="loan-content-body">
                 <h5>Query History</h5>
@@ -1030,15 +1246,15 @@ function ViewLoan() {
                                 <td>{elm?.comment}
 
                                   <div className="query_row_remark justify-content-start">
-                                    {elm.documentList.length > 0 && (
+                                    {elm.documentList.filter((ele, i) => ele.documentSource === "Admin").length > 0 && (
                                       <ul>
+                                        <h6 class="text-head text-head-query">
+                                          Attached  Documents :
+                                        </h6>
                                         {elm.documentList.length > 0 &&
-                                          elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
+                                          elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
                                             (detail, i) => (
                                               <>
-                                                <h6 class="text-head text-head-query">
-                                                  Attached  Documents :
-                                                </h6>
                                                 {/* <li key={i}>{detail.otherDocumentName}-</li> */}
                                                 <div key={i}>
                                                   <a
@@ -1111,36 +1327,39 @@ function ViewLoan() {
 
                                         <>
                                           <div className="query_row_remark justify-content-start">
-                                            {elm.documentList.length > 0 ? (
-                                              <ul>
-                                                {elm.documentList.length > 0 &&
-                                                  elm.documentList.filter((ele, i) => ele.documentSource === "Admin").map(
-                                                    (detail, i) => (
-                                                      <>
-                                                        <h5 class="text-head text-head-query">
-                                                          Uploaded Document
-                                                        </h5>
-                                                        <div style={{ display: "flex" }}>
+                                            {elm.documentList.filter((ele, i) => ele.documentSource === "User").length > 0 ? (
+                                              <>
+                                                <h5 class="text-head text-head-query">
+                                                  Uploaded Document
+                                                </h5>
+                                                <ul>
+                                                  {elm.documentList.length > 0 &&
+                                                    elm.documentList.filter((ele, i) => ele.documentSource === "User").map(
+                                                      (detail, i) => (
+                                                        <>
 
-                                                          <span className="view_doc" key={i}>{detail?.otherDocumentName}-{" "}</span>
-                                                          <div key={i}>
-                                                            <a
-                                                              href={
-                                                                detail.documentURL
-                                                              }
-                                                              target="_blank"
-                                                              rel="noreferrer"
-                                                              className="document_hyper_link"
-                                                            >
-                                                              {detail.documentName}
-                                                            </a>
+                                                          <div style={{ display: "flex" }}>
+
+                                                            <span className="view_doc" key={i}>{detail?.otherDocumentName}-{" "}</span>
+                                                            <div key={i}>
+                                                              <a
+                                                                href={
+                                                                  detail.documentURL
+                                                                }
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="document_hyper_link"
+                                                              >
+                                                                {detail.documentName}
+                                                              </a>
+                                                            </div>
                                                           </div>
-                                                        </div>
 
-                                                      </>
-                                                    )
-                                                  )}
-                                              </ul>
+                                                        </>
+                                                      )
+                                                    )}
+                                                </ul>
+                                              </>
                                             ) : (
                                               ""
                                             )}
@@ -1177,7 +1396,7 @@ function ViewLoan() {
                                                 }
                                               />
                                             </div>
-                                            <div className="d-flex">
+                                            <div className="d-flex position-relative" style={{ left: "75px" }}>
                                               <button
                                                 className="upload_icon"
                                                 onClick={() => {
@@ -1263,7 +1482,7 @@ function ViewLoan() {
                     </table>
                     <>
                       {!currentItems?.length && (
-                        <div className="text-start">
+                        <div className="text-center">
                           <h4>No Data Found</h4>
                         </div>
                       )}
@@ -1501,7 +1720,7 @@ function ViewLoan() {
                 <button
                   type="button"
                   className="cmn-btn"
-                  onClick={() => {
+                  onClick={async () => {
                     const allUploadEmpty = Object.values(uploadedFiles).every(
                       (array) => array.length === 0
                     );
@@ -1520,10 +1739,14 @@ function ViewLoan() {
                         "Please Upload at least one document"
                       );
                     } else {
+
                       // Reload the page if there are document details in at least one object
                       if (hasDocumentDetails) {
+                        await router.push(`/userDashBoard/viewLoan/${id}`);
                         window.location.reload();
                       } else {
+
+
                         // Handle your regular submission logic here
                         // For example, you can submit a form or perform other actions
                         // when there are no document details to reload the page

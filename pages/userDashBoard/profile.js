@@ -53,6 +53,7 @@ function Profile() {
   });
   const [key, setKey] = useState("home");
   const [countryStateOption, SetCountryStateOption] = useState("");
+  const [documentOption, setDocumentOption] = useState("");
   // const [countryState, SetCountryState] = useState("");
   const [errorStateType, setErrorStateType] = useState("");
 
@@ -74,7 +75,7 @@ function Profile() {
           if (data?.success) {
             setProfileState({
               ...data.value,
-              state: data?.value?.stateId,
+              state: data?.value?.stateId ? data?.value?.stateId : "",
             });
             setAccountState(data.value);
             // SetCountryState(data?.value?.stateId);
@@ -94,8 +95,50 @@ function Profile() {
         console.log(error);
       }
     };
+    const GetAllKycDocOption = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+
+          const userData = jwtDecode(token);
+          const Docresponse = await API.get(
+            `/DocumentType/GetAll`, {
+            entityType: 1,
+            entityId: userData?.UserDetails?.Id,
+          }
+          );
+          const filteredDocuments = Docresponse?.data?.value.filter(doc =>
+            doc.name === "Adhar Card" || doc.name === "Pan card"
+          );
+          console.log(filteredDocuments);
+          setDocumentOption(filteredDocuments);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    }
+    const GetAllKycDocument = async () => {
+      const token = localStorage.getItem("logintoken");
+      try {
+        if (token) {
+
+          const userData = jwtDecode(token);
+          const Docresponse = await API.post(
+            `/Document/GetDocuments`, {
+            entityType: 1,
+            entityId: userData?.UserDetails?.Id,
+          }
+          );
+          setDocumentresponse(Docresponse?.data?.value);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
     fetchData();
     GetAllState();
+    GetAllKycDocument()
+    GetAllKycDocOption()
   }, []);
 
   const handleKycOnchange = () => { };
@@ -116,27 +159,53 @@ function Profile() {
     }));
   };
 
-  const [docFiles, setdocFiles] = useState({
-    panCard: [],
-    aadharFront: [],
-    aadharBack: [],
-  });
+  const [docFiles, setdocFiles] = useState(
+    {
+      'Adhar Card': { front: [], back: [] },
+      // ... other document types
+    }
+  );
+  const [documentResponse, setDocumentresponse] = useState([]);
+  // const handlePanFileChange = (fieldType, event) => {
+  //   const selectedFiles = [...event.target.files];
+  //   const updatedFiles = selectedFiles.slice(0, 3);
+  //   setdocFiles((prevState) => ({
+  //     ...prevState,
+  //     [fieldType]: updatedFiles,
+  //   }));
+  // };
 
-  const handlePanFileChange = (fieldType, event) => {
-    const selectedFiles = [...event.target.files];
-    const updatedFiles = selectedFiles.slice(0, 3);
-    setdocFiles((prevState) => ({
-      ...prevState,
-      [fieldType]: updatedFiles,
-    }));
+  // const handleRemoveFile = (fieldType, index) => {
+  //   setdocFiles((prevState) => ({
+  //     ...prevState,
+  //     [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
+  //   }));
+  // };
+
+  const handleFileChange = (type, side, e) => {
+    if (type === "Adhar Card" && (side === 'front' || side === 'back')) {
+      let updatedAadhar = { ...docFiles[type] };
+      updatedAadhar[side] = [...e.target.files];
+      setdocFiles({ ...docFiles, [type]: updatedAadhar });
+    } else {
+      setdocFiles({ ...docFiles, [type]: [...e.target.files] });
+    }
   };
 
-  const handleRemoveFile = (fieldType, index) => {
-    setdocFiles((prevState) => ({
-      ...prevState,
-      [fieldType]: prevState[fieldType].filter((_, i) => i !== index),
-    }));
+  const handleRemoveFile = (type, side, index) => {
+    if (type === "Adhar Card" && (side === 'front' || side === 'back')) {
+      let updatedAadhar = { ...docFiles[type] };
+      let filesForSide = [...updatedAadhar[side]];
+      filesForSide.splice(index, 1);
+      updatedAadhar[side] = filesForSide;
+      setdocFiles({ ...docFiles, [type]: updatedAadhar });
+    } else {
+      let files = [...docFiles[type]];
+      files.splice(index, 1);
+      setdocFiles({ ...docFiles, [type]: files });
+    }
   };
+
   const initialValues = {
     firstName: profileState?.firstName,
     lastName: profileState?.lastName,
@@ -170,17 +239,18 @@ function Profile() {
   const validationSchemaAccount = Yup.object().shape({
     bankName: Yup.string().required("Bank Name is required"),
     accountNumber: Yup.string().required("Account Number is required"),
-    confirmAccountNumber: Yup.string()
-      .required("Confirm Account Number is required")
-      .oneOf(
-        [Yup.ref("accountNumber"), null],
-        "Confirm Account Number and Account Number must match"
-      ),
+    // confirmAccountNumber: Yup.string()
+    //   .required("Confirm Account Number is required")
+    //   .oneOf(
+    //     [Yup.ref("accountNumber"), null],
+    //     "Confirm Account Number and Account Number must match"
+    //   ),
     ifscCode: Yup.string().required("IFSC is required"),
   });
 
   const handleSubmit = async (values, setSubmitting) => {
     const token = localStorage.getItem("logintoken");
+
     try {
       const userData = jwtDecode(token);
 
@@ -222,6 +292,30 @@ function Profile() {
   };
   const handleSubmitAccountDetails = async (values, { setSubmitting }) => {
     const token = localStorage.getItem("logintoken");
+
+    console.log(documentOption);
+    const ADHAAR_ID = documentOption.find(doc => doc.name === "Adhar Card")?.id;
+    const PAN_ID = documentOption.find(doc => doc.name === "Pan card")?.id;
+    if (!ADHAAR_ID || !PAN_ID) {
+      return Notification("error", "Error retrieving document IDs");
+    }
+    // Check for Aadhaar card's front side
+    const aadharFrontDocuments = getDocumentDetailsById("Adhar Card", ADHAAR_ID, true);
+    if (aadharFrontDocuments.length === 0) {
+      return Notification("error", "Please Upload Aadhaar Front Side Proof");
+    }
+
+    // Check for Aadhaar card's back side
+    const aadharBackDocuments = getDocumentDetailsById("Adhar Card", ADHAAR_ID, false);
+    if (aadharBackDocuments.length === 0) {
+      return Notification("error", "Please Upload Aadhaar Back Side Proof");
+    }
+
+    // Check for PAN card
+    const panDocuments = getDocumentDetailsById("Pan card", PAN_ID);
+    if (panDocuments.length === 0) {
+      return Notification("error", "Please Upload PAN card");
+    }
     try {
       const userData = jwtDecode(token);
       const response = await API.post(
@@ -307,6 +401,83 @@ function Profile() {
       return null;
     }
   };
+
+
+
+  const handleUploadForField = async (type, docid) => {
+
+
+    const token = localStorage.getItem("logintoken");
+    const userData = jwtDecode(token);
+
+    // const url = 'YOUR_API_ENDPOINT'; // replace with your API endpoint
+    console.log(docFiles, "][][]");
+    const formData = new FormData();
+    const filesArray = type === "front" || type === "back"
+      ? docFiles["Adhar Card"][type === "front" ? "front" : "back"]
+      : docFiles[type];
+
+    if (Array.isArray(filesArray)) {
+      filesArray.forEach((file) => {
+        formData.append('Files', file);
+      });
+    }
+
+    formData.append("EntityType", Number(1))
+    formData.append('EntityId', userData?.UserDetails?.Id);
+    formData.append('DocumentTypeId', docid);
+    formData.append('IsFront', type === 'front' ? true : false);
+
+    try {
+      const response = await API.post(
+        `/Document/UploadDocument`, formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
+          },
+        }
+      );
+      Notification("success", "Document uploaded successfully ");
+      const Docresponse = await API.post(
+        `/Document/GetDocuments`, {
+        entityType: 1,
+        entityId: userData?.UserDetails?.Id,
+      }
+      );
+      setDocumentresponse(Docresponse?.data?.value)
+      setdocFiles([])
+      // console.log('Upload Successful: ', response.data);
+    } catch (error) {
+      console.log('Error in uploading file: ', error);
+    }
+
+  };
+
+
+  const getDocumentIdByName = (docName) => {
+    const doc = documentOption.find(d => d.name === docName);
+    return doc ? doc.id : null;
+  }
+  // const getDocumentDetailsById = () => {
+  //   var dataCheck = [];
+  //   documentResponse?.filter((item) => {
+  //     if (item.documentTypeId === "c5f357d2-f481-4763-bb9d-202783279c36") {
+  //       dataCheck.push(item);
+  //     }
+  //   }
+  //   );
+  //   return dataCheck;
+  // };
+
+  const getDocumentDetailsById = (docName, typeId, isFront) => {
+    const dataCheck = documentResponse?.filter(item =>
+      item.documentTypeId === typeId &&
+      (docName === 'Adhar Card' ? item.isFront === isFront : true)
+    );
+    return dataCheck || [];
+  };
+
 
   return (
     <div class="profile-page-section">
@@ -531,124 +702,233 @@ function Profile() {
         <Tab eventKey="profile" title="KYC Details">
           <div class="form">
             <div className="row">
-              <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                <label>
-                  <span className="astrisk_mark">*</span>
-                  Aadhaar Upload- Front Side
-                </label>
-                <div class="input-box-userDashboard ">
-                  <input
-                    type="file"
-                    multiple
-                    ref={aRef}
-                    class="upload-box-userDashboard"
-                    onChange={(e) => handlePanFileChange("aadharFront", e)}
-                  />
-                  <button
-                    className="upload_icon"
-                  // onClick={() =>
-                  //   handleUploadForField(
-                  //     data?.id,
-                  //     data?.name
-                  //   )
-                  // }
-                  >
-                    <i class="fa-solid fa-upload"></i>
-                  </button>
-                </div>
 
-                {docFiles?.aadharFront?.length > 0 && (
-                  <div>
-                    <h4>Selected files:</h4>
-                    {docFiles &&
-                      docFiles?.aadharFront?.map((file, index) => (
-                        <div key={index}>
-                          <div className="selectfile">
-                            <span
-                              className="document_hyper_link"
-                              onClick={
-                                () => handlePreviewFile(file)
+              {documentOption && documentOption.map((doc, index) => (
+                <>
+                  {doc.name === "Adhar Card" ? (
+                    <>
+                      <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                        <label>
+                          <span className="astrisk_mark">*</span>
+                          Aadhaar Upload- Front Side
+                        </label>
+                        <div class="input-box-userDashboard ">
+                          <input
+                            type="file"
+                            accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                            multiple
+                            ref={aRef}
+                            class="upload-box-userDashboard"
+                            onChange={(e) => handleFileChange(doc.name, "front", e)}  // for Aadhar front
 
-                                // window.open(
-                                //   previewUrl,
-                                //   "_blank"
-                                // )
-                              }
-                            >
-                              {file?.name}
-                            </span>
-                            <i
-                              class="delete_button fa-solid fa-xmark"
-                              onClick={() =>
-                                handleRemoveFile("aadharFront", index)
-                              }
-                              style={{ cursor: "pointer" }}
-                            ></i>
-                          </div>
+                          />
+                          <button
+                            className="upload_icon"
+                            onClick={() => handleUploadForField("front", getDocumentIdByName("Adhar Card"))}
+
+                          >
+                            <i class="fa-solid fa-upload"></i>
+                          </button>
                         </div>
-                      ))}
-                  </div>
-                )}
-              </div>
+                        {getDocumentDetailsById(doc.name, doc.id, true).map(
+                          (docDetail, index) => {
 
-              <div class="my-4 col-lg-6 col-md-6 col-sm-12">
-                <label>
-                  <span className="astrisk_mark">*</span>
-                  Aadhaar Upload- Back Side
-                </label>
-                <div class="input-box-userDashboard ">
-                  <input
-                    type="file"
-                    multiple
-                    ref={aRef}
-                    class="upload-box-userDashboard"
-                    onChange={(e) => handlePanFileChange("aadharFront", e)}
-                  />
-                  <button
-                    className="upload_icon"
-                  // onClick={() =>
-                  //   handleUploadForField(
-                  //     data?.id,
-                  //     data?.name
-                  //   )
-                  // }
-                  >
-                    <i class="fa-solid fa-upload"></i>
-                  </button>
-                </div>
-                {docFiles?.aadharBack?.length > 0 && (
-                  <div>
-                    <h4>Selected files:</h4>
-                    {docFiles &&
-                      docFiles?.aadharBack?.map((file, index) => (
-                        <div key={index}>
-                          <div className="selectfile">
-                            <span
-                              className="document_hyper_link"
-                              onClick={
-                                () => handlePreviewFile(file)
+                            return (
+                              <ul key={index}>
+                                <a
+                                  key={docDetail.id}
+                                  href={docDetail.documentName}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="document_hyper_link"
+                                >
+                                  {docDetail.originalName}
+                                </a>
+                              </ul>
+                            );
+                          }
+                        )}
 
-                                // window.open(
-                                //   previewUrl,
-                                //   "_blank"
-                                // )
-                              }
-                            >
-                              {file?.name}
-                            </span>
-                            <i
-                              class="delete_button fa-solid fa-xmark"
-                              onClick={() =>
-                                handleRemoveFile("aadharBack", index)
-                              }
-                              style={{ cursor: "pointer" }}
-                            ></i>
+                        {docFiles?.["Adhar Card"]?.front?.length > 0 && (
+                          <div>
+                            <h4>Selected files:</h4>
+                            {docFiles &&
+                              docFiles["Adhar Card"]?.front.map((file, index) => (
+                                <div key={index}>
+                                  <div className="selectfile">
+                                    <span
+                                      className="document_hyper_link"
+                                      onClick={
+                                        () => handlePreviewFile(file)
+
+                                        // window.open(
+                                        //   previewUrl,
+                                        //   "_blank"
+                                        // )
+                                      }
+                                    >
+                                      {file?.name}
+                                    </span>
+                                    <i
+                                      class="delete_button fa-solid fa-xmark"
+                                      onClick={() =>
+                                        handleRemoveFile(doc.name, "front", index)  // for Aadhar back
+
+                                      }
+                                      style={{ cursor: "pointer" }}
+                                    ></i>
+                                  </div>
+                                </div>
+                              ))}
                           </div>
+                        )}
+                      </div>
+
+                      <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                        <label>
+                          <span className="astrisk_mark">*</span>
+                          Aadhaar Upload- Back Side
+                        </label>
+                        <div class="input-box-userDashboard ">
+                          <input
+                            type="file"
+                            accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                            multiple
+                            ref={aRef}
+                            class="upload-box-userDashboard"
+                            onChange={(e) => handleFileChange(doc.name, "back", e)}   // for Aadhar back
+
+                          />
+                          <button
+                            className="upload_icon"
+                            onClick={() => handleUploadForField("back", getDocumentIdByName("Adhar Card"))}
+
+                          >
+                            <i class="fa-solid fa-upload"></i>
+                          </button>
                         </div>
-                      ))}
-                  </div>
-                )}
-              </div>
+                        {getDocumentDetailsById(doc.name, doc.id, false).map(
+                          (docDetail, index) => {
+                            return (
+                              <ul key={index}>
+                                <a
+                                  key={docDetail.id}
+                                  href={docDetail.documentName}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="document_hyper_link"
+                                >
+                                  {docDetail.originalName}
+                                </a>
+                              </ul>
+                            );
+                          }
+                        )}
+                        {docFiles?.["Adhar Card"]?.back?.length > 0 && (
+                          <div>
+                            <h4>Selected files:</h4>
+                            {docFiles &&
+                              docFiles?.["Adhar Card"]?.back?.map((file, index) => (
+                                <div key={index}>
+                                  <div className="selectfile">
+                                    <span
+                                      className="document_hyper_link"
+                                      onClick={
+                                        () => handlePreviewFile(file)
+
+                                        // window.open(
+                                        //   previewUrl,
+                                        //   "_blank"
+                                        // )
+                                      }
+                                    >
+                                      {file?.name}
+                                    </span>
+                                    <i
+                                      class="delete_button fa-solid fa-xmark"
+                                      onClick={() =>
+                                        handleRemoveFile(doc.name, "back", index)
+                                      }
+                                      style={{ cursor: "pointer" }}
+                                    ></i>
+                                  </div>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </div>
+                    </>) :
+
+                    <div class="my-4 col-lg-6 col-md-6 col-sm-12">
+                      <label>
+                        <span className="astrisk_mark">*</span>
+                        {doc.name}
+                      </label>
+                      <div class="input-box-userDashboard">
+                        <input
+                          type="file"
+                          accept=".jpg, .jpeg, .png, .bmp, .pdf"
+                          ref={aRef}
+                          class="upload-box-userDashboard"
+                          onChange={(e) => handleFileChange(doc.name, null, e)}     // for other documents
+
+                        />
+                        <button
+                          className="upload_icon"
+                          onClick={() => handleUploadForField(doc.name, getDocumentIdByName(doc.name))}
+
+                        >
+                          <i class="fa-solid fa-upload"></i>
+                        </button>
+                      </div>
+                      <div>
+                        {
+                          docFiles?.[doc.name]?.length > 0 && (
+                            <>
+                              <h4>Selected files:</h4>
+                              {docFiles?.[doc.name]?.map((file, index) => (
+                                <div key={index}>
+                                  <div className="selectfile">
+                                    <span
+                                      className="document_hyper_link"
+                                      onClick={() => handlePreviewFile(file)}
+                                    >
+                                      {file?.name}
+                                    </span>
+                                    <i
+                                      class="delete_button fa-solid fa-xmark"
+                                      onClick={() => handleRemoveFile(doc.name, index)}
+                                      style={{ cursor: "pointer" }}
+                                    ></i>
+                                  </div>
+                                </div>
+                              ))}
+                            </>
+                          )
+                        }
+                        {getDocumentDetailsById(doc.name, doc.id, false).map(
+                          (docDetail, index) => {
+                            return (
+                              <ul key={index}>
+                                <a
+                                  key={docDetail.id}
+                                  href={docDetail.documentName}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="document_hyper_link"
+                                >
+                                  {docDetail.originalName}
+                                </a>
+                              </ul>
+                            );
+                          }
+                        )}
+                      </div>
+                    </div>
+                  }
+                </>
+              ))}
+
             </div>
 
             <Formik
@@ -661,7 +941,9 @@ function Profile() {
                 <Form>
                   <div class="row">
                     <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                      <label for="bank-name">Bank Name</label>
+                      <label for="bank-name"><span className="astrisk_mark">
+                        *
+                      </span>Bank Name</label>
                       <Field
                         type="text"
                         name="bankName"
@@ -674,7 +956,9 @@ function Profile() {
                       />
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                      <label for="IFSC">IFSC Code</label>
+                      <label for="IFSC"><span className="astrisk_mark">
+                        *
+                      </span>IFSC Code</label>
                       <Field
                         type="text"
                         name="ifscCode"
@@ -700,7 +984,9 @@ function Profile() {
                       />
                     </div>
                     <div class="col-lg-6 col-md-6 col-sm-12 m-basics">
-                      <label for="ac-number">Account Number</label>
+                      <label for="ac-number"><span className="astrisk_mark">
+                        *
+                      </span>Account Number</label>
                       <Field
                         type={"number"}
                         name="accountNumber"

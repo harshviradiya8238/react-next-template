@@ -24,11 +24,11 @@ export default axios.create({
   },
 
   validateStatus: (status) => {
-    // if (status === 401) {
-    //   window.location.reload();
-    //   window.location.href = "/";
-    //   localStorage.clear();
-    // }
+    if (status === 401) {
+      window.location.reload();
+      window.location.href = "/";
+      localStorage.clear();
+    }
     return status;
   },
 });

@@ -3,6 +3,7 @@ import Preloader from "../../components/preloader/Preloader";
 import { useState } from "react";
 import { useEffect } from "react";
 import API from "../../helper/API";
+import Notification from "../../components/utils/Notification";
 
 function Earn() {
   const [referCode, setReferCode] = useState("")
@@ -33,6 +34,20 @@ function Earn() {
 
     fetchData();
   }, []);
+
+  const referralLink = getReferralLink(referCode);
+  function getReferralLink(code) {
+    return `https://nextjs-loanapplication.vercel.app/registerApplication?referralCode=${code}`;
+  }
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(referralLink).then(() => {
+      Notification("success", 'Referral link copied to clipboard!');
+    }).catch((err) => {
+      Notification("error", 'Could not copy text:');
+
+      console.error('Could not copy text: ', err);
+    });
+  };
   return (
     <div class="loan-content-body">
       <Preloader />
@@ -40,14 +55,14 @@ function Earn() {
         <div class="cashback-section"></div>
         <div class="invite-section">
           <div class="col-lg-7 col-md-6 col-sm-12">
-            <div class="input-box" style={{ maxWidth: "fit-content" }}>
+            <div class="input-box" style={{ maxWidth: "initial" }}>
               <input
                 type="text"
                 id="myInput"
-                value={referCode}
+                value={referralLink}
               // value="https://developer.android.com/training/app-links"
               />
-              <i class="fa-solid fa-copy" style={{ cursor: "pointer" }}></i>
+              <i class="fa-solid fa-copy" style={{ cursor: "pointer" }} onClick={copyToClipboard}> </i>
             </div>
           </div>
           <div class="icon-section">
@@ -92,7 +107,7 @@ function Earn() {
             </div>
           </div> */}
           <div class="table-responsive">
-            <table class="table align-td-middle table-card">
+            <table class="table align-td-middle table-card table-earn">
               <thead>
                 <tr>
                   <th>No.</th>

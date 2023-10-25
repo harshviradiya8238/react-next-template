@@ -146,7 +146,7 @@ function LoanApplication() {
     tenure,
     setFieldValue
   ) => {
-    const token = localStorage.getItem("logintoken");
+    const token = typeof window !== "undefined" ? localStorage.getItem("logintoken") : "";;
     try {
       const response = await API.post(
         `/LoanApplication/GetBankAndDocumetByLoanTypeId`,
@@ -251,25 +251,28 @@ function LoanApplication() {
     if (!pincode) {
       setPincodeError("Please Enter pincode");
     }
-    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+    if (!loanAmount || !selectOption || !countryState || !city || !pincode) {
       return;
     }
 
     const token = localStorage.getItem("logintoken");
-
+    console.log(token, "][][][][][][][[][]");
     try {
       const response = await API.post("/LoanApplication/Create", {
+        isActive: true,
         loanTypeId: selectOption,
-        amount: loanAmount,
+        amount: Number(loanAmount),
         tenure: Number(value.step1.loanTerm),
         stateId: Number(countryState),
         city: city,
         postalCode: pincode,
+      }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
       });
       const { data } = response;
-
-      await Notification("success", data?.value?.message);
-      setIsLoanCreat(true);
+      await Notification("success", "Loan application created successfully")
       GetBankAndDocumetByLoanTypeId(
         selectOption,
         loanAmount,
@@ -278,6 +281,8 @@ function LoanApplication() {
       );
       setLoanAppliactionId(data?.value?.id);
       setLoanAppliactionNumber(data?.value?.applicationNumber);
+      setIsLoanCreat(true);
+
     } catch (error) {
       console.log(error);
       // Notification("error", "Please Enter All Field");
@@ -302,7 +307,7 @@ function LoanApplication() {
     if (!pincode) {
       setPincodeError("Please Enter pincode");
     }
-    if (!loanAmount || !countryState || !countryState || !city || !pincode) {
+    if (!loanAmount || !selectOption || !countryState || !city || !pincode) {
       return;
     }
 
@@ -321,7 +326,11 @@ function LoanApplication() {
           city: city,
           postalCode: pincode,
           isActive: true,
-        }
+        }, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }
       );
       const { data } = response;
 
@@ -332,7 +341,7 @@ function LoanApplication() {
         value.step1.loanTerm,
         setFieldValue
       );
-      setIsLoanCreat(true);
+
     } catch (error) {
       console.log(error);
       // Notification("error", "Please Enter All Field");
@@ -548,7 +557,7 @@ function LoanApplication() {
         }
       );
 
-      Notification("success", "document Upload Successfully ");
+      Notification("success", "Document uploaded successfully ");
       const newDocFiles = { ...docFiles };
       newDocFiles[name] = [];
 
@@ -595,7 +604,7 @@ function LoanApplication() {
           }
         );
         // const { data } = response;
-        Notification("success", "document Upload Successfully ");
+        Notification("success", "Document uploaded successfully ");
         // setSelectedFilesArray([]);
         setSelectedFilesArray([]);
         setDocumentFileName("");
@@ -662,7 +671,7 @@ function LoanApplication() {
                                     <table class="table">
                                       <thead>
                                         <tr>
-                                          <th scope="col"></th>
+                                          <th scope="col">Sr.No</th>
                                           <th scope="col">Bank Name</th>
                                           {/* <th scope="col">Rate of interest</th> */}
                                         </tr>
@@ -959,6 +968,7 @@ function LoanApplication() {
                                       </div>
                                     </div>
                                   </div>
+
                                   <div className="d-flex justify-content-start align-items-center">
                                     <button
                                       onClick={async () => {

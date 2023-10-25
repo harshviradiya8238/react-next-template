@@ -988,7 +988,7 @@ button:disabled,
 }
 .query_row_remark{
   
-  display: flex;
+  // display: flex;
   justify-content: center;
   text-align: left;
 
@@ -1150,4 +1150,8 @@ font-size: 12px;
 }
 .title_text{
   font-size: 18px !important;
+}
+.table-earn tbody tr td:nth-child(3){
+  // background: red !important;
+  text-align: left !important
 }

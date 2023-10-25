@@ -118,7 +118,7 @@ const LoginForm = () => {
                                 }
                                 onBlur={handleBlur}
                                 onChange={handleChange}
-                                placeholder="Email Id or phone number"
+                                placeholder="Email"
                                 required
                               />
 
