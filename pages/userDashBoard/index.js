@@ -19,7 +19,7 @@ export default function DashBoardDefault() {
       try {
         const userData = jwtDecode(token);
         const response = await API.get(
-          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
+          `/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

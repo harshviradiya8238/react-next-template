@@ -126,21 +126,20 @@ function ApplyForLoan() {
 
     const GetAll = async () => {
       const token = localStorage.getItem("logintoken");
-      try {
-        const response = await axios.get(
-          "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
-          {
+      if (token) {
+        try {
+          const response = await API.get("/LoanType/GetAll", {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          }
-        );
-        const { data } = response;
+          });
+          const { data } = response;
 
-        setLoanTypeOption(data?.value?.gridRecords);
-      } catch (error) {
-        console.log(error);
-        // Notification("error", error?.response?.data[0]?.errorMessage);
+          setLoanTypeOption(data?.value?.gridRecords);
+        } catch (error) {
+          console.log(error);
+          // Notification("error", error?.response?.data[0]?.errorMessage);
+        }
       }
     };
     const GetAllState = async () => {
@@ -228,16 +227,13 @@ function ApplyForLoan() {
       setButtonDisabled(true);
 
       try {
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/User/Create",
-          {
-            firstName: value.step1.firstName,
-            lastName: value.step1.lastName,
-            email: value.step1.email,
-            phoneNumber: Number(value.step1.phone),
-            referrerCode: value.step1.refer,
-          }
-        );
+        const response = await API.post("/User/Create", {
+          firstName: value.step1.firstName,
+          lastName: value.step1.lastName,
+          email: value.step1.email,
+          phoneNumber: Number(value.step1.phone),
+          referrerCode: value.step1.refer,
+        });
 
         const { data } = response;
         if (data?.success) {
@@ -584,8 +580,8 @@ function ApplyForLoan() {
     if (files || files.length) {
       const token = localStorage.getItem("logintoken");
       try {
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+        const response = await API.post(
+          "/LoanApplication/UploadLoanDocument",
           formData,
           {
             headers: {
@@ -634,8 +630,8 @@ function ApplyForLoan() {
 
       try {
         const token = localStorage.getItem("logintoken");
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+        const response = await API.post(
+          "/LoanApplication/UploadLoanDocument",
           formData,
           {
             headers: {
@@ -803,8 +799,8 @@ function ApplyForLoan() {
                                               return; // Stop further execution if either of the OTPs is undefined or empty
                                             }
                                             try {
-                                              const response = await axios.post(
-                                                "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
+                                              const response = await API.post(
+                                                "/User/VerifyOTP",
                                                 {
                                                   sendEmail: true,
                                                   email: apiData.step1.email,

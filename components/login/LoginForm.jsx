@@ -63,7 +63,6 @@ const LoginForm = () => {
                     })
                       .then(async (dataset) => {
                         const { data } = dataset;
-                        console.log(data);
                         if (data.success) {
                           // Redirect to a new page using the router
 

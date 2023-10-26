@@ -20,8 +20,8 @@ function Myloan() {
       // const token = localStorage.getItem("logintoken");
       try {
         const userData = jwtDecode(token);
-        const response = await axios.get(
-          `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
+        const response = await API.get(
+          `/LoanApplication/GetAllLoanOfUser?userId=${userData?.UserDetails?.Id}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,

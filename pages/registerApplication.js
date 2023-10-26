@@ -14,6 +14,7 @@ import Notification from "../components/utils/Notification";
 import { useRouter } from "next/router";
 import Link from "next/link";
 import jwtDecode from "jwt-decode";
+import API from "../helper/API";
 
 // Define the validation schema
 const validationSchema = Yup.object().shape({
@@ -99,8 +100,8 @@ function RegisterApplication() {
       setButtonDisabled(true);
 
       try {
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/User/Create",
+        const response = await API.post(
+          "/User/Create",
           {
             firstName: value.step1.firstName,
             lastName: value.step1.lastName,
@@ -282,8 +283,8 @@ function RegisterApplication() {
                                               return; // Stop further execution if either of the OTPs is undefined or empty
                                             }
                                             try {
-                                              const response = await axios.post(
-                                                "https://loancrmtrn.azurewebsites.net/api/User/VerifyOTP",
+                                              const response = await API.post(
+                                                "/User/VerifyOTP",
                                                 {
                                                   sendEmail: true,
                                                   email: apiData.step1.email,

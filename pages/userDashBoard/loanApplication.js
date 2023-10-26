@@ -46,9 +46,8 @@ function LoanApplication() {
     const GetAll = async (token) => {
       // const token = localStorage.getItem("logintoken");
       try {
-        const response = await axios.get(
-          "https://loancrmtrn.azurewebsites.net/api/LoanType/GetAll",
-
+        const response = await API.get(
+          "/LoanType/GetAll",
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -547,8 +546,8 @@ function LoanApplication() {
 
     const token = localStorage.getItem("logintoken");
     try {
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+      const response = await API.post(
+        "/LoanApplication/UploadLoanDocument",
         formData,
         {
           headers: {
@@ -594,8 +593,8 @@ function LoanApplication() {
 
       try {
         const token = localStorage.getItem("logintoken");
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+        const response = await API.post(
+          "/LoanApplication/UploadLoanDocument",
           formData,
           {
             headers: {

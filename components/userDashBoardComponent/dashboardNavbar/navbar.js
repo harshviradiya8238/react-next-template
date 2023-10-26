@@ -7,31 +7,28 @@ function Navbar({ toggleSidebar }) {
 
   const [showLogout, setShowLogout] = useState(false);
   const [userData, setUserData] = useState("");
-
   useEffect(() => {
+    // Initial data setting
     setUserData(
       typeof window !== "undefined"
         ? JSON.parse(localStorage.getItem("user"))
         : ""
     );
 
-    // const handlePopstate = (event) => {
-    //   // Check if the user is navigating back to the login page
-    //   if (window.location.pathname === "/login") {
-    //     // Show an alert
-    //     // alert("ioajsodjasod");
-    //     return setShowLogout(true);
-    //   }
-    // };
+    const handleStorageChange = (e) => {
+      if (e.key === "user") {
+        setUserData(JSON.parse(e.newValue));
+      }
+    };
 
-    // Add the event listener
-    // window.addEventListener("popstate", handlePopstate);
+    window.addEventListener('storage', handleStorageChange);
 
-    // Clean up the event listener when the component is unmounted
-    // return () => {
-    //   window.removeEventListener("popstate", handlePopstate);
-    // };
-  }, [showLogout]);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+
   return (
     <div>
       <nav class="navbarDashBoard navbar-expand-md  sticky-top">

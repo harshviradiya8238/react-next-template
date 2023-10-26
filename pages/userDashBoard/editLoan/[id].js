@@ -126,8 +126,8 @@ function ViewLoan() {
       try {
         const { id } = router.query;
         if (id) {
-          const response = await axios.get(
-            `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
+          const response = await API.get(
+            `/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -236,8 +236,10 @@ function ViewLoan() {
   const [uploadedOtherDocuemnt, setuploadedOtherDocuemnt] = useState([]);
   const [selectedFilesArray, setSelectedFilesArray] = useState([]);
   const [loanTypeChanged, setLoanTypeChanged] = useState(false);
+  const [fieldErrorMessages, setFieldErrorMessages] = useState({});
 
   const [selectedRowData, setSelectedRowData] = useState([]);
+  const [totalUploadedSize, setTotalUploadedSize] = useState(0);
 
   const handleCheckboxChange = (event, rowData) => {
     if (event.target.checked) {
@@ -360,20 +362,72 @@ function ViewLoan() {
       console.log(error);
     }
   };
+  const checkFileErrors = (files) => {
+    let validFiles = [];
+    let unsupportedFileType = false;
+    let exceededIndividualFileSize = false;
+    let exceededCumulativeFileSize = false;
+    let errorMessage = "";
+
+    for (let i = 0; i < files.length; i++) {
+      const file = files[i];
+      const fileType = "." + file.name.split(".").pop().toLowerCase();
+
+      if (totalUploadedSize + file.size > maxFileSize) {
+        exceededCumulativeFileSize = true;
+        continue;
+      }
+
+      if (allowedFileTypes.includes(fileType) && file.size <= maxFileSize) {
+        validFiles.push(file);
+      } else {
+        if (!allowedFileTypes.includes(fileType)) {
+          unsupportedFileType = true;
+        }
+        if (file.size > maxFileSize) {
+          exceededIndividualFileSize = true;
+        }
+      }
+    }
+
+    if (unsupportedFileType && exceededIndividualFileSize) {
+      errorMessage =
+        "Some file types are not supported and some files exceeded the individual size limit of 10 MB";
+    } else if (unsupportedFileType) {
+      errorMessage = "Some file types are not supported";
+    } else if (exceededIndividualFileSize) {
+      errorMessage = "Some files exceeded the individual size limit of 10 MB";
+    } else if (exceededCumulativeFileSize) {
+      errorMessage = "The combined size of the selected files exceeds 10 MB";
+    }
+
+    return { validFiles, errorMessage };
+  };
 
   const handlePanFileChange = (fieldType, event, id) => {
-    if (event.target.files.length) {
-      for (let index = 0; index < event.target.files.length; index++) {
-        event.target.files[index].documentTypeId = id;
-      }
-    } else {
-      event.target.files[0].documentTypeId = id;
-    }
-    var selectedFiles = [...event?.target?.files];
+    const filesWithMeta = [...event.target.files].map((file) => ({
+      file, // Actual file
+      documentTypeId: id,
+    }));
+
+    const { validFiles, errorMessage } = checkFileErrors(
+      filesWithMeta.map((f) => f.file)
+    );
+
+    // Store the valid files along with their metadata
+    const validFilesWithMeta = validFiles.map((file) => ({
+      file,
+      documentTypeId: id,
+    }));
 
     setdocFiles((prevState) => ({
       ...prevState,
-      [fieldType]: selectedFiles,
+      [fieldType]: validFilesWithMeta,
+    }));
+
+    setFieldErrorMessages((prevErrors) => ({
+      ...prevErrors,
+      [fieldType]: errorMessage,
     }));
   };
 
@@ -391,25 +445,26 @@ function ViewLoan() {
       return;
     }
     const formData = new FormData();
+    console.log(files);
     files &&
       files.forEach(async (element, index) => {
         // Here 'files' is the FormData key. It may vary based on your backend requirement.
-
+        console.log(element);
         formData.append("DocumentTypeId", element.documentTypeId);
-        formData.append("Documents", element);
+        formData.append("Documents", element?.file);
       });
     formData.append("LoanApplicationId", id);
-    console.log(files, files?.length);
 
     const token = localStorage.getItem("logintoken");
 
     try {
-      const response = await axios.post(
-        "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+      const response = await API.post(
+        "/LoanApplication/UploadLoanDocument",
         formData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
           },
         }
       );
@@ -537,8 +592,8 @@ function ViewLoan() {
         formData.append("LoanApplicationId", id);
         formData.append("LoanApplicationQueryId", LoanApplicationQueryId);
 
-        await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
+        await API.post(
+          "/LoanApplication/UpdateQuery",
           formData,
           {
             headers: {
@@ -550,8 +605,8 @@ function ViewLoan() {
 
         try {
           if (id) {
-            const response = await axios.get(
-              `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
+            const response = await API.get(
+              `/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
               {
                 headers: {
                   Authorization: `Bearer ${token}`,
@@ -590,8 +645,8 @@ function ViewLoan() {
         const token = localStorage.getItem("logintoken");
         if (element?.selectedFilesArray?.length > 0) {
           try {
-            const response = await axios.post(
-              "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadQueryDocument",
+            const response = await API.post(
+              "/LoanApplication/UploadQueryDocument",
               formData,
               {
                 headers: {
@@ -601,8 +656,8 @@ function ViewLoan() {
             );
             // const { data } = response;
             Notification("success", "Document uploaded successfully ");
-            await axios.post(
-              "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UpdateQuery",
+            await API.post(
+              "/LoanApplication/UpdateQuery",
               {
                 LoanApplicationQueryId: LoanApplicationQueryId,
                 LoanApplicationId: id,
@@ -616,8 +671,8 @@ function ViewLoan() {
             );
             try {
               if (id) {
-                const response = await axios.get(
-                  `https://loancrmtrn.azurewebsites.net/api/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
+                const response = await API.get(
+                  `/LoanApplication/GetQueryByLoanApplicationId?id=${id}`,
                   {
                     headers: {
                       Authorization: `Bearer ${token}`,
@@ -667,8 +722,8 @@ function ViewLoan() {
 
       try {
         const token = localStorage.getItem("logintoken");
-        const response = await axios.post(
-          "https://loancrmtrn.azurewebsites.net/api/LoanApplication/UploadLoanDocument",
+        const response = await API.post(
+          "/LoanApplication/UploadLoanDocument",
           formData,
           {
             headers: {
@@ -712,7 +767,7 @@ function ViewLoan() {
 
   const getDocumentDetailsById = (id) => {
     var dataCheck = [];
-    console.log(uploadedExist, "-=-=-=");
+    // console.log(uploadedExist, "-=-=-=");
     uploadedExist?.filter((item) =>
       item?.documentDetail?.filter((newItem) => {
         if (newItem.id === id) {
@@ -1603,7 +1658,8 @@ function ViewLoan() {
                                             handlePreviewFile(file)
                                           }
                                         >
-                                          {file?.name}
+                                          {file?.file
+                                            ?.name}
                                         </span>
                                       )}
                                       <div>

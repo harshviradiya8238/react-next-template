@@ -14,7 +14,7 @@ function Earn() {
         if (token) {
           // const userData = jwtDecode(token);
           const response = await API.post(
-            `https://loancrmtrn.azurewebsites.net/api/User/GetReferralCodeLink`,
+            `/User/GetReferralCodeLink`,
             {
               headers: {
                 Authorization: `Bearer ${token}`,

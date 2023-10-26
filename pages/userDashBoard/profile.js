@@ -250,23 +250,24 @@ function Profile() {
 
   const handleSubmit = async (values, setSubmitting) => {
     const token = localStorage.getItem("logintoken");
-
     try {
       const userData = jwtDecode(token);
+      const userUpdatedData = {
+        id: userData?.UserDetails?.Id,
+        email: userData?.email,
+        firstName: values?.firstName,
+        lastName: values?.lastName,
+        addressLine1: values?.addressLine1 ? values?.addressLine1 : "",
+        addressLine2: values?.addressLine2 ? values?.addressLine2 : "",
+        city: values?.city,
+        stateId: Number(values?.state),
+        zipCode: values?.zipCode,
+        isActive: true,
 
+      }
       const response = await API.post(
         "/User/UpdateUserBasicDetail",
-        {
-          id: userData?.UserDetails?.Id,
-          firstName: values?.firstName,
-          lastName: values?.lastName,
-          addressLine1: values?.addressLine1 ? values?.addressLine1 : "",
-          addressLine2: values?.addressLine2 ? values?.addressLine2 : "",
-          city: values?.city,
-          stateId: Number(values?.state),
-          zipCode: values?.zipCode,
-          isActive: true,
-        },
+        userUpdatedData,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -275,6 +276,8 @@ function Profile() {
       );
       const { data } = response;
 
+      localStorage.setItem("user", JSON.stringify(userUpdatedData));
+      window.location.reload()
       await setKey("profile");
       // setSubmitting(false);
       Notification("success", "Profile Updated SuccessFully");

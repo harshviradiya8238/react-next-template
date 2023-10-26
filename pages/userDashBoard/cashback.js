@@ -74,7 +74,7 @@ function Cashback() {
             </div>
           </div> */}
           <div class="table-responsive">
-            <table class="table align-td-middle table-card">
+            <table class="table align-td-middle table-card table-cashback">
               <thead>
                 <tr>
                   <th>Sr No.</th>
