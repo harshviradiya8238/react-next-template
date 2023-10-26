@@ -112,15 +112,19 @@ function RegisterApplication() {
         );
 
         const { data } = response;
+        console.log(data, "ssssssssssssssssss");
         if (data?.success) {
           await Notification("success", "OTP sent successFully");
 
           setVerifyOtp(true);
           setButtonDisabled(false);
           setapiData(value);
+        } else {
+          await Notification("error", data[0]?.errorMessage);
         }
       } catch (error) {
         setButtonDisabled(false);
+
         Notification("error", error?.response?.data[0]?.errorMessage);
       }
     }

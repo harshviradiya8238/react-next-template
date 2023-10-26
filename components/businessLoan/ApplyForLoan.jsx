@@ -242,6 +242,8 @@ function ApplyForLoan() {
           setVerifyOtp(true);
           setButtonDisabled(false);
           setapiData(value);
+        } else {
+          await Notification("error", data[0]?.errorMessage);
         }
       } catch (error) {
         setButtonDisabled(false);
@@ -586,6 +588,7 @@ function ApplyForLoan() {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );
@@ -636,6 +639,7 @@ function ApplyForLoan() {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
             },
           }
         );

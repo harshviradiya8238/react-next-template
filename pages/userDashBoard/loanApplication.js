@@ -552,6 +552,7 @@ function LoanApplication() {
         {
           headers: {
             Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data'
           },
         }
       );
@@ -599,6 +600,7 @@ function LoanApplication() {
           {
             headers: {
               Authorization: `Bearer ${token}`,
+              'Content-Type': 'multipart/form-data'
             },
           }
         );
