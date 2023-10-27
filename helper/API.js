@@ -1,7 +1,8 @@
 import axios from "axios";
 
 // const baseUrl = process.env.REACT_APP_BASE_URL;
-const baseUrl = `https://loancrmtrn.azurewebsites.net/api`;
+// const baseUrl = `https://loancrmtrn.azurewebsites.net/api`;
+const baseUrl = `http://74.208.60.11/api`;
 const events = [
   "load",
   "mousemove",
